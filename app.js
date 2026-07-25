@@ -1,4 +1,4 @@
-import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=31';
+import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=32';
 
 const KEY = 'seven-up-scorekeeper-v1';
 const BUILD = '31';
@@ -48,7 +48,7 @@ function gameScreen(game){const totals=totalsFor(game); const order=[...game.pla
   <div class="game-actions"><button id="endGame" class="button ghost">End game</button><button id="scoreRound" class="button">Score round ${game.rounds.length+1}</button></div>`}
 function tvScreen(game){
   const totals=totalsFor(game);const order=[...game.playerIds].sort((a,b)=>totals[b]-totals[a]);const high=Math.max(...Object.values(totals));const cols=order.length>8?2:1;const rows=Math.ceil(order.length/cols);
-  return `<section class="tv-view ${cols===2?'tv-dense':''}" style="--tv-cols:${cols};--tv-rows:${rows}"><header class="tv-head"><div><span class="tv-kicker">LIVE SCOREBOARD</span><h1>Seven Up</h1></div><div class="tv-round">Round <strong>${game.rounds.length+1}</strong><small>First to ${game.target}</small></div></header>
+  return `<section class="tv-view ${cols===2?'tv-dense':''}" style="--tv-cols:${cols};--tv-rows:${rows}"><header class="tv-head"><div><span class="tv-kicker">LIVE SCOREBOARD</span><h1>Score Seven</h1></div><div class="tv-round">Round <strong>${game.rounds.length+1}</strong><small>First to ${game.target}</small></div></header>
   <div class="tv-board">${order.map((id,i)=>`<article class="tv-player ${totals[id]===high&&high>0?'leader':''}"><div class="tv-rank">${i===0?'♛':i+1}</div><div class="tv-name">${esc(player(id)?.name)}${totals[id]===high&&high>0?'<span>LEADER</span>':''}</div><div class="tv-track"><i style="width:${Math.min(100,totals[id]/game.target*100)}%"></i></div><div class="tv-score">${totals[id]}</div></article>`).join('')}</div>
   <footer class="tv-foot"><span>${game.rounds.length?`${game.rounds.length} round${game.rounds.length===1?'':'s'} complete`:'Game ready'} · ${game.playerIds.length} players</span><div><button id="tvFullscreen" class="button ghost small">Full screen</button> <button class="button ghost small" data-nav="game">Exit TV mode</button></div></footer></section>`;
 }

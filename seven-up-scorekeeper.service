@@ -1,5 +1,5 @@
 [Unit]
-Description=Seven Up Scorekeeper home-network app
+Description=Score Seven home-network app
 After=network-online.target
 Wants=network-online.target
 

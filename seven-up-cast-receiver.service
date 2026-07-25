@@ -1,5 +1,5 @@
 [Unit]
-Description=Seven Up public Chromecast receiver shell
+Description=Score Seven public Chromecast receiver shell
 After=network-online.target
 Wants=network-online.target
 

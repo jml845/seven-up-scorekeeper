@@ -1,5 +1,5 @@
-const CACHE = 'seven-up-v31';
-const FILES = ['./','index.html','privacy.html','styles.css?v=31','ui-enhancements.css?v=31','app.js?v=31','rules.js?v=31','cast-config.js?v=31','cast-sender.js?v=31','manifest.webmanifest?v=31','icon.svg?v=31','icon-192.png?v=31','icon-512.png?v=31'];
+const CACHE = 'score-seven-v32';
+const FILES = ['./','index.html','privacy.html','styles.css?v=32','ui-enhancements.css?v=32','app.js?v=32','rules.js?v=32','cast-config.js?v=32','cast-sender.js?v=32','manifest.webmanifest?v=32','icon.svg?v=32','icon-192.png?v=32','icon-512.png?v=32'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {
