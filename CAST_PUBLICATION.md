@@ -12,7 +12,7 @@
 ## Web sender
 
 - Platform: Web
-- Sender URL: `https://lenovo27.tail0f07fc.ts.net/`
+- Sender URL: `https://jml845.github.io/seven-up-scorekeeper/`
 
 ## Listing
 
