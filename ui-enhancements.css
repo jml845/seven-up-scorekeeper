@@ -56,3 +56,4 @@
 .toast.show { transform:translate(-50%,0); opacity:1; visibility:visible; transition:opacity .2s,transform .2s,visibility 0s }
 .app-footer { text-align:center; margin-top:18px }
 .app-footer a { color:var(--muted) }
+.app-footer span { margin:0 8px; color:var(--muted) }
