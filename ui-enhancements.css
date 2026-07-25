@@ -1,0 +1,58 @@
+.topbar-actions { display:flex; align-items:center; gap:9px }
+.topbar-actions .cast-launcher { width:38px; height:38px; margin:0 }
+.hero { position:relative }
+.hero-cast-hint { position:relative; color:var(--ink)!important }
+.cast-arrow-overlay { position:fixed; inset:0; z-index:12; width:100vw; height:100dvh; overflow:visible; pointer-events:none; filter:drop-shadow(0 0 5px #f7c94877); animation:cast-overlay-hide .01s 2.8s forwards }
+.cast-arrow-overlay path,.cast-arrow-overlay polyline { fill:none; stroke:var(--yellow); stroke-width:3.5; vector-effect:non-scaling-stroke; stroke-linecap:round; stroke-linejoin:round }
+.cast-arrow-overlay path { stroke-dasharray:1; stroke-dashoffset:1; animation:cast-arrow-draw 2.6s ease-in-out 1 }
+.cast-arrow-overlay polyline { opacity:0; animation:cast-arrow-head 2.6s ease-in-out 1 }
+@keyframes cast-arrow-draw { 0%,8%{stroke-dashoffset:1} 76%,100%{stroke-dashoffset:0} }
+@keyframes cast-arrow-head { 0%,74%{opacity:0} 80%,100%{opacity:1} }
+@keyframes cast-overlay-hide { to{visibility:hidden;opacity:0} }
+.setup-card { display:flex; flex-direction:column; max-height:calc(100dvh - 120px); padding-bottom:0; overflow:hidden }
+.setup-player-list { flex:1 1 auto; min-height:120px; overflow-y:auto; overscroll-behavior:contain; scrollbar-gutter:stable; padding-right:4px }
+.setup-add-player { flex:0 0 auto; padding-top:12px; background:var(--panel) }
+.setup-start-bar { flex:0 0 auto; position:sticky; bottom:0; z-index:3; margin:0 -18px; padding:12px 18px calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(180deg,#151f2900,#151f29 18%); border-radius:0 0 20px 20px }
+@media(max-width:600px){main:has(.setup-card){height:calc(100dvh - 68px);padding-top:14px;padding-bottom:0;overflow:hidden}.setup-head{margin-top:0}.setup-card{max-height:calc(100dvh - 140px)}}
+.score-card.collapsed .score-card-head { margin-bottom:9px }
+.score-entry-shell { display:flex; flex-direction:column; max-height:calc(100dvh - 120px); overflow:hidden }
+.score-entry-head { flex:0 0 auto }
+.score-entry-shell .mode-tabs { flex:0 0 auto; margin-bottom:10px }
+.score-player-list { flex:1 1 auto; min-height:120px; overflow-y:auto; overscroll-behavior:contain; scrollbar-gutter:stable; padding:2px 4px 2px 0 }
+.score-save-bar { flex:0 0 auto; display:flex; gap:9px; position:sticky; bottom:0; z-index:3; padding:12px 0 calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(180deg,#0b111700,#0b1117 18%) }
+.score-save-bar .button { flex:1 }
+.score-player-list .score-card { padding:12px 14px; margin-bottom:8px; border-radius:16px }
+.score-player-list .score-card-head { margin-bottom:7px }
+.score-player-list .score-card-head h3 { font-size:18px }
+.score-player-list .score-value { font-size:23px; line-height:1 }
+.score-player-list .compact-score-actions { gap:7px }
+.score-player-list .quick-score { padding:10px 12px }
+.score-player-list .calculator-controls { margin-top:10px }
+.score-player-list .specials { margin-top:9px }
+@media(max-width:600px){main:has(.score-entry-shell){height:calc(100dvh - 60px);padding-top:10px;padding-bottom:0;overflow:hidden}.score-entry-shell{height:100%;max-height:none}.score-entry-head{margin:0 0 9px}.score-entry-head h1{font-size:26px}.score-entry-head .subtle{font-size:12px}.score-player-list .chip{min-height:40px}}
+.score-card-error { border-color:var(--red)!important; box-shadow:0 0 0 2px #ff6b6b55,0 18px 50px #0006!important; background:linear-gradient(145deg,#382027,var(--panel))!important }
+.score-required { display:none; margin:9px 0 0; color:#ff9a9a; font-size:13px; font-weight:850 }
+.score-card-error .score-required { display:block }
+.compact-score-actions { display:flex; gap:9px; align-items:center }
+.compact-score-actions>* { flex:1 }
+.calculator-controls { margin-top:14px }
+.winner>.button { margin:5px 2px }
+.winner { position:relative; overflow:hidden }
+.winner-crown { position:relative; z-index:1; font-size:76px; line-height:1; filter:drop-shadow(0 8px 12px #0007); animation:winner-pop .8s ease-out }
+.victory-cards { height:76px; display:flex; align-items:center; justify-content:center; gap:clamp(3px,1.2vw,10px); perspective:700px; margin-bottom:4px }
+.victory-cards i { display:grid; place-items:center; width:38px; height:54px; border-radius:7px; border:2px solid #fff7; background:repeating-linear-gradient(45deg,#f7c948 0 7px,#df9212 7px 14px); box-shadow:inset 0 0 0 4px #17120a55,0 8px 18px #0007; animation:card-flip 1.8s cubic-bezier(.4,0,.2,1) infinite; animation-delay:calc(var(--i) * -0.16s) }
+.flying-crowns { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0 }
+.flying-crowns i { position:absolute; left:-18%; top:calc(6% + var(--i) * 12%); font-style:normal; font-size:clamp(24px,7vw,48px); filter:drop-shadow(0 5px 7px #0008); opacity:0; animation:crown-fly 5.4s linear infinite; animation-delay:calc(var(--i) * -.68s) }
+.winner>h2,.winner>.subtle,.winner-leaderboard,.winner>.button { position:relative; z-index:1 }
+.winner-leaderboard { max-width:520px; margin:22px auto; display:grid; gap:7px; text-align:left }
+.winner-row { display:grid; grid-template-columns:34px 1fr auto; align-items:center; gap:9px; padding:10px 13px; border-radius:12px; background:#0c151c; border:1px solid var(--line) }
+.winner-row span { color:var(--muted) }
+.winner-row b { font-size:20px; color:var(--yellow) }
+.winner-row.champion { border-color:#f7c94899; background:#f7c94812 }
+@keyframes winner-pop { 0%{transform:scale(.5);opacity:0} 70%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+@keyframes card-flip { 0%,18%{transform:rotateY(0) translateY(0)} 45%{transform:rotateY(180deg) translateY(-13px)} 72%,100%{transform:rotateY(360deg) translateY(0)} }
+@keyframes crown-fly { 0%{transform:translateX(0) rotate(-25deg) scale(.7);opacity:0} 10%{opacity:.9} 50%{transform:translateX(66vw) rotate(15deg) scale(1.1)} 90%{opacity:.9} 100%{transform:translateX(135vw) rotate(40deg) scale(.75);opacity:0} }
+.toast { top:calc(76px + env(safe-area-inset-top)); bottom:auto; max-width:calc(100vw - 28px); transform:translate(-50%,-180%); text-align:center }
+.toast.show { transform:translate(-50%,0) }
+.app-footer { text-align:center; margin-top:18px }
+.app-footer a { color:var(--muted) }

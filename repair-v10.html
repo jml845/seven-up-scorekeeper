@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101820">
+  <title>Repairing Seven Up</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#101820;color:#fff;font:18px system-ui;text-align:center;padding:24px;box-sizing:border-box}
+    strong{display:block;color:#f7c948;font-size:28px;margin-bottom:12px}p{max-width:420px;line-height:1.45}
+  </style>
+</head>
+<body><main><strong>Updating Seven Up…</strong><p id="status">Removing the old offline app files. Your players and game history are being preserved.</p></main>
+<script>
+(async()=>{
+  try {
+    const registrations = 'serviceWorker' in navigator ? await navigator.serviceWorker.getRegistrations() : [];
+    await Promise.all(registrations.map(registration => registration.unregister()));
+    const keys = 'caches' in window ? await caches.keys() : [];
+    await Promise.all(keys.map(key => caches.delete(key)));
+    document.querySelector('#status').textContent='Old files removed. Loading Version 10…';
+    setTimeout(()=>location.replace('/?version=10&fresh='+Date.now()),700);
+  } catch (error) {
+    document.querySelector('#status').textContent='Refresh this page once to finish the update.';
+  }
+})();
+</script></body></html>

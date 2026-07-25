@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101820">
+  <meta name="description" content="A fast, offline scorekeeper for Flip Seven-style games.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Seven Up">
+  <title>Seven Up Scorekeeper</title>
+  <link rel="manifest" href="manifest.webmanifest?v=27">
+  <link rel="icon" href="icon.svg?v=27" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png?v=27">
+  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="ui-enhancements.css?v=27">
+  <script src="cast-config.js?v=27"></script>
+  <script src="cast-sender.js?v=27"></script>
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" data-nav="home" aria-label="Home"><span class="brand-seven">7</span><span>Seven Up</span></button>
+    <div class="topbar-actions"><button id="installBtn" class="button ghost small hidden">Install</button><button id="castButton" class="cast-launcher cast-unavailable" type="button" title="Cast scoreboard" aria-label="Cast scoreboard" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 18v3h3a3 3 0 0 0-3-3Zm0-4v2a5 5 0 0 1 5 5h2a7 7 0 0 0-7-7Zm0-4v2a9 9 0 0 1 9 9h2C12 14.9 7.1 10 1 10Zm3-7a3 3 0 0 0-3 3v2h2V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-6v2h6a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H4Z"/></svg></button></div>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <dialog id="confirmDialog">
+    <form method="dialog">
+      <h2 id="confirmTitle">Are you sure?</h2>
+      <p id="confirmText"></p>
+      <div class="dialog-actions"><button value="cancel" class="button ghost">Cancel</button><button value="confirm" class="button danger">Confirm</button></div>
+    </form>
+  </dialog>
+  <script type="module" src="app.js?v=27"></script>
+</body>
+</html>

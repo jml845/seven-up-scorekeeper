@@ -1,0 +1,14 @@
+[Unit]
+Description=Seven Up public Chromecast receiver shell
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/jml845/.openclaw/workspace/apps/flip-seven-scorekeeper
+ExecStart=/usr/bin/python3 /home/jml845/.openclaw/workspace/apps/flip-seven-scorekeeper/cast_receiver_server.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
