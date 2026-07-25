@@ -1,7 +1,7 @@
-import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=30';
+import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=31';
 
 const KEY = 'seven-up-scorekeeper-v1';
-const BUILD = '30';
+const BUILD = '31';
 const FEEDBACK_FORM = 'https://tally.so/r/1Ag8Pb';
 const fresh = () => ({players:[], games:[], activeGameId:null});
 let state = load(); let view = 'home'; let scoringMode = 'cards'; let draft = {}; let winnerGame = null;

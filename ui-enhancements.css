@@ -13,7 +13,7 @@
 .setup-player-list { flex:1 1 auto; min-height:120px; overflow-y:auto; overscroll-behavior:contain; scrollbar-gutter:stable; padding-right:4px }
 .setup-add-player { flex:0 0 auto; padding-top:12px; background:var(--panel) }
 .setup-start-bar { flex:0 0 auto; position:sticky; bottom:0; z-index:3; margin:0 -18px; padding:12px 18px calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(180deg,#151f2900,#151f29 18%); border-radius:0 0 20px 20px }
-@media(max-width:600px){main:has(.setup-card){height:calc(100dvh - 68px);padding-top:14px;padding-bottom:0;overflow:hidden}.setup-head{margin-top:0}.setup-card{max-height:calc(100dvh - 140px)}}
+@media(max-width:600px){main:has(.setup-card){height:100%;padding-top:14px;padding-bottom:0;overflow:hidden}.setup-head{margin-top:0}.setup-card{max-height:calc(100% - 58px)}}
 .score-card.collapsed .score-card-head { margin-bottom:9px }
 .score-entry-shell { display:flex; flex-direction:column; max-height:calc(100dvh - 120px); overflow:hidden }
 .score-entry-head { flex:0 0 auto }
@@ -29,7 +29,7 @@
 .score-player-list .quick-score { padding:10px 12px }
 .score-player-list .calculator-controls { margin-top:10px }
 .score-player-list .specials { margin-top:9px }
-@media(max-width:600px){main:has(.score-entry-shell){height:calc(100dvh - 60px);padding-top:10px;padding-bottom:0;overflow:hidden}.score-entry-shell{height:100%;max-height:none}.score-entry-head{margin:0 0 9px}.score-entry-head h1{font-size:26px}.score-entry-head .subtle{font-size:12px}.score-player-list .chip{min-height:40px}}
+@media(max-width:600px){main:has(.score-entry-shell){height:100%;padding-top:10px;padding-bottom:0;overflow:hidden}.score-entry-shell{height:100%;max-height:none}.score-entry-head{margin:0 0 9px}.score-entry-head h1{font-size:26px}.score-entry-head .subtle{font-size:12px}.score-player-list .chip{min-height:40px}}
 .score-card-error { border-color:var(--red)!important; box-shadow:0 0 0 2px #ff6b6b55,0 18px 50px #0006!important; background:linear-gradient(145deg,#382027,var(--panel))!important }
 .score-required { display:none; margin:9px 0 0; color:#ff9a9a; font-size:13px; font-weight:850 }
 .score-card-error .score-required { display:block }
