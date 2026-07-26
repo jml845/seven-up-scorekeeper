@@ -1,5 +1,5 @@
-const CACHE = 'cast-7-v38';
-const FILES = ['./','index.html','privacy.html?v=38','styles.css?v=38','ui-enhancements.css?v=38','app.js?v=38','rules.js?v=38','cast-config.js?v=38','cast-sender.js?v=38','manifest.webmanifest?v=38','icon-192.png?v=38','icon-512.png?v=38','icon-maskable-512.png?v=38'];
+const CACHE = 'cast-7-v39';
+const FILES = ['./','index.html','privacy.html?v=39','styles.css?v=39','ui-enhancements.css?v=39','app.js?v=39','rules.js?v=39','cast-config.js?v=39','cast-sender.js?v=39','manifest.webmanifest?v=39','icon-192.png?v=39','icon-512.png?v=39','icon-maskable-512.png?v=39'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {
