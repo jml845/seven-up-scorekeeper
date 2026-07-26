@@ -67,6 +67,7 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player-fx{position:absolute;inset:0;z-index:1;overflow:hidden;border-radius:inherit;pointer-events:none}
 .player-fx>span,.player-fx>svg{position:absolute;inset:0}
 .player-fx .fx-flames{top:0;bottom:auto;height:100%;filter:drop-shadow(0 0 .32vw #ff531f)}
+.player.hot .fx-flames{animation:tv-round-fire-fade 5s ease-out forwards}
 .player-fx .fx-flames i{position:absolute;left:calc(var(--i)*8.5% - .25vw);bottom:-1.65vh;width:1.55vw;height:5.2vh;border-radius:74% 18% 68% 32%;background:radial-gradient(circle at 66% 69%,#fffbd0 0 10%,#ffd34e 23%,#ff762b 48%,#e52e1100 74%);transform:rotate(42deg);opacity:.76;animation:tv-visible-flame .82s cubic-bezier(.45,0,.55,1) infinite alternate;animation-delay:calc(var(--i)*-.085s)}
 .player-fx .fx-frost{background:linear-gradient(180deg,#f3ffff66 0,#7fe8ff20 1vh,transparent 3.8vh)}
 .player-fx .fx-frost::before{content:"";position:absolute;inset:0 0 auto;height:1vh;background:linear-gradient(135deg,#f8ffff 0 34%,transparent 35%) 0 0/1.35vw 1vh repeat-x;filter:drop-shadow(0 .12vh .2vh #54dcff)}
@@ -79,4 +80,5 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 @keyframes tv-visible-electric{to{stroke-dashoffset:-24}}
 @keyframes tv-visible-bolt{50%{opacity:.18}}
 @keyframes tv-visible-sparkle{0%,100%{transform:scale(.4) rotate(0);opacity:.16}50%{transform:scale(1.15) rotate(90deg);opacity:.92}}
-@media(prefers-reduced-motion:reduce){.player-fx .fx-flames i,.player-fx .fx-frost i,.player-fx .fx-electricity,.player-fx .fx-electricity path+path,.player-fx .fx-sparkles i{animation:none}}
+@keyframes tv-round-fire-fade{0%,58%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.player-fx .fx-flames i,.player-fx .fx-frost i,.player-fx .fx-electricity,.player-fx .fx-electricity path+path,.player-fx .fx-sparkles i,.player.hot .fx-flames{animation:none}}
