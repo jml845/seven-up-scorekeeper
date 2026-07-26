@@ -29,6 +29,7 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .effect-tag.electric{color:#ddfbff!important;background:#087f9d66;border:1px solid #4ee9ff99}
 .effect-tag.bust{color:#ffc0c0!important;background:#9e272766;border:1px solid #ff6b6b99}
 .player.flip7{border-color:#ffd45acc;box-shadow:inset 0 0 1.2vw #ffd45a2e,0 0 .9vw #ffc72f55;animation:cast-gold-aura 1.8s ease-in-out infinite alternate}
+.player.flip7 strong{color:#fff2b0;text-shadow:0 0 .18vw #fff2ad,0 0 .55vw #ffc72f}
 .player.frozen{background:radial-gradient(circle at 12% 0,#dcfaff55,transparent 40%),linear-gradient(90deg,#17495e,#10212c);border-color:#91eaffbb;box-shadow:inset 0 0 1.3vw #8cecff38}
 .player.frozen::after{content:"❄   ❅   ❄";position:absolute;right:.5vw;bottom:.15vh;color:#d9f9ff3d;font-size:1.4vw;letter-spacing:.35vw;z-index:-1;animation:cast-frost-drift 3.1s ease-in-out infinite alternate}
 .player.hot{outline:1px solid #ff784f99;background:radial-gradient(ellipse at 50% 130%,#ff4b004d,transparent 58%),linear-gradient(90deg,#29201b,#15191d);animation:cast-fire-aura 1.05s ease-in-out infinite alternate}
@@ -74,11 +75,13 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player-fx .fx-frost i{position:absolute;left:calc(var(--i)*10% + .5%);top:calc(.12vh + var(--i)*.14vh);color:#f6ffff;font-style:normal;font-size:.82vw;text-shadow:0 0 .22vw #fff,0 0 .5vw #42d9ff;opacity:.78;animation:tv-visible-snow 2.75s ease-in-out infinite alternate;animation-delay:calc(var(--i)*-.27s)}
 .player-fx .fx-electricity{width:100%;height:100%;fill:none;stroke:#82f7ff;stroke-width:.68;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 .11vw #e4feff) drop-shadow(0 0 .28vw #13dfff);stroke-dasharray:6 5;animation:tv-visible-electric 1.15s linear infinite}
 .player-fx .fx-electricity path+path{stroke:#fff;stroke-width:1.05;stroke-dasharray:3 11;animation:tv-visible-bolt .78s steps(2,end) infinite}
-.player-fx .fx-sparkles i{position:absolute;left:calc(var(--i)*10% + 2%);top:calc(.25vh + var(--i)*.16vh);color:#fff5ba;font-style:normal;font-size:.82vw;text-shadow:0 0 .14vw #fff,0 0 .38vw #ffc928;animation:tv-visible-sparkle 1.4s ease-in-out infinite;animation-delay:calc(var(--i)*-.15s)}
+.player-fx .fx-flip-cards{perspective:18vw;background:radial-gradient(ellipse at 26% 50%,#ffd95a42,transparent 38%)}
+.player-fx .fx-flip-cards i{position:absolute;left:calc(9% + var(--i)*4.4%);top:18%;width:1.05vw;height:1.52vw;border:.08vw solid #ffe684;border-radius:.18vw;background:linear-gradient(145deg,#fff4b0,#d9a51c 58%,#76500c);box-shadow:0 0 .18vw #ffe477,0 0 .48vw #ffc62977;transform-style:preserve-3d;animation:tv-visible-card-flip 2.35s cubic-bezier(.45,0,.2,1) infinite;animation-delay:calc(var(--i)*.14s)}
+.player-fx .fx-flip-cards i::after{content:"7";position:absolute;inset:0;display:grid;place-items:center;color:#533800;font-size:.68vw;font-style:normal;font-weight:1000}
 @keyframes tv-visible-flame{from{transform:translateY(.85vh) rotate(39deg) scale(.82,.92);opacity:.5}to{transform:translateY(-1.15vh) rotate(45deg) scale(1.04,1.12);opacity:.88}}
 @keyframes tv-visible-snow{from{transform:translateY(-.35vh) rotate(-8deg);opacity:.42}to{transform:translateY(.85vh) rotate(15deg);opacity:.9}}
 @keyframes tv-visible-electric{to{stroke-dashoffset:-24}}
 @keyframes tv-visible-bolt{50%{opacity:.18}}
-@keyframes tv-visible-sparkle{0%,100%{transform:scale(.4) rotate(0);opacity:.16}50%{transform:scale(1.15) rotate(90deg);opacity:.92}}
+@keyframes tv-visible-card-flip{0%,16%,100%{transform:translateY(.6vh) rotateY(0) scale(.82);opacity:.16}38%{transform:translateY(0) rotateY(180deg) scale(1);opacity:.94}62%{transform:translateY(0) rotateY(360deg) scale(1);opacity:.94}82%{transform:translateY(.6vh) rotateY(360deg) scale(.82);opacity:.16}}
 @keyframes tv-round-fire-fade{0%,58%{opacity:1}100%{opacity:0}}
-@media(prefers-reduced-motion:reduce){.player-fx .fx-flames i,.player-fx .fx-frost i,.player-fx .fx-electricity,.player-fx .fx-electricity path+path,.player-fx .fx-sparkles i,.player.hot .fx-flames{animation:none}}
+@media(prefers-reduced-motion:reduce){.player-fx .fx-flames i,.player-fx .fx-frost i,.player-fx .fx-electricity,.player-fx .fx-electricity path+path,.player-fx .fx-flip-cards i,.player.hot .fx-flames{animation:none}}
