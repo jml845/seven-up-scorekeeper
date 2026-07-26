@@ -1,5 +1,5 @@
 [Unit]
-Description=Score Seven home-network app
+Description=Cast 7 home-network app
 After=network-online.target
 Wants=network-online.target
 

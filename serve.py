@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small static server for the Score Seven home-network app."""
+"""Small static server for the Cast 7 home-network app."""
 
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -34,5 +34,5 @@ class AppHandler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     server = ThreadingHTTPServer(("0.0.0.0", 8787), AppHandler)
-    print("Score Seven listening on port 8787", flush=True)
+    print("Cast 7 listening on port 8787", flush=True)
     server.serve_forever()

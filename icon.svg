@@ -1,5 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="104" fill="#101820"/>
-  <path d="M113 104h286v69L245 416H137l160-236H113z" fill="#f7c948"/>
-  <circle cx="382" cy="383" r="42" fill="#25c2a0"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Cast 7</title>
+  <defs>
+    <linearGradient id="seven" x1="300" y1="92" x2="344" y2="424" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#32d5ff"/>
+      <stop offset=".42" stop-color="#ff6b6b"/>
+      <stop offset="1" stop-color="#72e6c1"/>
+    </linearGradient>
+    <radialGradient id="backdrop" cx=".5" cy="0" r="1">
+      <stop offset="0" stop-color="#142a68"/>
+      <stop offset="1" stop-color="#071536"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#backdrop)"/>
+  <path d="M108 112v276q0 28 28 28h132" fill="none" stroke="#32d5ff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M146 416l-12 26" fill="none" stroke="#32d5ff" stroke-width="24" stroke-linecap="round"/>
+  <path d="M108 112h296L292 420" fill="none" stroke="url(#seven)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="none" stroke-width="14" stroke-linecap="round">
+    <path d="M168 200h132" stroke="#32d5ff"/>
+    <path d="M168 264h120" stroke="#ff6b6b"/>
+    <path d="M168 328h104" stroke="#72e6c1"/>
+  </g>
+  <circle cx="150" cy="200" r="15" fill="#32d5ff"/>
+  <circle cx="150" cy="264" r="15" fill="#ff6b6b"/>
+  <circle cx="150" cy="328" r="15" fill="#72e6c1"/>
 </svg>
