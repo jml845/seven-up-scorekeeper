@@ -66,17 +66,17 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player>*:not(.player-fx){position:relative;z-index:2}
 .player-fx{position:absolute;inset:0;z-index:1;overflow:hidden;border-radius:inherit;pointer-events:none}
 .player-fx>span,.player-fx>svg{position:absolute;inset:0}
-.player-fx .fx-flames{top:0;bottom:auto;height:100%;filter:drop-shadow(0 0 .55vw #ff531f)}
-.player-fx .fx-flames i{position:absolute;left:calc(var(--i)*8.5% - .4vw);bottom:-2.5vh;width:2.6vw;height:8vh;border-radius:70% 15% 65% 35%;background:radial-gradient(circle at 65% 68%,#fff8b5 0 12%,#ffc42e 27%,#ff5a20 56%,#c51e0800 74%);transform:rotate(42deg);opacity:.88;animation:tv-visible-flame .72s ease-in-out infinite alternate;animation-delay:calc(var(--i)*-.075s)}
-.player-fx .fx-frost{background:linear-gradient(180deg,#efffff88 0,#7fe8ff2e 1.7vh,transparent 5vh)}
-.player-fx .fx-frost::before{content:"";position:absolute;inset:0 0 auto;height:1.7vh;background:linear-gradient(135deg,#f5ffff 0 35%,transparent 36%) 0 0/1.7vw 1.7vh repeat-x;filter:drop-shadow(0 .25vh .3vh #54dcff)}
-.player-fx .fx-frost i{position:absolute;left:calc(var(--i)*10% + .5%);top:calc(.2vh + var(--i)*.22vh);color:#f2ffff;font-style:normal;font-size:1.35vw;text-shadow:0 0 .35vw #fff,0 0 .8vw #42d9ff;opacity:.9;animation:tv-visible-snow 2.35s ease-in-out infinite alternate;animation-delay:calc(var(--i)*-.23s)}
-.player-fx .fx-electricity{width:100%;height:100%;fill:none;stroke:#73f5ff;stroke-width:1.1;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 .22vw #fff) drop-shadow(0 0 .48vw #13dfff);stroke-dasharray:7 4;animation:tv-visible-electric .95s linear infinite}
-.player-fx .fx-electricity path+path{stroke:#fff;stroke-width:1.8;stroke-dasharray:4 8;animation:tv-visible-bolt .55s steps(2,end) infinite}
-.player-fx .fx-sparkles i{position:absolute;left:calc(var(--i)*10% + 2%);top:calc(.45vh + var(--i)*.25vh);color:#fff4a9;font-style:normal;font-size:1.35vw;text-shadow:0 0 .25vw #fff,0 0 .65vw #ffc928;animation:tv-visible-sparkle 1.15s ease-in-out infinite;animation-delay:calc(var(--i)*-.12s)}
-@keyframes tv-visible-flame{from{transform:translateY(1.5vh) rotate(38deg) scale(.72,.85);opacity:.58}to{transform:translateY(-2vh) rotate(47deg) scale(1.12,1.22);opacity:1}}
-@keyframes tv-visible-snow{from{transform:translateY(-.6vh) rotate(-12deg);opacity:.48}to{transform:translateY(1.4vh) rotate(20deg);opacity:1}}
+.player-fx .fx-flames{top:0;bottom:auto;height:100%;filter:drop-shadow(0 0 .32vw #ff531f)}
+.player-fx .fx-flames i{position:absolute;left:calc(var(--i)*8.5% - .25vw);bottom:-1.65vh;width:1.55vw;height:5.2vh;border-radius:74% 18% 68% 32%;background:radial-gradient(circle at 66% 69%,#fffbd0 0 10%,#ffd34e 23%,#ff762b 48%,#e52e1100 74%);transform:rotate(42deg);opacity:.76;animation:tv-visible-flame .82s cubic-bezier(.45,0,.55,1) infinite alternate;animation-delay:calc(var(--i)*-.085s)}
+.player-fx .fx-frost{background:linear-gradient(180deg,#f3ffff66 0,#7fe8ff20 1vh,transparent 3.8vh)}
+.player-fx .fx-frost::before{content:"";position:absolute;inset:0 0 auto;height:1vh;background:linear-gradient(135deg,#f8ffff 0 34%,transparent 35%) 0 0/1.35vw 1vh repeat-x;filter:drop-shadow(0 .12vh .2vh #54dcff)}
+.player-fx .fx-frost i{position:absolute;left:calc(var(--i)*10% + .5%);top:calc(.12vh + var(--i)*.14vh);color:#f6ffff;font-style:normal;font-size:.82vw;text-shadow:0 0 .22vw #fff,0 0 .5vw #42d9ff;opacity:.78;animation:tv-visible-snow 2.75s ease-in-out infinite alternate;animation-delay:calc(var(--i)*-.27s)}
+.player-fx .fx-electricity{width:100%;height:100%;fill:none;stroke:#82f7ff;stroke-width:.68;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 .11vw #e4feff) drop-shadow(0 0 .28vw #13dfff);stroke-dasharray:6 5;animation:tv-visible-electric 1.15s linear infinite}
+.player-fx .fx-electricity path+path{stroke:#fff;stroke-width:1.05;stroke-dasharray:3 11;animation:tv-visible-bolt .78s steps(2,end) infinite}
+.player-fx .fx-sparkles i{position:absolute;left:calc(var(--i)*10% + 2%);top:calc(.25vh + var(--i)*.16vh);color:#fff5ba;font-style:normal;font-size:.82vw;text-shadow:0 0 .14vw #fff,0 0 .38vw #ffc928;animation:tv-visible-sparkle 1.4s ease-in-out infinite;animation-delay:calc(var(--i)*-.15s)}
+@keyframes tv-visible-flame{from{transform:translateY(.85vh) rotate(39deg) scale(.82,.92);opacity:.5}to{transform:translateY(-1.15vh) rotate(45deg) scale(1.04,1.12);opacity:.88}}
+@keyframes tv-visible-snow{from{transform:translateY(-.35vh) rotate(-8deg);opacity:.42}to{transform:translateY(.85vh) rotate(15deg);opacity:.9}}
 @keyframes tv-visible-electric{to{stroke-dashoffset:-24}}
 @keyframes tv-visible-bolt{50%{opacity:.18}}
-@keyframes tv-visible-sparkle{0%,100%{transform:scale(.3) rotate(0);opacity:.16}50%{transform:scale(1.45) rotate(90deg);opacity:1}}
+@keyframes tv-visible-sparkle{0%,100%{transform:scale(.4) rotate(0);opacity:.16}50%{transform:scale(1.15) rotate(90deg);opacity:.92}}
 @media(prefers-reduced-motion:reduce){.player-fx .fx-flames i,.player-fx .fx-frost i,.player-fx .fx-electricity,.player-fx .fx-electricity path+path,.player-fx .fx-sparkles i{animation:none}}
