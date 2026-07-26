@@ -14,7 +14,7 @@
   <rect width="512" height="512" rx="108" fill="url(#backdrop)"/>
   <path d="M108 112v276q0 28 28 28h132" fill="none" stroke="#32d5ff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M146 416l-12 26" fill="none" stroke="#32d5ff" stroke-width="24" stroke-linecap="round"/>
-  <path d="M108 112h296L292 420" fill="none" stroke="url(#seven)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M108 112h296L304 382" fill="none" stroke="url(#seven)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
   <g fill="none" stroke-width="14" stroke-linecap="round">
     <path d="M168 200h132" stroke="#32d5ff"/>
     <path d="M168 264h120" stroke="#ff6b6b"/>
