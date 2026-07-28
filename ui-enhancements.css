@@ -107,6 +107,7 @@
 .privacy-heading h1 { margin:0 }
 .version-pill { display:inline-block; padding:5px 9px; border:1px solid #32d5ff55; border-radius:999px; color:#bcefff; background:#32d5ff12; font-size:12px; font-weight:850 }
 .privacy-actions { z-index:3; margin:0 -18px; padding:14px 18px var(--dock-bottom-padding); background:linear-gradient(180deg,#151f2900,#151f29 20%); border-radius:0 0 20px 20px }
+.privacy-actions { display:grid; grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr); gap:9px }
 .privacy-actions .button { display:block; width:100%; text-align:center; text-decoration:none }
 .game-actions { position:relative; bottom:auto; margin:0; border-radius:17px 17px 0 0; padding:12px 10px var(--dock-bottom-padding) }
 @media(max-width:600px){main:not(.privacy-main):not(:has(.setup-page-shell,.score-entry-shell,.game-shell)){padding-bottom:24px}}
