@@ -32,10 +32,17 @@
 .round-hot-badge { display:block; width:max-content; margin-top:3px; padding:2px 6px; border:1px solid #ff784f88; border-radius:999px; color:#ffd3a8; background:#a733224d; font-size:9px; font-weight:900; letter-spacing:.05em; text-transform:uppercase }
 .score-card-fx { position:absolute; inset:0; z-index:1; overflow:hidden; border-radius:inherit; pointer-events:none }
 .score-card-fx>span,.score-card-fx>svg { position:absolute; inset:0 }
-.fx-sprite { position:absolute; inset:0; background-repeat:no-repeat; background-size:100% 100%; transform:translateZ(0); will-change:opacity; contain:paint }
-.fx-fire { background-image:url("assets/fire-v2.webp"); opacity:.9; animation:round-fire-fade 5s ease-out forwards }
-.fx-frost-art { background-image:url("assets/frost-v2.webp"); opacity:.84 }
-.fx-electric-art { background-image:url("assets/electric-v2.webp"); opacity:.9 }
+.fx-sprite { position:absolute; inset:0; background-repeat:no-repeat; background-size:100% 100%; transform:translateZ(0); contain:paint }
+.fx-sprite::before,.fx-sprite::after { content:""; position:absolute; inset:0; background-repeat:no-repeat; background-size:100% 100%; pointer-events:none }
+.fx-fire { background-image:url("assets/fire-v3.webp"); opacity:.9; animation:round-fire-fade 5s linear forwards }
+.fx-fire::before { background:radial-gradient(ellipse at 18% 82%,#fff5b866,transparent 14%),radial-gradient(ellipse at 68% 78%,#ffd36b52,transparent 16%); animation:fire-local-left .72s steps(3,end) infinite }
+.fx-fire::after { background:radial-gradient(ellipse at 42% 86%,#fff3ad50,transparent 13%),radial-gradient(ellipse at 88% 80%,#ffbe4750,transparent 15%); animation:fire-local-right .91s steps(4,end) infinite }
+.fx-frost-art { background-image:url("assets/frost-v3.webp"); opacity:.84 }
+.fx-frost-art::before { background:linear-gradient(110deg,transparent 38%,#efffff55 46%,transparent 54%); opacity:.42; transform:translateX(-75%); animation:frost-specular 4.8s ease-in-out infinite }
+.fx-frost-art::after { inset:auto -8% -18% -8%; height:46%; background:radial-gradient(ellipse at 28% 50%,#b8efff16,transparent 42%),radial-gradient(ellipse at 72% 58%,#d9f8ff12,transparent 40%); animation:frost-mist 7s ease-in-out infinite alternate }
+.fx-electric-art { opacity:.9 }
+.fx-electric-art::before { background-image:url("assets/electric-v3a.webp"); opacity:0; animation:electric-burst-a 4.7s linear infinite }
+.fx-electric-art::after { background-image:url("assets/electric-v3b.webp"); opacity:0; animation:electric-burst-b 4.7s linear infinite }
 .fx-flip-cards { perspective:180px; background:radial-gradient(ellipse at 34% 28%,#ffd95a38,transparent 46%) }
 .fx-flip-cards i { position:absolute; left:calc(8% + var(--i) * 8.5%); top:7px; width:15px; height:21px; border:1px solid #ffe684; border-radius:3px; background:linear-gradient(145deg,#fff4b0,#d9a51c 58%,#76500c); box-shadow:0 0 5px #ffe477,0 0 12px #ffc62966; transform-style:preserve-3d; animation:visible-card-flip 2.25s cubic-bezier(.45,0,.2,1) infinite; animation-delay:calc(var(--i) * .13s) }
 .fx-flip-cards i::after { content:"7"; position:absolute; inset:0; display:grid; place-items:center; color:#533800; font-size:10px; font-weight:1000 }
@@ -75,6 +82,12 @@
 @keyframes score-double-pulse { 0%{transform:scale(1);box-shadow:0 0 0 0 #a970ff99,var(--shadow)} 45%{transform:scale(1.015);box-shadow:0 0 0 8px #a970ff22,0 0 28px #9a5cff99,var(--shadow)} 100%{transform:scale(1);box-shadow:0 0 0 16px #a970ff00,var(--shadow)} }
 @keyframes visible-card-flip { 0%,16%,100%{transform:translateY(8px) rotateY(0) scale(.82);opacity:.18} 38%{transform:translateY(0) rotateY(180deg) scale(1);opacity:.95} 62%{transform:translateY(0) rotateY(360deg) scale(1);opacity:.95} 82%{transform:translateY(8px) rotateY(360deg) scale(.82);opacity:.18} }
 @keyframes round-fire-fade { 0%,58%{opacity:1} 100%{opacity:0} }
+@keyframes fire-local-left { 0%,100%{opacity:.12;transform:translate3d(0,1px,0)} 33%{opacity:.56;transform:translate3d(1px,-1px,0)} 67%{opacity:.28;transform:translate3d(-1px,0,0)} }
+@keyframes fire-local-right { 0%,100%{opacity:.42;transform:translate3d(0,0,0)} 25%{opacity:.16;transform:translate3d(-1px,-1px,0)} 50%{opacity:.52;transform:translate3d(1px,0,0)} 75%{opacity:.24;transform:translate3d(0,1px,0)} }
+@keyframes frost-specular { 0%,14%{transform:translateX(-75%);opacity:0} 24%{opacity:.42} 47%,100%{transform:translateX(75%);opacity:0} }
+@keyframes frost-mist { to{transform:translate3d(2.5%,1px,0);opacity:.55} }
+@keyframes electric-burst-a { 0%,8%,12%,16%,49%,54%,58%,100%{opacity:0} 9%,11%{opacity:.98} 13%{opacity:.32} 14.5%{opacity:.82} 50%,53%{opacity:.9} 55%{opacity:.25} }
+@keyframes electric-burst-b { 0%,28%,32%,73%,79%,100%{opacity:0} 29%,31%{opacity:.9} 74%,76%{opacity:.96} 77.5%{opacity:.3} }
 .winner>.button { margin:5px 2px }
 .winner { position:relative; overflow:hidden }
 .winner-crown { position:relative; z-index:1; font-size:76px; line-height:1; filter:drop-shadow(0 8px 12px #0007); animation:winner-pop .8s ease-out }
