@@ -28,17 +28,14 @@
 .score-card>*:not(.score-card-fx) { position:relative; z-index:2 }
 .score-row.hot-next-round { position:relative; isolation:isolate; overflow:hidden; border-color:#ff784f88 }
 .score-row.hot-next-round>*:not(.score-card-fx) { position:relative; z-index:2 }
-.score-row.hot-next-round .score-card-fx { z-index:1; animation:round-fire-fade 5s ease-out forwards }
+.score-row.hot-next-round .score-card-fx { z-index:1 }
 .round-hot-badge { display:block; width:max-content; margin-top:3px; padding:2px 6px; border:1px solid #ff784f88; border-radius:999px; color:#ffd3a8; background:#a733224d; font-size:9px; font-weight:900; letter-spacing:.05em; text-transform:uppercase }
 .score-card-fx { position:absolute; inset:0; z-index:1; overflow:hidden; border-radius:inherit; pointer-events:none }
 .score-card-fx>span,.score-card-fx>svg { position:absolute; inset:0 }
-.fx-flames { top:0!important; bottom:auto!important; height:52px; filter:drop-shadow(0 0 5px #ff531f) }
-.fx-flames i { position:absolute; left:calc(var(--i) * 12% - 3px); bottom:-17px; width:20px; height:42px; border-radius:74% 18% 68% 32%; background:radial-gradient(circle at 66% 69%,#fffbd0 0 10%,#ffd34e 23%,#ff762b 48%,#e52e1100 74%); transform:rotate(42deg); opacity:.76; animation:visible-flame .82s cubic-bezier(.45,0,.55,1) infinite alternate; animation-delay:calc(var(--i) * -.1s) }
-.fx-frost { background:linear-gradient(180deg,#f3ffff55 0,#7fe8ff1c 11px,transparent 42px) }
-.fx-frost::before { content:""; position:absolute; inset:0 0 auto; height:11px; background:linear-gradient(135deg,#f5ffff 0 34%,transparent 35%) 0 0/20px 11px repeat-x; filter:drop-shadow(0 1px 3px #75e9ff) }
-.fx-frost i { position:absolute; left:calc(var(--i) * 15%); top:calc(3px + var(--i) * 2px); color:#f3ffff; font-style:normal; font-size:12px; text-shadow:0 0 5px #fff,0 0 10px #56dfff; opacity:.76; animation:visible-snow 2.7s ease-in-out infinite alternate; animation-delay:calc(var(--i) * -.3s) }
-.fx-electricity { width:100%; height:100%; fill:none; stroke:#79f5ff; stroke-width:1; vector-effect:non-scaling-stroke; filter:drop-shadow(0 0 2px #d8fdff) drop-shadow(0 0 5px #1aaedc); stroke-dasharray:6 5; animation:visible-electric 1.2s linear infinite }
-.fx-electricity path+path { stroke:#fff; stroke-width:1.45; stroke-dasharray:3 11; animation:visible-bolt .8s steps(2,end) infinite }
+.fx-sprite { position:absolute; inset:0; background-repeat:no-repeat; background-size:100% 100%; transform:translateZ(0); will-change:opacity; contain:paint }
+.fx-fire { background-image:url("assets/fire-v2.webp"); opacity:.9; animation:round-fire-fade 5s ease-out forwards }
+.fx-frost-art { background-image:url("assets/frost-v2.webp"); opacity:.84 }
+.fx-electric-art { background-image:url("assets/electric-v2.webp"); opacity:.9 }
 .fx-flip-cards { perspective:180px; background:radial-gradient(ellipse at 34% 28%,#ffd95a38,transparent 46%) }
 .fx-flip-cards i { position:absolute; left:calc(8% + var(--i) * 8.5%); top:7px; width:15px; height:21px; border:1px solid #ffe684; border-radius:3px; background:linear-gradient(145deg,#fff4b0,#d9a51c 58%,#76500c); box-shadow:0 0 5px #ffe477,0 0 12px #ffc62966; transform-style:preserve-3d; animation:visible-card-flip 2.25s cubic-bezier(.45,0,.2,1) infinite; animation-delay:calc(var(--i) * .13s) }
 .fx-flip-cards i::after { content:"7"; position:absolute; inset:0; display:grid; place-items:center; color:#533800; font-size:10px; font-weight:1000 }
@@ -76,10 +73,6 @@
 @keyframes frost-drift { to { transform:translate(-8px,-3px); opacity:.75 } }
 @keyframes score-fire-aura { to { filter:drop-shadow(0 0 8px #ff5a30aa); outline-color:#ffb24fbb } }
 @keyframes score-double-pulse { 0%{transform:scale(1);box-shadow:0 0 0 0 #a970ff99,var(--shadow)} 45%{transform:scale(1.015);box-shadow:0 0 0 8px #a970ff22,0 0 28px #9a5cff99,var(--shadow)} 100%{transform:scale(1);box-shadow:0 0 0 16px #a970ff00,var(--shadow)} }
-@keyframes visible-flame { from{transform:translateY(6px) rotate(39deg) scale(.82,.92);opacity:.52} to{transform:translateY(-5px) rotate(45deg) scale(1.04,1.12);opacity:.88} }
-@keyframes visible-snow { from{transform:translateY(-3px) rotate(-8deg);opacity:.44} to{transform:translateY(6px) rotate(15deg);opacity:.9} }
-@keyframes visible-electric { to{stroke-dashoffset:-26} }
-@keyframes visible-bolt { 50%{opacity:.25} }
 @keyframes visible-card-flip { 0%,16%,100%{transform:translateY(8px) rotateY(0) scale(.82);opacity:.18} 38%{transform:translateY(0) rotateY(180deg) scale(1);opacity:.95} 62%{transform:translateY(0) rotateY(360deg) scale(1);opacity:.95} 82%{transform:translateY(8px) rotateY(360deg) scale(.82);opacity:.18} }
 @keyframes round-fire-fade { 0%,58%{opacity:1} 100%{opacity:0} }
 .winner>.button { margin:5px 2px }
@@ -98,7 +91,7 @@
 @keyframes winner-pop { 0%{transform:scale(.5);opacity:0} 70%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
 @keyframes card-flip { 0%,18%{transform:rotateY(0) translateY(0)} 45%{transform:rotateY(180deg) translateY(-13px)} 72%,100%{transform:rotateY(360deg) translateY(0)} }
 @keyframes crown-fly { 0%{transform:translateX(0) rotate(-25deg) scale(.7);opacity:0} 10%{opacity:.9} 50%{transform:translateX(66vw) rotate(15deg) scale(1.1)} 90%{opacity:.9} 100%{transform:translateX(135vw) rotate(40deg) scale(.75);opacity:0} }
-@media(prefers-reduced-motion:reduce){.score-card.effect-flip7,.score-card.effect-hot,.score-card.effect-frozen::after,.score-card.effect-double-pulse,.fx-flames i,.fx-frost i,.fx-electricity,.fx-electricity path+path,.fx-flip-cards i,.score-row.hot-next-round .score-card-fx{animation:none}}
+@media(prefers-reduced-motion:reduce){.score-card.effect-flip7,.score-card.effect-hot,.score-card.effect-frozen::after,.score-card.effect-double-pulse,.fx-flip-cards i{animation:none}.fx-sprite{display:none}}
 .toast { top:calc(76px + env(safe-area-inset-top)); bottom:auto; max-width:calc(100vw - 28px); transform:translate(-50%,-16px); text-align:center; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s,transform .2s,visibility 0s .2s }
 .toast.show { transform:translate(-50%,0); opacity:1; visibility:visible; transition:opacity .2s,transform .2s,visibility 0s }
 .app-footer { text-align:center; margin-top:18px }

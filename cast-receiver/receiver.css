@@ -67,21 +67,13 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player>*:not(.player-fx){position:relative;z-index:2}
 .player-fx{position:absolute;inset:0;z-index:1;overflow:hidden;border-radius:inherit;pointer-events:none}
 .player-fx>span,.player-fx>svg{position:absolute;inset:0}
-.player-fx .fx-flames{top:0;bottom:auto;height:100%;filter:drop-shadow(0 0 .32vw #ff531f)}
-.player.hot .fx-flames{animation:tv-round-fire-fade 5s ease-out forwards}
-.player-fx .fx-flames i{position:absolute;left:calc(var(--i)*8.5% - .25vw);bottom:-1.65vh;width:1.55vw;height:5.2vh;border-radius:74% 18% 68% 32%;background:radial-gradient(circle at 66% 69%,#fffbd0 0 10%,#ffd34e 23%,#ff762b 48%,#e52e1100 74%);transform:rotate(42deg);opacity:.76;animation:tv-visible-flame .82s cubic-bezier(.45,0,.55,1) infinite alternate;animation-delay:calc(var(--i)*-.085s)}
-.player-fx .fx-frost{background:linear-gradient(180deg,#f3ffff66 0,#7fe8ff20 1vh,transparent 3.8vh)}
-.player-fx .fx-frost::before{content:"";position:absolute;inset:0 0 auto;height:1vh;background:linear-gradient(135deg,#f8ffff 0 34%,transparent 35%) 0 0/1.35vw 1vh repeat-x;filter:drop-shadow(0 .12vh .2vh #54dcff)}
-.player-fx .fx-frost i{position:absolute;left:calc(var(--i)*10% + .5%);top:calc(.12vh + var(--i)*.14vh);color:#f6ffff;font-style:normal;font-size:.82vw;text-shadow:0 0 .22vw #fff,0 0 .5vw #42d9ff;opacity:.78;animation:tv-visible-snow 2.75s ease-in-out infinite alternate;animation-delay:calc(var(--i)*-.27s)}
-.player-fx .fx-electricity{width:100%;height:100%;fill:none;stroke:#82f7ff;stroke-width:.68;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 .11vw #e4feff) drop-shadow(0 0 .28vw #13dfff);stroke-dasharray:6 5;animation:tv-visible-electric 1.15s linear infinite}
-.player-fx .fx-electricity path+path{stroke:#fff;stroke-width:1.05;stroke-dasharray:3 11;animation:tv-visible-bolt .78s steps(2,end) infinite}
+.player-fx .fx-sprite{position:absolute;inset:0;background-repeat:no-repeat;background-size:100% 100%;transform:translateZ(0);will-change:opacity;contain:paint}
+.player-fx .fx-fire{background-image:url("assets/fire-v2.webp");opacity:.9;animation:tv-round-fire-fade 5s ease-out forwards}
+.player-fx .fx-frost-art{background-image:url("assets/frost-v2.webp");opacity:.84}
+.player-fx .fx-electric-art{background-image:url("assets/electric-v2.webp");opacity:.9}
 .player-fx .fx-flip-cards{perspective:18vw;background:radial-gradient(ellipse at 26% 50%,#ffd95a42,transparent 38%)}
 .player-fx .fx-flip-cards i{position:absolute;left:calc(9% + var(--i)*4.4%);top:18%;width:1.05vw;height:1.52vw;border:.08vw solid #ffe684;border-radius:.18vw;background:linear-gradient(145deg,#fff4b0,#d9a51c 58%,#76500c);box-shadow:0 0 .18vw #ffe477,0 0 .48vw #ffc62977;transform-style:preserve-3d;animation:tv-visible-card-flip 2.35s cubic-bezier(.45,0,.2,1) infinite;animation-delay:calc(var(--i)*.14s)}
 .player-fx .fx-flip-cards i::after{content:"7";position:absolute;inset:0;display:grid;place-items:center;color:#533800;font-size:.68vw;font-style:normal;font-weight:1000}
-@keyframes tv-visible-flame{from{transform:translateY(.85vh) rotate(39deg) scale(.82,.92);opacity:.5}to{transform:translateY(-1.15vh) rotate(45deg) scale(1.04,1.12);opacity:.88}}
-@keyframes tv-visible-snow{from{transform:translateY(-.35vh) rotate(-8deg);opacity:.42}to{transform:translateY(.85vh) rotate(15deg);opacity:.9}}
-@keyframes tv-visible-electric{to{stroke-dashoffset:-24}}
-@keyframes tv-visible-bolt{50%{opacity:.18}}
 @keyframes tv-visible-card-flip{0%,16%,100%{transform:translateY(.6vh) rotateY(0) scale(.82);opacity:.16}38%{transform:translateY(0) rotateY(180deg) scale(1);opacity:.94}62%{transform:translateY(0) rotateY(360deg) scale(1);opacity:.94}82%{transform:translateY(.6vh) rotateY(360deg) scale(.82);opacity:.16}}
 @keyframes tv-round-fire-fade{0%,58%{opacity:1}100%{opacity:0}}
-@media(prefers-reduced-motion:reduce){.player-fx .fx-flames i,.player-fx .fx-frost i,.player-fx .fx-electricity,.player-fx .fx-electricity path+path,.player-fx .fx-flip-cards i,.player.hot .fx-flames{animation:none}}
+@media(prefers-reduced-motion:reduce){.player-fx .fx-flip-cards i{animation:none}.player-fx .fx-sprite{display:none}}

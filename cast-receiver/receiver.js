@@ -4,7 +4,7 @@
   const context=cast.framework.CastReceiverContext.getInstance();
   const idle=document.querySelector('#idle'),board=document.querySelector('#scoreboard');
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const fx=p=>`<span class="player-fx" aria-hidden="true">${p.hot?`<span class="fx-flames">${Array.from({length:12},(_,i)=>`<i style="--i:${i}"></i>`).join('')}</span>`:''}${p.frozen?`<span class="fx-frost">${Array.from({length:10},(_,i)=>`<i style="--i:${i}">❄</i>`).join('')}</span>`:''}${p.nearVictory?`<svg class="fx-electricity" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M1 17 5 2 11 9 18 2 25 8 33 2 41 9 50 2 59 8 67 2 75 9 84 2 92 8 99 3 97 20 99 34 96 48 99 62 96 76 99 90 94 99 82 96 70 99 58 96 46 99 34 96 22 99 9 96 2 88 4 73 1 58 4 43 1 29Z"/><path d="M13 5 20 19 27 7M73 96 80 80 88 94"/></svg>`:''}${p.flip7?`<span class="fx-flip-cards">${Array.from({length:7},(_,i)=>`<i style="--i:${i}"></i>`).join('')}</span>`:''}</span>`;
+  const fx=p=>`<span class="player-fx" aria-hidden="true">${p.hot?'<span class="fx-sprite fx-fire"></span>':''}${p.frozen?'<span class="fx-sprite fx-frost-art"></span>':''}${p.nearVictory?'<span class="fx-sprite fx-electric-art"></span>':''}${p.flip7?`<span class="fx-flip-cards">${Array.from({length:7},(_,i)=>`<i style="--i:${i}"></i>`).join('')}</span>`:''}</span>`;
   let lastGameId=null,previousLeaderId=null,previousDoubled=new Map();
   let wakeLock=null;
   async function keepScreenAwake(){
