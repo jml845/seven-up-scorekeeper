@@ -1,4 +1,4 @@
-:root { --device-bottom-clearance:max(56px,env(safe-area-inset-bottom)) }
+:root { --dock-bottom-padding:max(12px,env(safe-area-inset-bottom)) }
 .topbar-actions { display:flex; align-items:center; gap:9px }
 .topbar-actions .cast-launcher { width:38px; height:38px; margin:0 }
 .hero { position:relative }
@@ -10,17 +10,18 @@
 @keyframes cast-arrow-draw { 0%,8%{stroke-dashoffset:1} 76%,100%{stroke-dashoffset:0} }
 @keyframes cast-arrow-head { 0%,74%{opacity:0} 80%,100%{opacity:1} }
 @keyframes cast-overlay-hide { to{visibility:hidden;opacity:0} }
-.setup-card { display:flex; flex-direction:column; max-height:calc(100dvh - 120px); padding-bottom:0; overflow:hidden }
+.setup-page-shell { height:100%; min-height:0; display:grid; grid-template-rows:auto minmax(0,1fr) }
+.setup-card { min-height:0; display:flex; flex-direction:column; max-height:none; padding-bottom:0; overflow:hidden }
 .setup-player-list { flex:1 1 auto; min-height:120px; overflow-y:auto; overscroll-behavior:contain; scrollbar-gutter:stable; padding-right:4px }
 .setup-add-player { flex:0 0 auto; padding-top:12px; background:var(--panel) }
-.setup-start-bar { flex:0 0 auto; position:sticky; bottom:0; z-index:3; margin:0 -18px; padding:12px 18px var(--device-bottom-clearance); background:linear-gradient(180deg,#151f2900,#151f29 18%); border-radius:0 0 20px 20px }
-@media(max-width:600px){main:has(.setup-card){height:100%;padding-top:14px;padding-bottom:0;overflow:hidden}.setup-head{margin-top:0}.setup-card{max-height:calc(100% - 58px)}}
+.setup-start-bar { flex:0 0 auto; z-index:3; margin:0 -18px; padding:12px 18px var(--dock-bottom-padding); background:linear-gradient(180deg,#151f2900,#151f29 18%); border-radius:0 0 20px 20px }
+@media(max-width:600px){main:has(.setup-page-shell){height:100%;padding-top:14px;padding-bottom:0;overflow:hidden}.setup-head{margin-top:0}}
 .score-card.collapsed .score-card-head { margin-bottom:9px }
 .score-entry-shell { display:flex; flex-direction:column; min-height:0; max-height:calc(100dvh - 120px); overflow:hidden }
 .score-entry-head { flex:0 0 auto }
 .score-entry-shell .mode-tabs { flex:0 0 auto; margin-bottom:10px }
 .score-player-list { flex:1 1 auto; min-height:120px; overflow-y:auto; overscroll-behavior:contain; scrollbar-gutter:stable; padding:2px 4px 2px 0 }
-.score-save-bar { flex:0 0 auto; display:flex; gap:9px; position:sticky; bottom:0; z-index:3; padding:12px 0 var(--device-bottom-clearance); background:linear-gradient(180deg,#0b111700,#0b1117 18%) }
+.score-save-bar { flex:0 0 auto; display:flex; gap:9px; z-index:3; padding:12px 0 var(--dock-bottom-padding); background:linear-gradient(180deg,#0b111700,#0b1117 18%) }
 .score-save-bar .button { flex:1 }
 .score-player-list .score-card { padding:12px 14px; margin-bottom:8px; border-radius:16px }
 .score-player-list .score-card { position:relative; isolation:isolate; overflow:hidden; transition:border-color .25s,box-shadow .25s,background .25s }
@@ -49,7 +50,7 @@
 .score-player-list .quick-score { padding:10px 12px }
 .score-player-list .calculator-controls { margin-top:10px }
 .score-player-list .specials { margin-top:9px }
-@media(max-width:600px){main:has(.score-entry-shell){height:100%;min-height:0;padding-top:10px;padding-bottom:0;overflow:hidden}.score-entry-shell{height:100%;min-height:0;max-height:100%}.score-entry-head{margin:0 0 9px}.score-entry-head h1{font-size:26px}.score-entry-head .subtle{font-size:12px}.score-player-list .chip{min-height:40px}}
+@media(max-width:600px){main:has(.score-entry-shell,.game-shell){height:100%;min-height:0;padding-top:10px;padding-bottom:0;overflow:hidden}.score-entry-shell{height:100%;min-height:0;max-height:100%}.score-entry-head{margin:0 0 9px}.score-entry-head h1{font-size:26px}.score-entry-head .subtle{font-size:12px}.score-player-list .chip{min-height:40px}}
 .score-card-error { border-color:var(--red)!important; box-shadow:0 0 0 2px #ff6b6b55,0 18px 50px #0006!important; background:linear-gradient(145deg,#382027,var(--panel))!important }
 .score-required { display:none; margin:9px 0 0; color:#ff9a9a; font-size:13px; font-weight:850 }
 .score-card-error .score-required { display:block }
@@ -103,13 +104,16 @@
 .app-footer { text-align:center; margin-top:18px }
 .app-footer a { color:var(--muted) }
 .app-footer span { margin:0 8px; color:var(--muted) }
-.privacy-main { padding-bottom:calc(var(--device-bottom-clearance) + 18px) }
-.privacy-card { max-width:760px; margin:0 auto; padding-bottom:0 }
+.game-shell { height:100%; min-height:0; display:grid; grid-template-rows:minmax(0,1fr) auto }
+.game-scroll { min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-right:2px }
+.privacy-main { height:100%; min-height:0; padding-bottom:0; overflow:hidden }
+.privacy-card { height:100%; min-height:0; max-width:760px; margin:0 auto; padding-bottom:0; display:grid; grid-template-rows:minmax(0,1fr) auto }
+.privacy-scroll { min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-right:3px }
 .privacy-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap }
 .privacy-heading h1 { margin:0 }
 .version-pill { display:inline-block; padding:5px 9px; border:1px solid #32d5ff55; border-radius:999px; color:#bcefff; background:#32d5ff12; font-size:12px; font-weight:850 }
-.privacy-actions { position:sticky; bottom:0; z-index:3; margin:20px -18px 0; padding:14px 18px var(--device-bottom-clearance); background:linear-gradient(180deg,#151f2900,#151f29 20%); border-radius:0 0 20px 20px }
+.privacy-actions { z-index:3; margin:0 -18px; padding:14px 18px var(--dock-bottom-padding); background:linear-gradient(180deg,#151f2900,#151f29 20%); border-radius:0 0 20px 20px }
 .privacy-actions .button { display:block; width:100%; text-align:center; text-decoration:none }
-.game-actions { bottom:var(--device-bottom-clearance) }
-@media(max-width:600px){main:not(:has(.setup-card,.score-entry-shell)){padding-bottom:calc(var(--device-bottom-clearance) + 24px)}}
-@media(max-width:560px){.privacy-main{padding-top:14px;padding-bottom:calc(var(--device-bottom-clearance) + 18px)}.privacy-card{padding:15px 15px 0}.privacy-card p{line-height:1.48}.privacy-actions{margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px}}
+.game-actions { position:relative; bottom:auto; margin:0; border-radius:17px 17px 0 0; padding:12px 10px var(--dock-bottom-padding) }
+@media(max-width:600px){main:not(.privacy-main):not(:has(.setup-page-shell,.score-entry-shell,.game-shell)){padding-bottom:24px}}
+@media(max-width:560px){.privacy-main{padding-top:14px;padding-bottom:0}.privacy-card{padding:15px 15px 0}.privacy-card p{line-height:1.48}.privacy-actions{margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px}}
