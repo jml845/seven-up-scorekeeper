@@ -100,7 +100,7 @@
 .game-shell { height:100%; min-height:0; display:grid; grid-template-rows:minmax(0,1fr) auto }
 .game-scroll { min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-right:2px }
 .privacy-page { height:100dvh; min-height:0 }
-.privacy-main { height:100%; min-height:0; padding-bottom:0; overflow:hidden }
+.privacy-main { position:fixed; inset:68px 0 0; width:min(920px,100%); height:auto; min-height:0; padding-bottom:0; overflow:hidden }
 .privacy-card { height:100%; min-height:0; max-width:760px; margin:0 auto; padding-bottom:0; display:grid; grid-template-rows:minmax(0,1fr) auto }
 .privacy-scroll { min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-right:3px }
 .privacy-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap }
@@ -110,4 +110,4 @@
 .privacy-actions .button { display:block; width:100%; text-align:center; text-decoration:none }
 .game-actions { position:relative; bottom:auto; margin:0; border-radius:17px 17px 0 0; padding:12px 10px var(--dock-bottom-padding) }
 @media(max-width:600px){main:not(.privacy-main):not(:has(.setup-page-shell,.score-entry-shell,.game-shell)){padding-bottom:24px}}
-@media(max-width:560px){.privacy-main{padding-top:14px;padding-bottom:0}.privacy-card{padding:15px 15px 0}.privacy-card p{line-height:1.48}.privacy-actions{margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px}}
+@media(max-width:560px){.privacy-main{top:60px;padding-top:14px;padding-bottom:0}.privacy-card{padding:15px 15px 0}.privacy-card p{line-height:1.48}.privacy-actions{margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px}}
