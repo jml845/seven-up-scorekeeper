@@ -1,6 +1,7 @@
 (function () {
   const NAMESPACE = 'urn:x-cast:com.sevenup.scoreboard';
   let ready = false;
+  let apiAvailable = false;
   let devicesAvailable = false;
   let initialized = false;
   let castContext = null;
@@ -25,7 +26,17 @@
     if (!ready || !devicesAvailable || !castContext) return notify('No Cast devices are available on this network');
     try { await castContext.requestSession(); }
     catch (error) {
-      if (error !== 'cancel' && error?.code !== 'cancel') notify('Could not start casting');
+      if (error !== 'cancel' && error?.code !== 'cancel') {
+        const code = String(error?.code || error || 'unknown');
+        try {
+          localStorage.setItem('cast7-last-cast-error', JSON.stringify({
+            at: new Date().toISOString(), code,
+            castState: castContext?.getCastState?.() || '',
+            sessionState: castContext?.getSessionState?.() || ''
+          }));
+        } catch {}
+        notify(`Could not start casting (${code})`);
+      }
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindButton, {once:true});
@@ -37,9 +48,13 @@
     return session.sendMessage(NAMESPACE, scoreboard).then(() => true).catch(() => false);
   }
   window.sevenUpCast = {send, isReady: () => ready, hasDevices: () => devicesAvailable};
-  function initializeCast(available = true) {
+  function initializeCast(available = false) {
+    if (available === true) apiAvailable = true;
     const appId = window.SEVEN_UP_CAST_APP_ID;
-    if (!available || !appId || !window.cast?.framework) return setAvailable(false);
+    if (!apiAvailable || window.chrome?.cast?.isAvailable !== true || !appId || !window.cast?.framework) {
+      ready = false;
+      return setAvailable(false);
+    }
     try {
       const context = cast.framework.CastContext.getInstance();
       castContext = context;
@@ -58,11 +73,11 @@
       setAvailable(context.getCastState() !== cast.framework.CastState.NO_DEVICES_AVAILABLE);
     } catch { setAvailable(false); }
   }
-  window.__onGCastApiAvailable = initializeCast;
+  window.__onGCastApiAvailable = (available) => initializeCast(available === true);
   let attempts = 0;
   const retry = setInterval(() => {
     attempts += 1;
-    initializeCast();
+    if (window.chrome?.cast?.isAvailable === true) initializeCast(true);
     if (ready || attempts >= 40) clearInterval(retry);
   }, 500);
 })();
