@@ -24,4 +24,7 @@ assert.match(privacy,new RegExp(`App version ${build}`));
 assert.match(update,new RegExp(`Opening version ${build}`));
 assert.match(app,new RegExp(`const BUILD = '${build}'`));
 assert.match(worker,new RegExp(`cast-7-v${build}`));
+assert.match(app,new RegExp(`register\\('\\./sw\\.js\\?v=${build}'`));
+assert.match(update,new RegExp(`register\\('\\./sw\\.js\\?v=${build}'`));
+assert.doesNotMatch(worker,/cache\.put\(request\.mode\s*===\s*['"]navigate['"]/);
 console.log('All rules and statistics tests passed.');

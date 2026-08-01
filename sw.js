@@ -1,7 +1,10 @@
-const CACHE = 'cast-7-v56';
-const FILES = ['./','index.html','privacy.html?v=56','update.html?v=56','styles.css?v=56','ui-enhancements.css?v=56','app.js?v=56','rules.js?v=56','cast-config.js?v=56','cast-sender.js?v=56','manifest.webmanifest?v=56','icon-192.png?v=56','icon-512.png?v=56','icon-maskable-512.png?v=56','assets/fire-v3.webp','assets/frost-v3.webp','assets/electric-v3a.webp','assets/electric-v3b.webp'];
+const CACHE = 'cast-7-v57';
+const FILES = ['./','index.html','privacy.html?v=57','update.html?v=57','styles.css?v=57','ui-enhancements.css?v=57','app.js?v=57','rules.js?v=57','cast-config.js?v=57','cast-sender.js?v=57','manifest.webmanifest?v=57','icon-192.png?v=57','icon-512.png?v=57','icon-maskable-512.png?v=57','assets/fire-v3.webp','assets/frost-v3.webp','assets/electric-v3a.webp','assets/electric-v3b.webp'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
+self.addEventListener('message', event => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+});
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const request = event.request;
@@ -10,8 +13,8 @@ self.addEventListener('fetch', event => {
   event.respondWith(fetch(request).then(response => {
     if (response.ok) {
       const copy = response.clone();
-      caches.open(CACHE).then(cache => cache.put(request.mode === 'navigate' ? './' : request, copy));
+      caches.open(CACHE).then(cache => cache.put(request, copy));
     }
     return response;
-  }).catch(() => caches.match(request).then(hit => hit || caches.match('./'))));
+  }).catch(() => caches.match(request).then(hit => hit || (request.mode === 'navigate' ? caches.match('./') : undefined))));
 });

@@ -14,23 +14,30 @@
     <h1>Updating Cast 7</h1>
     <p id="status">Removing old downloaded app files…</p>
     <div class="spinner" aria-hidden="true"></div>
-    <a id="retry" class="button" href="./?updated=56">Open Cast 7</a>
+    <a id="retry" class="button" href="./?updated=57">Open Cast 7</a>
   </main>
   <script>
     (async()=>{
       const status=document.querySelector('#status'),retry=document.querySelector('#retry');
       try{
         if('serviceWorker' in navigator){
-          const registrations=await navigator.serviceWorker.getRegistrations();
-          const appScope=new URL('./',location.href).href;
-          await Promise.all(registrations.filter(r=>r.scope===appScope).map(r=>r.unregister()));
+          status.textContent='Installing the latest app files…';
+          const registration=await navigator.serviceWorker.register('./sw.js?v=57',{updateViaCache:'none'});
+          await registration.update();
+          const worker=registration.installing||registration.waiting||registration.active;
+          if(worker&&worker.state!=='activated'){
+            await new Promise((resolve,reject)=>{
+              const timeout=setTimeout(()=>reject(new Error('Update activation timed out')),12000);
+              worker.addEventListener('statechange',()=>{
+                if(worker.state==='installed')worker.postMessage('SKIP_WAITING');
+                if(worker.state==='activated'){clearTimeout(timeout);resolve()}
+              });
+              if(worker.state==='installed')worker.postMessage('SKIP_WAITING');
+            });
+          }
         }
-        if('caches' in window){
-          const keys=await caches.keys();
-          await Promise.all(keys.filter(key=>key.startsWith('cast-7-')).map(key=>caches.delete(key)));
-        }
-        status.textContent='Update ready. Opening version 56…';
-        location.replace('./?updated=56');
+        status.textContent='Update ready. Opening version 57…';
+        location.replace(`./?updated=57&fresh=${Date.now()}`);
       }catch(error){
         status.textContent='The automatic update was blocked. Tap below to reopen Cast 7.';
         document.querySelector('.spinner').style.display='none';
