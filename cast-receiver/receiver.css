@@ -76,10 +76,14 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player-fx>span,.player-fx>svg{position:absolute;inset:0}
 .player-fx .fx-video{position:absolute;top:0;right:0;bottom:0;left:0;display:block;width:100%!important;height:100%!important;min-width:100%;min-height:100%;object-fit:fill;object-position:50% 50%;mix-blend-mode:screen;opacity:.82;pointer-events:none;transform:translateZ(0);filter:saturate(.9) contrast(1.05)}
 .player-fx .fx-video.failed{display:none}
-.player-fx.has-video:not(.video-failed)>.fx-sprite,.player-fx.has-video:not(.video-failed)>.fx-electric-fallback{display:none}
+.player-fx.has-video:not(.video-failed)>.fx-sprite,.player-fx.has-video:not(.video-failed)>.fx-electric-fallback,.player-fx.has-video:not(.video-failed)>.fx-double-glass,.player-fx.has-video:not(.video-failed)>.fx-bust-art,.player-fx.has-video:not(.video-failed)>.fx-flip-cards{display:none}
 .player-fx .fx-freeze-video{opacity:.72}
 .player-fx .fx-fire-video{object-position:center bottom;opacity:.78}
 .player-fx .fx-electric-video{opacity:.86;filter:saturate(.72) contrast(1.08) drop-shadow(0 0 .18vw #dffcff) drop-shadow(0 0 .45vw #35dfff)}
+.player-fx .fx-x2-video,.player-fx .fx-bust-video,.player-fx .fx-flip7-video{object-fit:contain}
+.player-fx .fx-x2-video{opacity:.94;filter:saturate(1.18) contrast(1.08) drop-shadow(0 0 .36vw #8e54ff88)}
+.player-fx .fx-bust-video{opacity:.96;filter:contrast(1.18) brightness(1.08) drop-shadow(0 0 .28vw #fff9)}
+.player-fx .fx-flip7-video{opacity:.96;filter:saturate(1.12) contrast(1.08) drop-shadow(0 0 .34vw #ffd45a88)}
 .player-fx .fx-sprite{position:absolute;inset:0;background-repeat:no-repeat;background-size:100% 100%;transform:translateZ(0);contain:paint}
 .player-fx .fx-sprite::before,.player-fx .fx-sprite::after{content:"";position:absolute;inset:0;background-repeat:no-repeat;background-size:100% 100%;pointer-events:none}
 .player-fx .fx-fire{background-image:url("assets/fire-v3.webp");opacity:.9;animation:tv-round-fire-fade 5s linear forwards}
