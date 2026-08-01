@@ -1,15 +1,17 @@
 .player > b > small {
   display: block;
   color: var(--muted);
-  font-size: .72vw;
+  font-size: .9vw;
   font-weight: 700;
   white-space: nowrap;
 }
 .player > b > small mark {
   background: none;
   color: var(--green);
-  font-size: 1.05vw;
+  font-size: 1.2vw;
 }
 .player.preview { border-style: dashed; }
 .player.preview > i u { box-shadow: 0 0 12px #72e6c166; }
 .scoreboard footer { letter-spacing: .04em; }
+.scoreboard.dense .player > b > small { font-size: .68vw; line-height: 1.05; }
+.scoreboard.dense .player > b > small mark { font-size: .82vw; }
