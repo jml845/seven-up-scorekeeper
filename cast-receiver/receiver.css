@@ -80,7 +80,7 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player-fx .fx-freeze-video{opacity:.72}
 .player-fx .fx-fire-video{object-position:center bottom;opacity:.78}
 .player-fx .fx-electric-video{opacity:.86;filter:saturate(.72) contrast(1.08) drop-shadow(0 0 .18vw #dffcff) drop-shadow(0 0 .45vw #35dfff)}
-.player-fx .fx-x2-video,.player-fx .fx-bust-video,.player-fx .fx-flip7-video{object-fit:contain}
+.player-fx .fx-x2-video,.player-fx .fx-bust-video,.player-fx .fx-flip7-video{object-fit:cover;object-position:center}
 .player-fx .fx-x2-video{opacity:.94;filter:saturate(1.18) contrast(1.08) drop-shadow(0 0 .36vw #8e54ff88)}
 .player-fx .fx-bust-video{opacity:.96;filter:contrast(1.18) brightness(1.08) drop-shadow(0 0 .28vw #fff9)}
 .player-fx .fx-flip7-video{opacity:.96;filter:saturate(1.12) contrast(1.08) drop-shadow(0 0 .34vw #ffd45a88)}
