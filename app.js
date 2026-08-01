@@ -1,7 +1,7 @@
-import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=55';
+import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=56';
 
 const KEY = 'seven-up-scorekeeper-v1';
-const BUILD = '54';
+const BUILD = '56';
 const FEEDBACK_FORM = 'https://tally.so/r/1Ag8Pb';
 const fresh = () => ({players:[], games:[], activeGameId:null});
 let state = load(); let view = 'home'; let scoringMode = 'cards'; let draft = {}; let winnerGame = null;
@@ -41,7 +41,7 @@ function home(){const game=activeGame();return `<svg class="cast-arrow-overlay" 
   ${game?`<button class="card home-action primary" data-nav="game"><strong>Resume game</strong><span>Round ${game.rounds.length+1} · ${game.playerIds.length} players</span></button>`:`<button class="card home-action primary" data-nav="setup"><strong>New game</strong><span>Choose players and start scoring</span></button>`}
   ${game?`<button class="card home-action" data-nav="setup"><strong>New game</strong><span>Start another match</span></button>`:''}
   <button class="card home-action" data-nav="stats"><strong>All-time stats</strong><span>Wins, win rate, streaks, and more</span></button>
-  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=55">Privacy</a></p>`}
+  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=56">Privacy</a></p>`}
 function positionCastArrow(){const svg=document.querySelector('.cast-arrow-overlay'),hint=document.querySelector('.hero-cast-hint'),launcher=document.querySelector('.cast-launcher');if(!svg||!hint)return;const h=hint.getBoundingClientRect(),c=launcher?.getBoundingClientRect();const startX=Math.min(innerWidth-70,h.right+9),startY=h.top+h.height/2,targetX=c?.width?c.left+c.width/2:innerWidth-37,targetY=c?.height?c.top+c.height/2:34;svg.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);svg.querySelector('path').setAttribute('d',`M${startX} ${startY} H${targetX} V${targetY}`);svg.querySelector('polyline').setAttribute('points',`${targetX-8},${targetY+12} ${targetX},${targetY} ${targetX+8},${targetY+12}`)}
 function setup(){return `<section class="setup-page-shell"><div class="section-head setup-head"><h1>New game</h1><button class="button ghost small" data-nav="home">Cancel</button></div><section class="card setup-card">
   <div class="field"><label>Target score</label><input id="target" type="number" min="25" max="999" value="200" inputmode="numeric"></div>

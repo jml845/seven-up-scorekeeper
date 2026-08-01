@@ -14,7 +14,7 @@
     <h1>Updating Cast 7</h1>
     <p id="status">Removing old downloaded app files…</p>
     <div class="spinner" aria-hidden="true"></div>
-    <a id="retry" class="button" href="./?updated=55">Open Cast 7</a>
+    <a id="retry" class="button" href="./?updated=56">Open Cast 7</a>
   </main>
   <script>
     (async()=>{
@@ -29,8 +29,8 @@
           const keys=await caches.keys();
           await Promise.all(keys.filter(key=>key.startsWith('cast-7-')).map(key=>caches.delete(key)));
         }
-        status.textContent='Update ready. Opening version 54…';
-        location.replace('./?updated=55');
+        status.textContent='Update ready. Opening version 56…';
+        location.replace('./?updated=56');
       }catch(error){
         status.textContent='The automatic update was blocked. Tap below to reopen Cast 7.';
         document.querySelector('.spinner').style.display='none';
