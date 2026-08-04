@@ -8,12 +8,12 @@
   const requestedVideoLimit=Number(new URLSearchParams(location.search).get('vfx'));
   const MAX_ACTIVE_VIDEOS=Number.isFinite(requestedVideoLimit)&&requestedVideoLimit>0?Math.min(6,requestedVideoLimit):4;
   const posterFile=name=>name==='bust'?'bust-v58-poster.png':name==='flip7'?'flip7-v60-poster.png':`${name}-v53-poster.png`;
-  const poster=(name,active)=>`<img class="fx-poster fx-${name}-poster${active?' active-poster':''}" src="assets/${posterFile(name)}?v=60" alt="">`;
-  const vfxVideo=(name,key)=>{const asset=VFX[name];return `<video class="fx-video fx-${name}-video" data-effect-key="${esc(key)}"${asset.holdAt?` data-hold-at="${asset.holdAt}"`:''} autoplay muted playsinline preload="auto" onloadeddata="this.classList.add('ready');this.closest('.player-fx').classList.add('video-ready')" onplaying="this.classList.add('ready');this.closest('.player-fx').classList.add('video-ready')"><source src="assets/${asset.file}?v=60" type="${asset.type}"></video>`};
+  const poster=(name,active)=>`<img class="fx-poster fx-${name}-poster${active?' active-poster':''}" src="assets/${posterFile(name)}?v=62" alt="">`;
+  const vfxVideo=(name,key)=>{const asset=VFX[name];return `<video class="fx-video fx-${name}-video" data-effect-key="${esc(key)}"${asset.holdAt?` data-hold-at="${asset.holdAt}"`:''} autoplay muted playsinline preload="auto" onloadeddata="this.classList.add('ready');this.closest('.player-fx').classList.add('video-ready')" onplaying="this.classList.add('ready');this.closest('.player-fx').classList.add('video-ready')"><source src="assets/${asset.file}?v=62" type="${asset.type}"></video>`};
   const videoEffect=p=>p.nearVictory?'electric':p.busted?'bust':p.flip7?'flip7':p.doubled?'x2':p.frozen?'freeze':p.hot?'fire':null;
   const videoPriority=['electric','bust','flip7','x2','freeze','fire'];
   const fx=(p,activeVideo)=>{const names=[];if(p.hot)names.push('fire');if(p.frozen)names.push('freeze');if(p.nearVictory)names.push('electric');if(p.doubled)names.push('x2');if(p.busted)names.push('bust');if(p.flip7)names.push('flip7');const key=activeVideo?`${p.id}:${activeVideo}`:'';return `<span class="player-fx${activeVideo?' has-video':''}" aria-hidden="true">${names.map(name=>poster(name,name===activeVideo)).join('')}${p.doubled?'<span class="fx-x2-hold">×2</span>':''}${activeVideo?vfxVideo(activeVideo,key):''}</span>`};
-  function warmVfx(){const bin=document.createElement('div');bin.className='vfx-preload';for(const [name,asset] of Object.entries(VFX)){const video=document.createElement('video');video.muted=true;video.playsInline=true;video.preload='auto';video.poster=`assets/${posterFile(name)}?v=60`;video.src=`assets/${asset.file}?v=60`;video.load();bin.appendChild(video)}document.body.appendChild(bin)}
+  function warmVfx(){const bin=document.createElement('div');bin.className='vfx-preload';for(const [name,asset] of Object.entries(VFX)){const video=document.createElement('video');video.muted=true;video.playsInline=true;video.preload='auto';video.poster=`assets/${posterFile(name)}?v=62`;video.src=`assets/${asset.file}?v=62`;video.load();bin.appendChild(video)}document.body.appendChild(bin)}
   let lastGameId=null,previousLeaderId=null,previousDoubled=new Map(),effectState=new Map();
   function finishVideo(video,failed=false){const key=video.dataset.effectKey;if(key)effectState.set(key,'done');const wrap=video.closest('.player-fx');if(failed)video.classList.add('failed');video.remove();if(wrap){wrap.classList.remove('video-ready','has-video');if(failed)wrap.classList.add('video-failed')}}
   board.addEventListener('ended',event=>{if(event.target.matches('.fx-video'))finishVideo(event.target)},true);
@@ -30,7 +30,7 @@
   function render(data){
     if(!data?.players?.length)return;idle.classList.add('hidden');board.classList.remove('hidden');
     if(data.gameId!==lastGameId){lastGameId=data.gameId;previousLeaderId=null;previousDoubled=new Map();effectState=new Map()}
-    const players=[...data.players].sort((a,b)=>b.score-a.score),cols=players.length>=8?2:1,rows=Math.ceil(players.length/cols),high=Math.max(...players.map(p=>p.score));
+    const players=[...data.players].sort((a,b)=>b.score-a.score),cols=players.length>=6?2:1,rows=Math.ceil(players.length/cols),high=Math.max(...players.map(p=>p.score));
     const uniqueLeaderId=players.length&&(players.length===1||players[0].score>players[1].score)?players[0].id:null;
     const newLeaderId=previousLeaderId&&uniqueLeaderId&&uniqueLeaderId!==previousLeaderId?uniqueLeaderId:null;
     if(data.status==='winner'){
