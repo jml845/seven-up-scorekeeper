@@ -86,6 +86,8 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player-fx .fx-electric-video.ready{opacity:.86;filter:saturate(.72) contrast(1.08) drop-shadow(0 0 .18vw #dffcff) drop-shadow(0 0 .45vw #35dfff)}
 .player-fx .fx-x2-video,.player-fx .fx-bust-video,.player-fx .fx-flip7-video{object-fit:cover;object-position:center}
 .player-fx .fx-x2-poster,.player-fx .fx-x2-video.ready{opacity:.94;filter:saturate(1.18) contrast(1.08) drop-shadow(0 0 .36vw #8e54ff88)}
+.player-fx .fx-x2-hold{position:absolute;left:50%;top:50%;z-index:4;transform:translate(-50%,-50%) scale(.9);font:900 clamp(42px,4.5vw,86px)/1 system-ui,sans-serif;letter-spacing:-.08em;color:#efe4ff;text-shadow:0 0 .12em #fff,0 0 .35em #a86cff,0 0 .7em #59eaff;opacity:1;transition:opacity .16s ease,transform .22s ease}
+.player-fx.video-ready .fx-x2-hold{opacity:0;transform:translate(-50%,-50%) scale(.72)}
 .player-fx .fx-bust-poster,.player-fx .fx-bust-video.ready{opacity:.96;filter:contrast(1.18) brightness(1.08) drop-shadow(0 0 .28vw #fff9)}
 .player-fx .fx-flip7-poster,.player-fx .fx-flip7-video.ready{opacity:.96;filter:saturate(1.12) contrast(1.08) drop-shadow(0 0 .34vw #ffd45a88)}
 .vfx-preload{position:fixed;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}.vfx-preload video{width:1px;height:1px}

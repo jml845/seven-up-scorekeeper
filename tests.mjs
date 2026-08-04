@@ -27,4 +27,5 @@ assert.match(worker,new RegExp(`cast-7-v${build}`));
 assert.match(app,new RegExp(`register\\('\\./sw\\.js\\?v=${build}'`));
 assert.match(update,new RegExp(`register\\('\\./sw\\.js\\?v=${build}'`));
 assert.doesNotMatch(worker,/cache\.put\(request\.mode\s*===\s*['"]navigate['"]/);
+assert.match(app,/querySelector\(['"]button\.chip\.double['"]\)/,'×2 handler must target the button, not the active ×2 badge');
 console.log('All rules and statistics tests passed.');
