@@ -29,6 +29,8 @@ assert.match(app,new RegExp(`register\\('\\./sw\\.js\\?v=${build}'`));
 assert.match(update,new RegExp(`register\\('\\./sw\\.js\\?v=${build}'`));
 assert.doesNotMatch(worker,/cache\.put\(request\.mode\s*===\s*['"]navigate['"]/);
 assert.match(app,/querySelector\(['"]button\.chip\.double['"]\)/,'×2 handler must target the button, not the active ×2 badge');
+assert.match(app,/window\.visualViewport\?\.height\|\|window\.innerHeight/,'mobile shell must track the live visual viewport height');
+assert.match(app,/visualViewport\?\.addEventListener\(['"]resize['"],syncViewportHeight\)/,'mobile shell must react to browser-bar viewport changes');
 assert.match(receiver,/cols=players\.length>=8\?2:1/,'Cast receiver must use two columns for eight or more players');
 assert.match(receiver,/requestedVideoLimit\):4;/,'Cast receiver must allow four simultaneous videos by default');
 console.log('All rules and statistics tests passed.');

@@ -1,4 +1,4 @@
-:root { --dock-bottom-padding:max(12px,env(safe-area-inset-bottom)) }
+:root { --dock-bottom-padding:max(20px,env(safe-area-inset-bottom)) }
 .topbar-actions { display:flex; align-items:center; gap:9px }
 .topbar-actions .cast-launcher { width:38px; height:38px; margin:0 }
 .hero { position:relative }
@@ -15,7 +15,7 @@
 .setup-player-list { flex:1 1 auto; min-height:120px; overflow-y:auto; overscroll-behavior:contain; scrollbar-gutter:stable; padding-right:4px }
 .setup-add-player { flex:0 0 auto; padding-top:12px; background:var(--panel) }
 .setup-start-bar { flex:0 0 auto; z-index:3; margin:0 -18px; padding:12px 18px var(--dock-bottom-padding); background:linear-gradient(180deg,#151f2900,#151f29 18%); border-radius:0 0 20px 20px }
-@media(max-width:600px){main:has(.setup-page-shell){height:100%;padding-top:14px;padding-bottom:0;overflow:hidden}.setup-head{margin-top:0}}
+@media(max-width:600px){main:has(.setup-page-shell){height:100%;padding-top:14px;padding-bottom:0;overflow:hidden}.setup-head{margin-top:0}.setup-player-list{min-height:0}}
 .score-card.collapsed .score-card-head { margin-bottom:9px }
 .score-entry-shell { display:flex; flex-direction:column; min-height:0; max-height:calc(100dvh - 120px); overflow:hidden }
 .score-entry-head { flex:0 0 auto }

@@ -1,7 +1,13 @@
-import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=60';
+import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=61';
+
+function syncViewportHeight(){document.documentElement.style.setProperty('--app-height',`${Math.round(window.visualViewport?.height||window.innerHeight)}px`)}
+syncViewportHeight();
+window.visualViewport?.addEventListener('resize',syncViewportHeight);
+window.visualViewport?.addEventListener('scroll',syncViewportHeight);
+window.addEventListener('orientationchange',syncViewportHeight);
 
 const KEY = 'seven-up-scorekeeper-v1';
-const BUILD = '60';
+const BUILD = '61';
 const FEEDBACK_FORM = 'https://tally.so/r/1Ag8Pb';
 const fresh = () => ({players:[], games:[], activeGameId:null});
 let state = load(); let view = 'home'; let scoringMode = 'cards'; let draft = {}; let winnerGame = null;
@@ -19,7 +25,7 @@ function toast(text){const el=document.querySelector('#toast');el.textContent=te
 function activeGame(){return state.games.find(g=>g.id===state.activeGameId)}
 function player(id){return state.players.find(p=>p.id===id)}
 function draftScore(id){const d=draft[id];if(!d)return 0;if(scoringMode==='quick')return d.quick===''?0:Math.max(0,Number(d.quick)||0);return calculateRound(d)}
-function castPayload(game,includeDraft=false,status='active'){const totals=totalsFor(game);const latestRound=game.rounds.at(-1);return {version:6,gameId:game.id,status,winnerId:status==='winner'?game.winnerId:null,target:game.target,round:game.rounds.length+1,completedRounds:game.rounds.length,roundActive:includeDraft,players:game.playerIds.map(id=>{const roundPoints=includeDraft?draftScore(id):0;const d=includeDraft&&scoringMode==='cards'?draft[id]:null;const score=totals[id]+roundPoints;return {id,name:player(id)?.name||'Player',banked:totals[id],roundPoints,score,flip7:Boolean(d?.flip7),frozen:Boolean(d?.frozen),busted:Boolean(d?.busted),doubled:Boolean(d?.doubled),hot:!includeDraft&&Number(latestRound?.scores?.[id])>60,nearVictory:score>0&&score>=game.target-25}})}}
+function castPayload(game,includeDraft=false,status='active'){const totals=totalsFor(game);const latestRound=game.rounds.at(-1);return {version:6,gameId:game.id,status,winnerId:status==='winner'?game.winnerId:null,target:game.target,round:game.rounds.length+1,completedRounds:game.rounds.length,roundActive:includeDraft,players:game.playerIds.map(id=>{const roundPoints=includeDraft?draftScore(id):0;const d=includeDraft&&scoringMode==='cards'?draft[id]:null;const score=totals[id]+roundPoints;return {id,name:player(id)?.name||'Player',banked:totals[id],roundPoints,score,flip7:Boolean(d?.flip7),frozen:Boolean(d?.frozen),busted:Boolean(d?.busted),doubled:Boolean(d?.doubled),hot:!includeDraft&&Number(latestRound?.scores?.[id])>61,nearVictory:score>0&&score>=game.target-25}})}}
 function sendToCast(game=activeGame(),includeDraft=view==='score'){if(game)window.sevenUpCast?.send(castPayload(game,includeDraft,'active'))}
 function sendWinnerToCast(game){winnerGame=game;window.sevenUpCast?.send(castPayload(game,false,'winner'))}
 function go(next,record=true){if(next==='setup')setupSelection=new Set(view==='winner'&&winnerGame?winnerGame.playerIds:[]);else if(view==='setup')setupSelection=null;view=next;if(record){screenStack.push(next);window.history.pushState({sevenUpView:next},'')}else window.history.replaceState({sevenUpView:next},'');render();scrollTo(0,0);if(next==='game')sendToCast(activeGame(),false)}
@@ -41,7 +47,7 @@ function home(){const game=activeGame();return `<svg class="cast-arrow-overlay" 
   ${game?`<button class="card home-action primary" data-nav="game"><strong>Resume game</strong><span>Round ${game.rounds.length+1} · ${game.playerIds.length} players</span></button>`:`<button class="card home-action primary" data-nav="setup"><strong>New game</strong><span>Choose players and start scoring</span></button>`}
   ${game?`<button class="card home-action" data-nav="setup"><strong>New game</strong><span>Start another match</span></button>`:''}
   <button class="card home-action" data-nav="stats"><strong>All-time stats</strong><span>Wins, win rate, streaks, and more</span></button>
-  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=60">Privacy</a></p>`}
+  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=61">Privacy</a></p>`}
 function positionCastArrow(){const svg=document.querySelector('.cast-arrow-overlay'),hint=document.querySelector('.hero-cast-hint'),launcher=document.querySelector('.cast-launcher');if(!svg||!hint)return;const h=hint.getBoundingClientRect(),c=launcher?.getBoundingClientRect();const startX=Math.min(innerWidth-70,h.right+9),startY=h.top+h.height/2,targetX=c?.width?c.left+c.width/2:innerWidth-37,targetY=c?.height?c.top+c.height/2:34;svg.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);svg.querySelector('path').setAttribute('d',`M${startX} ${startY} H${targetX} V${targetY}`);svg.querySelector('polyline').setAttribute('points',`${targetX-8},${targetY+12} ${targetX},${targetY} ${targetX+8},${targetY+12}`)}
 function setup(){return `<section class="setup-page-shell"><div class="section-head setup-head"><h1>New game</h1><button class="button ghost small" data-nav="home">Cancel</button></div><section class="card setup-card">
   <div class="field"><label>Target score</label><input id="target" type="number" min="25" max="999" value="200" inputmode="numeric"></div>
@@ -49,7 +55,7 @@ function setup(){return `<section class="setup-page-shell"><div class="section-h
   <form id="addPlayer" class="inline-form setup-add-player"><input id="newPlayer" maxlength="24" placeholder="Add a player" autocomplete="off"><button class="button" type="submit">Add</button></form>
   <div class="setup-start-bar"><button id="startGame" class="button full">Start game</button></div></section></section>`}
 function gameScreen(game){const totals=totalsFor(game);const latestRound=game.rounds.at(-1);const order=[...game.playerIds].sort((a,b)=>totals[b]-totals[a]);return `<section class="game-shell"><div class="game-scroll"><div class="section-head"><div><h1>Scoreboard</h1><span class="subtle">First to ${game.target}</span></div><div><button class="button ghost small" data-nav="home">Home</button></div></div>
-  <div class="round-banner">${game.rounds.length ? `${game.rounds.length} round${game.rounds.length===1?'':'s'} completed` : 'Ready for round 1'}</div><section class="scoreboard">${order.map((id,i)=>{const hot=Number(latestRound?.scores?.[id])>60;return `<div class="score-row ${hot?'hot-next-round':''}">${hot?scoreFx({hot:true}):''}<span class="rank">#${i+1}</span><strong>${esc(player(id)?.name)}${hot?`<small class="round-hot-badge">🔥 ${latestRound.scores[id]} last round</small>`:''}</strong><span class="total">${totals[id]}</span><div class="progress"><span style="width:${Math.min(100,totals[id]/game.target*100)}%"></span></div></div>`}).join('')}</section>
+  <div class="round-banner">${game.rounds.length ? `${game.rounds.length} round${game.rounds.length===1?'':'s'} completed` : 'Ready for round 1'}</div><section class="scoreboard">${order.map((id,i)=>{const hot=Number(latestRound?.scores?.[id])>61;return `<div class="score-row ${hot?'hot-next-round':''}">${hot?scoreFx({hot:true}):''}<span class="rank">#${i+1}</span><strong>${esc(player(id)?.name)}${hot?`<small class="round-hot-badge">🔥 ${latestRound.scores[id]} last round</small>`:''}</strong><span class="total">${totals[id]}</span><div class="progress"><span style="width:${Math.min(100,totals[id]/game.target*100)}%"></span></div></div>`}).join('')}</section>
   ${game.rounds.length?`<section class="card" style="margin-top:14px"><div class="section-head"><h2>Rounds</h2><button id="undoRound" class="button ghost small">Undo last</button></div>${game.rounds.slice().reverse().map((r,idx)=>`<div class="history-row"><div><strong>Round ${game.rounds.length-idx}</strong><p>${game.playerIds.map(id=>`${esc(player(id)?.name)} ${r.scores[id]}`).join(' · ')}</p></div></div>`).join('')}</section>`:''}</div>
   <div class="game-actions"><button id="endGame" class="button ghost">End game</button><button id="scoreRound" class="button">Score round ${game.rounds.length+1}</button></div></section>`}
 function tvScreen(game){
@@ -104,7 +110,7 @@ if('serviceWorker'in navigator){
     reloading=true;
     location.reload();
   });
-  navigator.serviceWorker.register('./sw.js?v=60',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=61',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 channel?.addEventListener('message',()=>{state=load();if(view==='tv')render()});
 window.addEventListener('storage',event=>{if(event.key===KEY){state=load();if(view==='tv')render()}});

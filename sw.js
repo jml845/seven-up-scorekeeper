@@ -1,5 +1,5 @@
-const CACHE = 'cast-7-v60';
-const FILES = ['./','index.html','privacy.html?v=60','update.html?v=60','styles.css?v=60','ui-enhancements.css?v=60','app.js?v=60','rules.js?v=60','cast-config.js?v=60','cast-sender.js?v=60','manifest.webmanifest?v=60','icon-192.png?v=60','icon-512.png?v=60','icon-maskable-512.png?v=60','assets/fire-v3.webp','assets/frost-v3.webp','assets/electric-v3a.webp','assets/electric-v3b.webp'];
+const CACHE = 'cast-7-v61';
+const FILES = ['./','index.html','privacy.html?v=61','update.html?v=61','styles.css?v=61','ui-enhancements.css?v=61','app.js?v=61','rules.js?v=61','cast-config.js?v=61','cast-sender.js?v=61','manifest.webmanifest?v=61','icon-192.png?v=61','icon-512.png?v=61','icon-maskable-512.png?v=61','assets/fire-v3.webp','assets/frost-v3.webp','assets/electric-v3a.webp','assets/electric-v3b.webp'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('message', event => {
