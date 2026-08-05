@@ -19,6 +19,7 @@ const update=readFileSync(new URL('./update.html',import.meta.url),'utf8');
 const app=readFileSync(new URL('./app.js',import.meta.url),'utf8');
 const worker=readFileSync(new URL('./sw.js',import.meta.url),'utf8');
 const receiver=readFileSync(new URL('./cast-receiver/receiver.js',import.meta.url),'utf8');
+const receiverCss=readFileSync(new URL('./cast-receiver/receiver.css',import.meta.url),'utf8');
 const build=index.match(/application-version" content="(\d+)"/)?.[1];
 assert.ok(build,'index must declare an application version');
 assert.match(privacy,new RegExp(`App version ${build}`));
@@ -39,6 +40,8 @@ assert.doesNotMatch(receiver,/MAX_ACTIVE_VIDEOS/,'Cast receiver must not run sev
 assert.match(receiver,/data\.status==='stats'/,'Cast receiver must render all-time statistics');
 assert.match(app,/status:'stats'/,'Sender must publish a dedicated Cast statistics payload');
 assert.match(app,/else if\(next==='stats'\)sendStatsToCast\(\)/,'Opening app statistics must update an active Cast session');
-assert.match(receiver,/fx-near-edge/,'Near-win treatment must use lightweight edge animation');
-assert.doesNotMatch(receiver,/nearVictory\?'electric'/,'Near-win must not consume a full-card video decoder');
+assert.match(receiver,/p\.nearVictory\?'electric'/,'Near-win treatment must use the queued electric video');
+assert.match(receiver,/⚡ NEAR WIN/,'Cast near-win badge must match the app wording');
+assert.match(receiverCss,/fx-electric-video\.ready[^}]*mask-image/,'Near-win video must be masked to the card edges');
+assert.doesNotMatch(receiver,/fx-near-edge/,'Near-win must not regress to nearly invisible CSS streaks');
 console.log('All rules and statistics tests passed.');
