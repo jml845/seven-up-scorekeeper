@@ -74,7 +74,13 @@
 .score-card.effect-frozen { background:radial-gradient(circle at 15% 0,#dffaff30,transparent 42%),linear-gradient(145deg,#17425a,var(--panel)); border-color:#8deaffaa }
 .score-card.effect-frozen::after { content:"❄  ·  ❅  ·  ❄"; position:absolute; right:12px; bottom:7px; color:#bcefff35; font-size:16px; letter-spacing:5px; z-index:-1; animation:frost-drift 3.2s ease-in-out infinite alternate }
 .score-card.effect-hot { outline:1px solid #ff6d3e88; background:radial-gradient(ellipse at 50% 115%,#ff4d003d,transparent 55%),linear-gradient(145deg,var(--panel2),var(--panel)); animation:score-fire-aura 1.15s ease-in-out infinite alternate }
-.score-card.effect-near { outline:1px solid #4ee9ffbb; box-shadow:inset 0 0 18px #24dfff22,0 0 13px #24dfff38,var(--shadow) }
+.score-card.effect-near { outline:1px solid #4ee9ff88; box-shadow:inset 0 0 10px #24dfff14,0 0 7px #24dfff2e,var(--shadow) }
+.score-card-fx .fx-near-edge { position:absolute; inset:2px; overflow:hidden; border-radius:inherit; opacity:.66 }
+.score-card-fx .fx-near-edge i,.score-card-fx .fx-near-edge b { position:absolute; display:block; opacity:0; filter:drop-shadow(0 0 3px #4ee9ff); background:linear-gradient(90deg,transparent,#eaffff 45%,#4ee9ff 58%,transparent) }
+.score-card-fx .fx-near-edge i { width:42%; height:1px; left:0 }.score-card-fx .fx-near-edge i:first-child { top:0; animation:app-near-edge-x 4.8s ease-in-out infinite }.score-card-fx .fx-near-edge i:nth-child(2) { right:0; left:auto; bottom:0; transform:rotate(180deg); animation:app-near-edge-x 4.8s 2.4s ease-in-out infinite }
+.score-card-fx .fx-near-edge b { width:1px; height:48%; top:0; background:linear-gradient(180deg,transparent,#eaffff 45%,#4ee9ff 58%,transparent) }.score-card-fx .fx-near-edge b:nth-child(3) { left:0; animation:app-near-edge-y 5.4s 1.1s ease-in-out infinite }.score-card-fx .fx-near-edge b:nth-child(4) { right:0; top:auto; bottom:0; transform:rotate(180deg); animation:app-near-edge-y 5.4s 3.8s ease-in-out infinite }
+@keyframes app-near-edge-x { 0%,72%,100%{opacity:0;transform:translateX(-18%)}78%{opacity:.75}88%{opacity:.25}94%{opacity:0;transform:translateX(145%)} }
+@keyframes app-near-edge-y { 0%,76%,100%{opacity:0;transform:translateY(-16%)}81%{opacity:.65}91%{opacity:.2}96%{opacity:0;transform:translateY(140%)} }
 .score-card.effect-double-pulse { animation:score-double-pulse .8s cubic-bezier(.2,.75,.2,1) 1 }
 @keyframes score-gold-aura { to { box-shadow:0 0 0 1px #ffe37a88,0 0 34px #ffc62e70,var(--shadow) } }
 @keyframes frost-drift { to { transform:translate(-8px,-3px); opacity:.75 } }

@@ -32,5 +32,13 @@ assert.match(app,/querySelector\(['"]button\.chip\.double['"]\)/,'×2 handler mu
 assert.match(app,/window\.visualViewport\?\.height\|\|window\.innerHeight/,'mobile shell must track the live visual viewport height');
 assert.match(app,/visualViewport\?\.addEventListener\(['"]resize['"],syncViewportHeight\)/,'mobile shell must react to browser-bar viewport changes');
 assert.match(receiver,/cols=players\.length>=6\?2:1/,'Cast receiver must use two columns for six or more players');
-assert.match(receiver,/requestedVideoLimit\):4;/,'Cast receiver must allow four simultaneous videos by default');
+assert.match(receiver,/effectQueue=\[\],currentEffectKey=null/,'Cast receiver must maintain a serial effect queue');
+assert.match(receiver,/currentEffectKey=effectQueue\.shift\(\)\|\|null/,'Cast receiver must start the next queued effect only after the current one');
+assert.match(receiver,/effectWatchdog=setTimeout/,'Cast queue must recover if a weak device never emits a video completion event');
+assert.doesNotMatch(receiver,/MAX_ACTIVE_VIDEOS/,'Cast receiver must not run several decoder-heavy effects concurrently');
+assert.match(receiver,/data\.status==='stats'/,'Cast receiver must render all-time statistics');
+assert.match(app,/status:'stats'/,'Sender must publish a dedicated Cast statistics payload');
+assert.match(app,/else if\(next==='stats'\)sendStatsToCast\(\)/,'Opening app statistics must update an active Cast session');
+assert.match(receiver,/fx-near-edge/,'Near-win treatment must use lightweight edge animation');
+assert.doesNotMatch(receiver,/nearVictory\?'electric'/,'Near-win must not consume a full-card video decoder');
 console.log('All rules and statistics tests passed.');
