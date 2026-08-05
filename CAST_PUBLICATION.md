@@ -4,7 +4,7 @@
 
 - Application ID: `F869B6B1`
 - Type: Custom Receiver
-- Name: Cast 7
+- Name: FlipCast
 - Receiver URL: replace with the permanent static HTTPS URL after deployment
 - Supports relay casting: No
 - Supports audio-only devices: No
@@ -19,7 +19,7 @@
 - Listed on Google properties: No (unlisted)
 - Countries: All countries
 - Category: Games
-- Title: `Cast 7`
+- Title: `FlipCast`
 - Description: `A fast scorekeeper and live TV leaderboard for press-your-luck card games.`
 - Icon: `cast-icon-512.png` (512×512 PNG)
 

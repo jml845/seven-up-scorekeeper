@@ -13,5 +13,5 @@ class ReceiverHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
 if __name__ == "__main__":
-    print("Cast 7 Cast receiver listening on port 8790", flush=True)
+    print("FlipCast receiver listening on port 8790", flush=True)
     ThreadingHTTPServer(("127.0.0.1", 8790), ReceiverHandler).serve_forever()

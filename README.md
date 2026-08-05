@@ -1,4 +1,4 @@
-# Cast 7
+# FlipCast
 
 An offline-first, installable scorekeeping web app for Flip Seven-style card games. It includes quick score entry, a rule-aware card calculator, configurable target score, resumable games, history, and all-time player statistics.
 

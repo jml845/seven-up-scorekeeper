@@ -1,7 +1,7 @@
 {
-  "name": "Cast 7",
-  "short_name": "Cast 7",
-  "description": "Offline game scoring, history, and all-time player statistics.",
+  "name": "FlipCast",
+  "short_name": "FlipCast",
+  "description": "Fast game-night scoring, history, statistics, and a live Cast scoreboard.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#071536",

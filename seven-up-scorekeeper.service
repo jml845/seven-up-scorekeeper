@@ -1,5 +1,5 @@
 [Unit]
-Description=Cast 7 home-network app
+Description=FlipCast home-network app
 After=network-online.target
 Wants=network-online.target
 

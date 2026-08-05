@@ -1,4 +1,4 @@
-import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=64';
+import {MODIFIERS, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=65';
 
 function syncViewportHeight(){document.documentElement.style.setProperty('--app-height',`${Math.round(window.visualViewport?.height||window.innerHeight)}px`)}
 syncViewportHeight();
@@ -7,7 +7,7 @@ window.visualViewport?.addEventListener('scroll',syncViewportHeight);
 window.addEventListener('orientationchange',syncViewportHeight);
 
 const KEY = 'seven-up-scorekeeper-v1';
-const BUILD = '64';
+const BUILD = '65';
 const FEEDBACK_FORM = 'https://tally.so/r/1Ag8Pb';
 const fresh = () => ({players:[], games:[], activeGameId:null});
 let state = load(); let view = 'home'; let scoringMode = 'cards'; let draft = {}; let winnerGame = null;
@@ -49,7 +49,7 @@ function home(){const game=activeGame();return `<svg class="cast-arrow-overlay" 
   ${game?`<button class="card home-action primary" data-nav="game"><strong>Resume game</strong><span>Round ${game.rounds.length+1} · ${game.playerIds.length} players</span></button>`:`<button class="card home-action primary" data-nav="setup"><strong>New game</strong><span>Choose players and start scoring</span></button>`}
   ${game?`<button class="card home-action" data-nav="setup"><strong>New game</strong><span>Start another match</span></button>`:''}
   <button class="card home-action" data-nav="stats"><strong>All-time stats</strong><span>Wins, win rate, streaks, and more</span></button>
-  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=64">Privacy</a></p>`}
+  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=65">Privacy</a></p>`}
 function positionCastArrow(){const svg=document.querySelector('.cast-arrow-overlay'),hint=document.querySelector('.hero-cast-hint'),launcher=document.querySelector('.cast-launcher');if(!svg||!hint)return;const h=hint.getBoundingClientRect(),c=launcher?.getBoundingClientRect();const startX=Math.min(innerWidth-70,h.right+9),startY=h.top+h.height/2,targetX=c?.width?c.left+c.width/2:innerWidth-37,targetY=c?.height?c.top+c.height/2:34;svg.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);svg.querySelector('path').setAttribute('d',`M${startX} ${startY} H${targetX} V${targetY}`);svg.querySelector('polyline').setAttribute('points',`${targetX-8},${targetY+12} ${targetX},${targetY} ${targetX+8},${targetY+12}`)}
 function setup(){return `<section class="setup-page-shell"><div class="section-head setup-head"><h1>New game</h1><button class="button ghost small" data-nav="home">Cancel</button></div><section class="card setup-card">
   <div class="field"><label>Target score</label><input id="target" type="number" min="25" max="999" value="200" inputmode="numeric"></div>
@@ -62,7 +62,7 @@ function gameScreen(game){const totals=totalsFor(game);const latestRound=game.ro
   <div class="game-actions"><button id="endGame" class="button ghost">End game</button><button id="scoreRound" class="button">Score round ${game.rounds.length+1}</button></div></section>`}
 function tvScreen(game){
   const totals=totalsFor(game);const order=[...game.playerIds].sort((a,b)=>totals[b]-totals[a]);const high=Math.max(...Object.values(totals));const cols=order.length>8?2:1;const rows=Math.ceil(order.length/cols);
-  return `<section class="tv-view ${cols===2?'tv-dense':''}" style="--tv-cols:${cols};--tv-rows:${rows}"><header class="tv-head"><div><span class="tv-kicker">LIVE SCOREBOARD</span><h1>Cast 7</h1></div><div class="tv-round">Round <strong>${game.rounds.length+1}</strong><small>First to ${game.target}</small></div></header>
+  return `<section class="tv-view ${cols===2?'tv-dense':''}" style="--tv-cols:${cols};--tv-rows:${rows}"><header class="tv-head"><div><span class="tv-kicker">LIVE SCOREBOARD</span><h1>FlipCast</h1></div><div class="tv-round">Round <strong>${game.rounds.length+1}</strong><small>First to ${game.target}</small></div></header>
   <div class="tv-board">${order.map((id,i)=>`<article class="tv-player ${totals[id]===high&&high>0?'leader':''}"><div class="tv-rank">${i===0?'♛':i+1}</div><div class="tv-name">${esc(player(id)?.name)}${totals[id]===high&&high>0?'<span>LEADER</span>':''}</div><div class="tv-track"><i style="width:${Math.min(100,totals[id]/game.target*100)}%"></i></div><div class="tv-score">${totals[id]}</div></article>`).join('')}</div>
   <footer class="tv-foot"><span>${game.rounds.length?`${game.rounds.length} round${game.rounds.length===1?'':'s'} complete`:'Game ready'} · ${game.playerIds.length} players</span><div><button id="tvFullscreen" class="button ghost small">Full screen</button> <button class="button ghost small" data-nav="game">Exit TV mode</button></div></footer></section>`;
 }
@@ -112,7 +112,7 @@ if('serviceWorker'in navigator){
     reloading=true;
     location.reload();
   });
-  navigator.serviceWorker.register('./sw.js?v=64',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=65',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 channel?.addEventListener('message',()=>{state=load();if(view==='tv')render()});
 window.addEventListener('storage',event=>{if(event.key===KEY){state=load();if(view==='tv')render()}});
