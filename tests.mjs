@@ -42,7 +42,16 @@ assert.doesNotMatch(receiver,/MAX_ACTIVE_VIDEOS/,'Cast receiver must not run sev
 assert.match(receiver,/data\.status==='stats'/,'Cast receiver must render all-time statistics');
 assert.match(app,/status:'stats'/,'Sender must publish a dedicated Cast statistics payload');
 assert.match(app,/else if\(next==='stats'\)sendStatsToCast\(\)/,'Opening app statistics must update an active Cast session');
-assert.match(receiver,/p\.nearVictory\?'electric'/,'Near-win treatment must use the queued electric video');
+assert.match(receiver,/\['electric',p\.nearVictory\]/,'Near-win treatment must use the queued electric video');
+assert.match(receiver,/players\.flatMap\(p=>videoEffects\(p\)\.map/,'Cast receiver must queue every simultaneous player effect, not only the highest-priority one');
+assert.match(receiver,/board\.addEventListener\('playing'/,'Video artwork must become visible only after playback actually starts');
+assert.doesNotMatch(receiver,/onloadeddata=.*ready/,'A decoded first frame must not be mistaken for active playback');
+assert.match(receiver,/board\.addEventListener\('waiting'.*showFallback/,'A stalled video must reveal animated fallback artwork');
+assert.match(receiver,/poster:'electric-v2\.webp'/,'Near-win must have an animated lightweight fallback');
+assert.match(receiver,/poster:'fire-v2\.webp'/,'Fire must have an animated lightweight fallback');
+assert.match(receiver,/poster:'frost-v2\.webp'/,'Freeze must have an animated lightweight fallback');
+assert.match(receiver,/image\.decoding='async'/,'Warm-up must decode lightweight artwork without preloading every heavy video');
+assert.match(receiver,/activeVideo\?poster\(activeVideo,true\):''/,'Only the queued effect may animate; fallback artwork must remain serial too');
 assert.match(receiver,/⚡ NEAR WIN/,'Cast near-win badge must match the app wording');
 assert.match(receiverCss,/fx-electric-video\.ready[^}]*mask-image/,'Near-win video must be masked to the card edges');
 assert.doesNotMatch(receiver,/fx-near-edge/,'Near-win must not regress to nearly invisible CSS streaks');
