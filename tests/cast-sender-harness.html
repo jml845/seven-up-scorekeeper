@@ -1,0 +1,22 @@
+<!doctype html><html><body><button id="castButton"></button><script>
+const listeners={},notices=[];let requests=0,session=null,options=null;
+const SessionState={SESSION_STARTED:'started',SESSION_RESUMED:'resumed',SESSION_START_FAILED:'failed',SESSION_ENDED:'ended'};
+const context={
+  setOptions:value=>{options=value},
+  addEventListener:(type,listener)=>listeners[type]=listener,
+  getCastState:()=> 'not_connected',
+  getCurrentSession:()=>session,
+  endCurrentSession:()=>{session=null},
+  requestSession:async()=>{requests+=1;if(requests===1)throw {code:'invalid_parameter'};session={getSessionState:()=>SessionState.SESSION_STARTED,sendMessage:()=>Promise.resolve()};listeners.session?.({sessionState:SessionState.SESSION_STARTED})}
+};
+window.SEVEN_UP_CAST_APP_ID='F869B6B1';
+window.chrome={cast:{isAvailable:true,AutoJoinPolicy:{PAGE_SCOPED:'page'},framework:{}}};
+window.cast={framework:{CastContext:{getInstance:()=>context},CastContextEventType:{CAST_STATE_CHANGED:'cast',SESSION_STATE_CHANGED:'session'},CastState:{NO_DEVICES_AVAILABLE:'none'},SessionState}};
+window.addEventListener('sevenup-cast-notice',event=>notices.push(event.detail));
+</script><script src="../cast-sender.js"></script><script>
+__onGCastApiAvailable(true);
+castButton.click();
+setTimeout(()=>castButton.click(),20);
+setTimeout(()=>castButton.click(),400);
+setTimeout(()=>{document.body.dataset.result=[requests,options.autoJoinPolicy,options.resumeSavedSession,document.documentElement.classList.contains('cast-connected'),notices.some(n=>n.includes('reset'))].join(',')},800);
+</script></body></html>
