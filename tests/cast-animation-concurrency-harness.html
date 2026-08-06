@@ -1,0 +1,16 @@
+<!doctype html><html><head><base href="../cast-receiver/"><link rel="stylesheet" href="receiver.css"></head><body>
+<main><section id="idle" class="idle"></section><section id="scoreboard" class="scoreboard hidden"></section></main>
+<script>
+let maxVideos=0,maxLite=0;
+HTMLMediaElement.prototype.play=function(){this.dispatchEvent(new Event('playing'));return Promise.resolve()};
+new MutationObserver(()=>{maxVideos=Math.max(maxVideos,document.querySelectorAll('.fx-video').length);maxLite=Math.max(maxLite,document.querySelectorAll('.player-fx.lite-effect').length)}).observe(document.documentElement,{subtree:true,childList:true});
+window.cast={framework:{CastReceiverContext:{getInstance:()=>({addCustomMessageListener:(namespace,listener)=>window.sendCast=listener,start:()=>{}})}}};
+</script><script src="receiver.js"></script><script>
+sendCast({data:{gameId:'concurrency',status:'active',target:200,round:1,completedRounds:0,roundActive:true,players:[
+{id:'p1',name:'Bust',score:10,banked:0,roundPoints:10,busted:true},
+{id:'p2',name:'Flip',score:20,banked:0,roundPoints:20,flip7:true},
+{id:'p3',name:'Double',score:30,banked:0,roundPoints:30,doubled:true},
+{id:'p4',name:'Freeze',score:40,banked:0,roundPoints:40,frozen:true}
+]}});
+setTimeout(()=>document.body.dataset.concurrency=`${maxVideos},${maxLite}`,250);
+</script></body></html>

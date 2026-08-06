@@ -41,7 +41,10 @@ assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/r
 assert.match(app,/visualViewport\?\.addEventListener\(['"]resize['"],syncViewportHeight\)/,'mobile shell must react to browser-bar viewport changes');
 assert.match(receiver,/cols=players\.length>=6\?2:1/,'Cast receiver must use two columns for six or more players');
 assert.match(receiver,/effectQueue=\[\],currentEffectKey=null/,'Cast receiver must maintain a serial effect queue');
-assert.match(receiver,/currentEffectKey=effectQueue\.shift\(\)\|\|null/,'Cast receiver must start the next queued effect only after the current one');
+assert.match(receiver,/MAX_ACTIVE_EFFECTS=4,LITE_EFFECT_MS=6000/,'Cast receiver must allow four visual effects with bounded lightweight duration');
+assert.match(receiver,/currentEffectKey=takeQueued\(litePlayers\)/,'Cast receiver must reserve one premium video slot');
+assert.match(receiver,/liteEffectKeys\.size<MAX_ACTIVE_EFFECTS-1/,'Cast receiver must cap secondary lightweight effects at three');
+assert.match(receiver,/video\.pause\(\);video\.remove\(\)/,'Abandoned effects must release their decoder immediately');
 assert.match(receiver,/effectWatchdog=setTimeout/,'Cast queue must recover if a weak device never emits a video completion event');
 assert.doesNotMatch(receiver,/MAX_ACTIVE_VIDEOS/,'Cast receiver must not run several decoder-heavy effects concurrently');
 assert.match(receiver,/data\.status==='stats'/,'Cast receiver must render all-time statistics');
@@ -56,7 +59,8 @@ assert.match(receiver,/poster:'electric-v2\.webp'/,'Near-win must have an animat
 assert.match(receiver,/poster:'fire-v2\.webp'/,'Fire must have an animated lightweight fallback');
 assert.match(receiver,/poster:'frost-v2\.webp'/,'Freeze must have an animated lightweight fallback');
 assert.match(receiver,/image\.decoding='async'/,'Warm-up must decode lightweight artwork without preloading every heavy video');
-assert.match(receiver,/activeVideo\?poster\(activeVideo,true\):''/,'Only the queued effect may animate; fallback artwork must remain serial too');
+assert.match(receiver,/activeEffect\?poster\(activeEffect,true\):''/,'Every active premium or lightweight effect must have artwork');
+assert.match(receiverCss,/lite-effect-breathe/,'Secondary effects must retain visible high-quality motion without extra video decoders');
 assert.match(receiver,/⚡ NEAR WIN/,'Cast near-win badge must match the app wording');
 assert.match(receiverCss,/fx-electric-video\.ready[^}]*mask-image/,'Near-win video must be masked to the card edges');
 assert.doesNotMatch(receiver,/fx-near-edge/,'Near-win must not regress to nearly invisible CSS streaks');

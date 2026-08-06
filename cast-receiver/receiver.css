@@ -93,6 +93,16 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player-fx.video-ready .fx-x2-hold{opacity:0;transform:translate(-50%,-50%) scale(.72)}
 .player-fx .fx-bust-poster,.player-fx .fx-bust-video.ready{opacity:.96;filter:contrast(1.18) brightness(1.08) drop-shadow(0 0 .28vw #fff9)}
 .player-fx .fx-flip7-poster,.player-fx .fx-flip7-video.ready{opacity:.96;filter:saturate(1.12) contrast(1.08) drop-shadow(0 0 .34vw #ffd45a88)}
+.player-fx.lite-effect>.active-poster{opacity:.9;will-change:transform,filter;animation:lite-effect-breathe 1.7s ease-in-out infinite alternate}
+.player-fx.lite-effect>.fx-bust-poster{animation:lite-bust-impact 1.35s cubic-bezier(.2,.75,.2,1) infinite}
+.player-fx.lite-effect>.fx-flip7-poster{animation:lite-flip7-swing 1.8s ease-in-out infinite alternate}
+.player-fx.lite-effect>.fx-x2-poster{animation:lite-x2-shimmer 1.4s ease-in-out infinite alternate}
+.player-fx.lite-effect>.fx-x2-hold{animation:lite-x2-hold 1.4s ease-in-out infinite alternate}
+@keyframes lite-effect-breathe{to{transform:scale(1.018);filter:saturate(1.08) brightness(1.08)}}
+@keyframes lite-bust-impact{0%,100%{transform:scale(1);filter:brightness(1)}12%{transform:scale(1.035) rotate(-.25deg);filter:brightness(1.22)}25%{transform:scale(.995) rotate(.18deg);filter:brightness(1.06)}}
+@keyframes lite-flip7-swing{to{transform:perspective(30vw) rotateY(-3deg) scale(1.018);filter:saturate(1.18) brightness(1.09)}}
+@keyframes lite-x2-shimmer{to{transform:scale(1.022);filter:saturate(1.25) brightness(1.12) hue-rotate(8deg)}}
+@keyframes lite-x2-hold{to{transform:translate(-50%,-50%) scale(1.06);text-shadow:0 0 .18em #fff,0 0 .48em #a86cff,0 0 .9em #59eaff}}
 .vfx-preload{position:fixed;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}.vfx-preload video{width:1px;height:1px}
 .player-fx .fx-sprite{position:absolute;inset:0;background-repeat:no-repeat;background-size:100% 100%;transform:translateZ(0);contain:paint}
 .player-fx .fx-sprite::before,.player-fx .fx-sprite::after{content:"";position:absolute;inset:0;background-repeat:no-repeat;background-size:100% 100%;pointer-events:none}

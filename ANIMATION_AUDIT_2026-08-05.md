@@ -33,3 +33,15 @@ The phone effects are lightweight CSS/image animations. The reliability defect w
 - Headless Chromium runtime harness confirms all six simultaneous effects execute once, in priority order.
 - Mirrored receiver source/hash comparison before deployment.
 - Live app and receiver build/version checks after GitHub Pages deployment.
+
+## Build 70 adaptive concurrency
+
+Build 70 increases visible concurrency without increasing decoder concurrency:
+
+- Up to four different player cards may animate together.
+- One priority effect receives the original full-resolution video path.
+- Up to three other players receive lightweight high-resolution animation: animated WebP for fire/freeze/electricity and GPU-composited motion for bust/Flip 7/×2.
+- Secondary effects run for a bounded six seconds and are not replayed later as duplicate videos.
+- The scheduler avoids putting two simultaneous effects on the same player card, protecting text readability.
+- One video decoder remains the hard maximum. Abandoned/timed-out video elements are paused and removed immediately.
+- A new Chromium runtime gate verifies exactly one video plus three lightweight effects under a four-player simultaneous load; the existing single-player gate still verifies that queued effects are never lost.
