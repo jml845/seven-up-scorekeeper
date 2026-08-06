@@ -1,5 +1,5 @@
-const CACHE = 'flipcast-v71';
-const FILES = ['./','index.html','privacy.html?v=71','update.html?v=71','styles.css?v=71','ui-enhancements.css?v=71','app.js?v=71','rules.js?v=71','cast-config.js?v=71','cast-sender.js?v=71','manifest.webmanifest?v=71','icon-192.png?v=71','icon-512.png?v=71','icon-maskable-512.png?v=71','assets/fire-v3.webp','assets/frost-v3.webp','assets/electric-v3a.webp','assets/electric-v3b.webp'];
+const CACHE = 'flipcast-v72';
+const FILES = ['./','index.html','privacy.html?v=72','update.html?v=72','styles.css?v=72','ui-enhancements.css?v=72','app.js?v=72','rules.js?v=72','cast-config.js?v=72','cast-sender.js?v=72','manifest.webmanifest?v=72','icon-192.png?v=72','icon-512.png?v=72','icon-maskable-512.png?v=72','assets/fire-v3.webp','assets/frost-v3.webp','assets/electric-v3a.webp','assets/electric-v3b.webp'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('message', event => {

@@ -1,0 +1,6 @@
+<!doctype html><html><head><base href="../cast-receiver/"><link rel="stylesheet" href="receiver.css"></head><body>
+<main><section id="idle" class="idle"></section><section id="scoreboard" class="scoreboard hidden"></section></main>
+<script>window.cast={framework:{CastReceiverContext:{getInstance:()=>({addCustomMessageListener:(namespace,listener)=>window.sendCast=listener,start:()=>{}})}}};</script>
+<script src="receiver.js"></script><script>
+sendCast({data:{status:'stats',totalGames:42,stats:Array.from({length:18},(_,i)=>({name:i===10?'Alexandria Longplayername':`Player ${i+1}`,games:20-i,wins:18-i,winPct:(18-i)/20,avgPlace:1+i/10}))}});
+</script></body></html>

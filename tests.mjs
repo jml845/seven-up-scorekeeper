@@ -58,6 +58,12 @@ assert.doesNotMatch(receiver,/poster:|poster\(|liteEffect|showFallback/,'Effect 
 assert.doesNotMatch(receiverCss,/fx-poster|lite-effect/,'Receiver CSS must not contain poster or lightweight-effect rendering');
 assert.match(receiver,/video\.dataset\.held='1'/,'Completed video must remain on its final frame');
 assert.match(receiver,/heldEffectKeys\.add\(key\)/,'Held final frames must persist until their effect is cleared');
+assert.match(receiver,/flip7:\{file:'flip7-v58\.webm'/,'Flip 7 must use the full-card gold video cut');
+assert.match(receiver,/activeEffect==='x2'\?'<span class="fx-x2-hold">×2<\/span>'/,'×2 must include a dedicated final-frame label');
+assert.match(receiverCss,/\.player-fx\.video-held \.fx-x2-hold\{opacity:1;visibility:visible\}/,'×2 label must appear only after its video is held');
+assert.match(receiverCss,/\.player-fx\.fx-stage-electric\{background:#000\}/,'Near-win edge video must have a solid black center stage');
+assert.match(receiverCss,/\.stats-screen\.dense-stats \.cast-stats\{[^}]*grid-template-rows:repeat\(9/,'Dense all-time stats must fit all 18 players in two compact columns');
+assert.match(receiverCss,/\.cast-stat-row strong\{[^}]*text-overflow:ellipsis/,'Long stats names must remain inside their row');
 assert.match(receiver,/⚡ NEAR WIN/,'Cast near-win badge must match the app wording');
 assert.match(receiverCss,/fx-electric-video\.ready[^}]*mask-image/,'Near-win video must be masked to the card edges');
 assert.doesNotMatch(receiver,/fx-near-edge/,'Near-win must not regress to nearly invisible CSS streaks');

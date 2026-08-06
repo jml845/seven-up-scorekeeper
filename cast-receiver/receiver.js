@@ -4,13 +4,13 @@
   const context=cast.framework.CastReceiverContext.getInstance();
   const idle=document.querySelector('#idle'),board=document.querySelector('#scoreboard');
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const VFX={fire:{file:'fire-v49.mp4',type:'video/mp4'},freeze:{file:'freeze-v49.mp4',type:'video/mp4'},electric:{file:'electric-v49.mp4',type:'video/mp4'},x2:{file:'x2-v52.webm',type:'video/webm'},bust:{file:'bust-v52.webm',type:'video/webm',holdAt:8.6},flip7:{file:'flip7-v60.webm',type:'video/webm'}};
-  const vfxVideo=(name,key)=>{const asset=VFX[name];return `<video class="fx-video fx-${name}-video" data-effect-key="${esc(key)}"${asset.holdAt?` data-hold-at="${asset.holdAt}"`:''} autoplay muted playsinline preload="auto"><source src="assets/${asset.file}?v=71" type="${asset.type}"></video>`};
+  const VFX={fire:{file:'fire-v49.mp4',type:'video/mp4'},freeze:{file:'freeze-v49.mp4',type:'video/mp4'},electric:{file:'electric-v49.mp4',type:'video/mp4'},x2:{file:'x2-v52.webm',type:'video/webm'},bust:{file:'bust-v52.webm',type:'video/webm',holdAt:8.6},flip7:{file:'flip7-v58.webm',type:'video/webm'}};
+  const vfxVideo=(name,key)=>{const asset=VFX[name];return `<video class="fx-video fx-${name}-video" data-effect-key="${esc(key)}"${asset.holdAt?` data-hold-at="${asset.holdAt}"`:''} autoplay muted playsinline preload="auto"><source src="assets/${asset.file}?v=72" type="${asset.type}"></video>`};
   const videoEffects=p=>[['bust',p.busted],['flip7',p.flip7],['x2',p.doubled],['freeze',p.frozen],['fire',p.hot],['electric',p.nearVictory]].filter(([,active])=>active).map(([name])=>name);
   const videoPriority=['bust','flip7','x2','freeze','fire','electric'];
   const MAX_ACTIVE_EFFECTS=4,MIN_ACTIVE_EFFECTS=1,START_TIMEOUT_MS=3500,STALL_GRACE_MS=1400;
-  const fx=(p,activeEffect)=>{const key=activeEffect?`${p.id}:${activeEffect}`:'';return `<span class="player-fx${activeEffect?' has-effect has-video':''}" aria-hidden="true">${activeEffect?vfxVideo(activeEffect,key):''}</span>`};
-  function warmVfx(){for(const name of Object.keys(VFX)){const asset=VFX[name],video=document.createElement('video');video.preload='metadata';video.muted=true;video.src=`assets/${asset.file}?v=71`}}
+  const fx=(p,activeEffect)=>{const key=activeEffect?`${p.id}:${activeEffect}`:'';return `<span class="player-fx${activeEffect?` has-effect has-video fx-stage-${activeEffect}`:''}" aria-hidden="true">${activeEffect?vfxVideo(activeEffect,key):''}${activeEffect==='x2'?'<span class="fx-x2-hold">×2</span>':''}</span>`};
+  function warmVfx(){for(const name of Object.keys(VFX)){const asset=VFX[name],video=document.createElement('video');video.preload='metadata';video.muted=true;video.src=`assets/${asset.file}?v=72`}}
   let lastGameId=null,lastRound=null,previousLeaderId=null,previousDoubled=new Map(),effectState=new Map(),effectQueue=[],activeEffectKeys=new Set(),heldEffectKeys=new Set(),lastData=null,decoderLimit=MAX_ACTIVE_EFFECTS,healthyStarts=0;
   const playerKey=key=>key.slice(0,key.lastIndexOf(':'));
   function discardVideo(key){for(const video of board.querySelectorAll('.fx-video[data-effect-key]'))if(!key||video.dataset.effectKey===key){clearTimeout(video._startTimer);clearTimeout(video._stallTimer);video.pause();video.remove()}}
