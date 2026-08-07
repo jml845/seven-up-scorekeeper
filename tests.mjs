@@ -59,6 +59,8 @@ assert.match(receiver,/image\.decoding='async'/,'Warm-up must decode lightweight
 assert.match(receiverCss,/\.player-fx\.video-ready>\.fx-poster\{opacity:0\}/,'Poster fallback must hide only after video playback starts');
 assert.match(receiver,/effectState\.set\(key,'done'\)/,'Completed videos must release their queue slot');
 assert.match(receiver,/board\.addEventListener\('ended'.*finishVideo/,'Completed videos must advance the effect queue');
+assert.match(receiver,/if\(key\.endsWith\(':x2'\)\)x2HeldPlayers\.add/,'Completed ×2 video must retain its frozen end treatment');
+assert.match(receiverCss,/\.player-fx\.x2-frozen/,'Frozen ×2 treatment must remain lightweight and decoder-free');
 assert.match(receiver,/flip7:\{file:'flip7-v60\.webm'/,'Flip 7 must use the approved photoreal gold video');
 assert.match(receiver,/activeEffect==='x2'\?'<span class="fx-x2-hold">×2<\/span>'/,'×2 must include a dedicated final-frame label');
 assert.match(receiverCss,/\.player-fx\.fx-stage-electric\{background:#000\}/,'Near-win edge video must have a solid black center stage');
