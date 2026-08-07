@@ -1,0 +1,10 @@
+<!doctype html><html><head><base href="../cast-receiver/"><link rel="stylesheet" href="receiver.css"></head><body>
+<main><section id="idle" class="idle"></section><section id="scoreboard" class="scoreboard hidden"></section></main>
+<script>
+let attempts=0;
+HTMLMediaElement.prototype.play=function(){attempts+=1;return Promise.reject(new Error('decoder rejected'))};
+window.cast={framework:{CastReceiverContext:{getInstance:()=>({addCustomMessageListener:(namespace,listener)=>window.sendCast=listener,start:()=>{}})}}};
+</script><script src="receiver.js"></script><script>
+sendCast({data:{gameId:'failure',status:'active',target:200,round:1,completedRounds:0,roundActive:true,players:[{id:'p1',name:'Stable card',score:10,banked:0,roundPoints:10,busted:true}]}});
+setTimeout(()=>document.body.dataset.failure=`${attempts},${document.querySelectorAll('.fx-video').length},${document.querySelectorAll('.player').length}`,700);
+</script></body></html>

@@ -17,6 +17,5 @@ window.addEventListener('sevenup-cast-notice',event=>notices.push(event.detail))
 __onGCastApiAvailable(true);
 castButton.click();
 setTimeout(()=>castButton.click(),20);
-setTimeout(()=>castButton.click(),400);
-setTimeout(()=>{document.body.dataset.result=[requests,options.autoJoinPolicy,options.resumeSavedSession,document.documentElement.classList.contains('cast-connected'),notices.some(n=>n.includes('reset'))].join(',')},800);
+setTimeout(()=>{document.body.dataset.result=[requests,options.autoJoinPolicy,options.resumeSavedSession,document.documentElement.classList.contains('cast-connected'),notices.some(n=>n.includes('Retrying once'))].join(',')},800);
 </script></body></html>

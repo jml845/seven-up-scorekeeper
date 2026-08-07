@@ -65,8 +65,7 @@
     try { castContext?.endCurrentSession?.(true); } catch {}
     await waitForSessionClear();
     initializeCast(true, true);
-    if (code === 'invalid_parameter') notify('Cast connection was reset. Tap Cast once more.');
-    else notify(`Could not start casting (${code}). Cast is ready to retry.`);
+    notify(`Cast connection was reset after ${code}. Retrying once…`);
   }
   async function requestCast() {
     if (!ready || !devicesAvailable || !castContext) return notify('No Cast devices are available on this network');
@@ -86,6 +85,15 @@
         const code = String(error?.code || error || 'unknown');
         recordError(code);
         await recoverSender(code);
+        await delay(250);
+        try { await clearStaleSession(); await castContext.requestSession(); }
+        catch (retryError) {
+          if (retryError !== 'cancel' && retryError?.code !== 'cancel') {
+            const retryCode = String(retryError?.code || retryError || 'unknown');
+            recordError(retryCode);
+            notify(`Could not start casting (${retryCode}). Tap Cast to try again.`);
+          }
+        }
       }
     }
     finally { setBusy(false); }
