@@ -112,6 +112,19 @@
 .app-footer { text-align:center; margin-top:18px }
 .app-footer a { color:var(--muted) }
 .app-footer span { margin:0 8px; color:var(--muted) }
+.edition-intro { max-width:610px; margin:0 0 18px; line-height:1.5 }
+.edition-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px }
+.edition-card { min-height:190px; border:1px solid #32d5ff55; color:var(--ink); cursor:pointer; text-align:left; display:flex; flex-direction:column; justify-content:flex-end; gap:8px }
+.edition-card strong { font-size:clamp(25px,5vw,34px); line-height:1.02 }
+.edition-card>span:last-child { color:var(--muted); line-height:1.45 }
+.edition-card.vengeance { background:radial-gradient(circle at 90% 0,#d84b4b38,transparent 45%),linear-gradient(145deg,#30202a,var(--panel)); border-color:#ff6b6b77 }
+.edition-kicker { align-self:flex-start; padding:4px 8px; border-radius:999px; color:#061722; background:var(--yellow); font-size:10px; font-weight:950; letter-spacing:.13em }
+.edition-card.vengeance .edition-kicker { background:var(--red); color:#250606 }
+.edition-pill { margin-top:7px }
+.calculator-note { flex-basis:100%; margin:4px 0 0; color:var(--muted); font-size:12px; line-height:1.4 }
+.effect-badge.vengeance { color:#ffd7d7; background:#a52b3f44; border:1px solid #ff6b6b88 }
+.chip.penalty.active,.chip.divided.active,.chip.special-zero.active,.chip.unlucky-seven.active,.chip.lucky-thirteen.active { background:#ff6b6b; border-color:#ff9c9c; color:#260606 }
+@media(max-width:560px){.edition-grid{grid-template-columns:1fr}.edition-card{min-height:145px}}
 .game-shell { height:100%; min-height:0; display:grid; grid-template-rows:minmax(0,1fr) auto }
 .game-scroll { min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-right:2px }
 .privacy-page { height:100dvh; min-height:0 }

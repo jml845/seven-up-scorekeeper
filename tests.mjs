@@ -1,9 +1,17 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js';
+import {calculateRound, rulesetFor, totalsFor, gameOutcome, playerStats} from './rules.js';
 
 assert.equal(calculateRound({numbers:[3,7,11],doubled:true,modifiers:[4,10],flip7:true}),71);
 assert.equal(calculateRound({numbers:[12],doubled:true,modifiers:[10],flip7:true,busted:true}),0);
+assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],divided:true,penalties:[4],flip7:false}),12);
+assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],divided:true,penalties:[2,10],flip7:true}),19);
+assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],specialZero:true,flip7:false}),0);
+assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],specialZero:true,flip7:true}),15);
+assert.equal(calculateRound({ruleset:'vengeance',numbers:[13],lucky13:true}),26);
+assert.equal(calculateRound({ruleset:'vengeance',numbers:[1],penalties:[10]}),0);
+assert.equal(rulesetFor({}).id,'classic','saved games without a ruleset must remain classic');
+assert.equal(rulesetFor({ruleset:'vengeance'}).numberMax,13);
 const game={target:200,playerIds:['a','b'],rounds:[{scores:{a:100,b:90}},{scores:{a:100,b:110}}]};
 assert.deepEqual(totalsFor(game),{a:200,b:200});
 assert.deepEqual(gameOutcome(game).tied,true);
@@ -40,6 +48,10 @@ assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/a
 assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/recoverSender\(code\)/,'Cast sender must recover in-app after a failed request');
 assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/await delay\(250\)[\s\S]*await castContext\.requestSession\(\)/,'Cast sender must make one bounded automatic retry after a reset');
 assert.match(app,/visualViewport\?\.addEventListener\(['"]resize['"],syncViewportHeight\)/,'mobile shell must react to browser-bar viewport changes');
+assert.match(app,/data-ruleset="classic"/,'new-game flow must offer classic Flip 7');
+assert.match(app,/data-ruleset="vengeance"/,'new-game flow must offer With a Vengeance');
+assert.match(app,/ruleset:setupRuleset/,'new games must persist their selected ruleset');
+assert.match(app,/g\.ruleset\|\|'classic'/,'old games must calculate as classic');
 assert.match(receiver,/cols=players\.length>=6\?2:1/,'Cast receiver must use two columns for six or more players');
 assert.match(receiver,/effectQueue=\[\],activeEffectKeys=new Set\(\)/,'Cast receiver must track queued and playing effects independently');
 assert.match(receiver,/MAX_ACTIVE_EFFECTS=1/,'Cast receiver must use only one decoder-heavy video at a time');

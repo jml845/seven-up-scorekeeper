@@ -1,6 +1,8 @@
 # FlipCast
 
-An offline-first, installable scorekeeping web app for Flip Seven-style card games. It includes quick score entry, a rule-aware card calculator, configurable target score, resumable games, history, and all-time player statistics.
+An offline-first, installable scorekeeping web app for Flip Seven-style card games. It includes quick score entry, edition-aware card calculators for classic Flip 7 and Flip 7: With a Vengeance, configurable target score, resumable games, history, and all-time player statistics.
+
+New games begin with an edition chooser. Classic games retain the original 0–12, ×2, and positive-modifier calculator. Vengeance games use 1–13, The Zero, Unlucky 7, Lucky 13, ÷2, and −2 through −10 with the official scoring order. Existing saved games without an edition field are treated as classic games.
 
 ## Public beta
 

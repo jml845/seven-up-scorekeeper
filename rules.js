@@ -1,8 +1,25 @@
 export const MODIFIERS = [2, 4, 6, 8, 10];
+export const NEGATIVE_MODIFIERS = [2, 4, 6, 8, 10];
+export const RULESETS = {
+  classic: {id:'classic', name:'Flip 7', shortName:'Classic', numberMin:0, numberMax:12},
+  vengeance: {id:'vengeance', name:'Flip 7: With a Vengeance', shortName:'Vengeance', numberMin:1, numberMax:13},
+};
 
-export function calculateRound({numbers = [], doubled = false, modifiers = [], flip7 = false, busted = false}) {
+export function rulesetFor(gameOrId) {
+  const id = typeof gameOrId === 'string' ? gameOrId : gameOrId?.ruleset;
+  return RULESETS[id] || RULESETS.classic;
+}
+
+export function calculateRound({numbers = [], doubled = false, modifiers = [], flip7 = false, busted = false,
+  ruleset = 'classic', divided = false, penalties = [], specialZero = false, lucky13 = false} = {}) {
   if (busted) return 0;
-  const numberTotal = numbers.reduce((sum, n) => sum + Number(n || 0), 0);
+  let numberTotal = numbers.reduce((sum, n) => sum + Number(n || 0), 0) + (lucky13 ? 13 : 0);
+  if (ruleset === 'vengeance' && specialZero) numberTotal = 0;
+  if (ruleset === 'vengeance') {
+    if (divided) numberTotal = Math.floor(numberTotal / 2);
+    const penaltyTotal = penalties.reduce((sum, n) => sum + Math.abs(Number(n || 0)), 0);
+    return Math.max(0, numberTotal - penaltyTotal) + (flip7 ? 15 : 0);
+  }
   const modifierTotal = modifiers.reduce((sum, n) => sum + Number(n || 0), 0);
   return numberTotal * (doubled ? 2 : 1) + modifierTotal + (flip7 ? 15 : 0);
 }
