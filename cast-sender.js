@@ -7,6 +7,8 @@
   let castContext = null;
   let button = null;
   let requestInFlight = false;
+  let pendingScoreboard = null;
+  let sendActive = false;
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   function bindButton() {
     if (button) return;
@@ -67,15 +69,31 @@
     initializeCast(true, true);
     notify(`Cast connection was reset after ${code}. Retrying once…`);
   }
+  async function waitForReady() {
+    if (window.chrome?.cast?.isAvailable === true) initializeCast(true);
+    for (let attempt = 0; attempt < 20 && (!ready || !castContext); attempt += 1) await delay(100);
+    return ready && Boolean(castContext);
+  }
   async function requestCast() {
-    if (!ready || !devicesAvailable || !castContext) return notify('No Cast devices are available on this network');
     if (requestInFlight) return;
+    setBusy(true);
+    if (!await waitForReady() || !devicesAvailable) {
+      setBusy(false);
+      return notify('No Cast devices are available on this network');
+    }
     if (connectedState(currentSessionState())) {
       document.documentElement.classList.add('cast-connected');
-      window.dispatchEvent(new Event('sevenup-cast-connected'));
+      try { await castContext.requestSession(); }
+      catch (error) {
+        if (error !== 'cancel' && error?.code !== 'cancel') {
+          const code = String(error?.code || error || 'unknown');
+          recordError(code);
+          notify(`Could not open Cast controls (${code}).`);
+        }
+      }
+      finally { setBusy(false); }
       return;
     }
-    setBusy(true);
     try {
       await clearStaleSession();
       await castContext.requestSession();
@@ -100,11 +118,36 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindButton, {once:true});
   else bindButton();
+  async function flushMessages() {
+    if (sendActive) return;
+    sendActive = true;
+    try {
+      while (pendingScoreboard) {
+        const envelope = pendingScoreboard;
+        const session = cast.framework.CastContext.getInstance().getCurrentSession();
+        if (!session || !connectedState(session.getSessionState?.())) break;
+        try {
+          await session.sendMessage(NAMESPACE, envelope.scoreboard);
+          if (pendingScoreboard === envelope) pendingScoreboard = null;
+        } catch {
+          if (pendingScoreboard !== envelope) continue;
+          envelope.attempts += 1;
+          if (envelope.attempts >= 4) {
+            pendingScoreboard = null;
+            notify('The Cast screen missed an update. Try the selection again.');
+          } else await delay(150 * envelope.attempts);
+        }
+      }
+    } finally {
+      sendActive = false;
+      if (pendingScoreboard && connectedState(currentSessionState())) setTimeout(flushMessages, 0);
+    }
+  }
   function send(scoreboard) {
-    if (!ready || !scoreboard || !window.cast?.framework) return Promise.resolve(false);
-    const session = cast.framework.CastContext.getInstance().getCurrentSession();
-    if (!session) return Promise.resolve(false);
-    return session.sendMessage(NAMESPACE, scoreboard).then(() => true).catch(() => false);
+    if (!scoreboard || !window.cast?.framework) return Promise.resolve(false);
+    pendingScoreboard = {scoreboard, attempts:0};
+    flushMessages();
+    return Promise.resolve(true);
   }
   window.sevenUpCast = {send, isReady: () => ready, hasDevices: () => devicesAvailable};
   function initializeCast(available = false, force = false) {
@@ -130,7 +173,10 @@
           const connected = event.sessionState === cast.framework.SessionState.SESSION_STARTED || event.sessionState === cast.framework.SessionState.SESSION_RESUMED;
           document.documentElement.classList.toggle('cast-connected', connected);
           if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED || event.sessionState === cast.framework.SessionState.SESSION_ENDED) setBusy(false);
-          if (connected) window.dispatchEvent(new Event('sevenup-cast-connected'));
+          if (connected) {
+            window.dispatchEvent(new Event('sevenup-cast-connected'));
+            setTimeout(flushMessages, 200);
+          }
         });
       }
       initialized = true; ready = true;

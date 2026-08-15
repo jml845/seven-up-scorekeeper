@@ -47,6 +47,9 @@ assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/c
 assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/attempt < 10/,'Cast sender must wait a bounded interval for stale session cleanup');
 assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/recoverSender\(code\)/,'Cast sender must recover in-app after a failed request');
 assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/await delay\(250\)[\s\S]*await castContext\.requestSession\(\)/,'Cast sender must make one bounded automatic retry after a reset');
+assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/if \(connectedState\(currentSessionState\(\)\)\)[\s\S]*await castContext\.requestSession\(\)/,'Tapping Cast while connected must open the Cast management dialog');
+assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/pendingScoreboard = \{scoreboard, attempts:0\}/,'Cast updates must retain the latest state until it is delivered');
+assert.match(readFileSync(new URL('./cast-sender.js',import.meta.url),'utf8'),/envelope\.attempts >= 4/,'Cast message delivery retries must remain bounded');
 assert.match(app,/visualViewport\?\.addEventListener\(['"]resize['"],syncViewportHeight\)/,'mobile shell must react to browser-bar viewport changes');
 assert.match(app,/data-ruleset="classic"/,'new-game flow must offer classic Flip 7');
 assert.match(app,/data-ruleset="vengeance"/,'new-game flow must offer With a Vengeance');
