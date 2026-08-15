@@ -22,7 +22,7 @@
       try{
         if('serviceWorker' in navigator){
           status.textContent='Installing the latest app files…';
-          const registration=await navigator.serviceWorker.register('./sw.js?v=74',{updateViaCache:'none'});
+          const registration=await navigator.serviceWorker.register('./sw.js?v=75',{updateViaCache:'none'});
           await registration.update();
           const worker=registration.installing||registration.waiting||registration.active;
           if(worker&&worker.state!=='activated'){
@@ -36,7 +36,7 @@
             });
           }
         }
-        status.textContent='Update ready. Opening version 74…';
+        status.textContent='Update ready. Opening version 75…';
         location.replace(`./?updated=73&fresh=${Date.now()}`);
       }catch(error){
         status.textContent='The automatic update was blocked. Tap below to reopen FlipCast.';
