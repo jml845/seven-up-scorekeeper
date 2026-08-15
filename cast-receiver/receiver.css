@@ -76,8 +76,8 @@ html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:r
 .player-fx>span,.player-fx>svg{position:absolute;inset:0}
 .player-fx .fx-poster,.player-fx .fx-video{position:absolute;top:0;right:0;bottom:0;left:0;display:block;width:100%!important;height:100%!important;min-width:100%;min-height:100%;object-fit:fill;object-position:50% 50%;mix-blend-mode:screen;pointer-events:none;transform:translateZ(0);filter:saturate(.9) contrast(1.05)}
 .player-fx .fx-poster{opacity:.82}
-.player-fx .fx-video{opacity:0;visibility:hidden}
-.player-fx .fx-video.ready{opacity:.82;visibility:visible}
+.player-fx .fx-video{opacity:0;visibility:hidden;clip-path:inset(50%);transform:translateZ(0) scale(.001);transform-origin:50% 50%;background:#000}
+.player-fx .fx-video.ready{opacity:.82;visibility:visible;clip-path:inset(0);transform:translateZ(0) scale(1)}
 .player-fx .fx-freeze-video.ready{opacity:.72}
 .player-fx .fx-fire-video.ready{object-position:center bottom;opacity:.78}
 .player-fx.fx-stage-electric{background:#000}

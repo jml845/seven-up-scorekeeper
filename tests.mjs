@@ -68,8 +68,9 @@ assert.match(app,/status:'stats'/,'Sender must publish a dedicated Cast statisti
 assert.match(app,/else if\(next==='stats'\)sendStatsToCast\(\)/,'Opening app statistics must update an active Cast session');
 assert.match(receiver,/\['electric',p\.nearVictory\]/,'Near-win treatment must use the queued electric video');
 assert.match(receiver,/players\.flatMap\(p=>videoEffects\(p\)\.map/,'Cast receiver must queue every simultaneous player effect, not only the highest-priority one');
-assert.match(receiver,/board\.addEventListener\('playing'/,'Video artwork must become visible only after playback actually starts');
+assert.match(receiver,/requestVideoFrameCallback\(\(\)=>revealVideo\(video\)\)/,'Video artwork must become visible only after an actual decoded frame is available');
 assert.doesNotMatch(receiver,/onloadeddata=.*ready/,'A decoded first frame must not be mistaken for active playback');
+assert.match(receiverCss,/clip-path:inset\(50%\);transform:translateZ\(0\) scale\(\.001\)/,'Uninitialized Chromecast video surfaces must remain clipped and collapsed');
 assert.match(receiver,/board\.addEventListener\('waiting',stall,true\)/,'A stalled video must enter bounded failure recovery');
 assert.match(receiver,/image\.decoding='async'/,'Warm-up must decode lightweight artwork without preloading every heavy video');
 assert.doesNotMatch(receiver,/active-poster/,'Legacy artwork must never be inserted before an effect video');
