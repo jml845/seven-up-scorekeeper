@@ -79,6 +79,10 @@ assert.match(receiver,/heldEffects\.set\(playerKey\(key\),key\.slice/,'Every com
 assert.match(receiver,/const frozenFx=/,'Completed effects must render from a dedicated post-video still layer');
 assert.match(receiverCss,/\.player-fx\.effect-frozen/,'Frozen final treatments must remain lightweight and decoder-free');
 assert.match(receiver,/flip7:\{file:'flip7-v60\.webm'/,'Flip 7 must use the approved photoreal gold video');
+assert.match(receiver,/fire:\{file:'fire-v49\.mp4',type:'video\/mp4',poster:'fire-v53-poster\.png'/,'Fire must hold the video-derived final frame');
+assert.match(receiver,/freeze:\{file:'freeze-v49\.mp4',type:'video\/mp4',poster:'freeze-v53-poster\.png'/,'Freeze must hold the video-derived final frame');
+assert.match(receiver,/electric:\{file:'electric-v49\.mp4',type:'video\/mp4',poster:'electric-v53-poster\.png'/,'Electric must hold the video-derived final frame');
+assert.doesNotMatch(receiver,/poster:'(?:fire-v2|frost-v2|electric-v2)\.webp'/,'Legacy effect artwork must not be used for post-video stills');
 assert.match(receiver,/effect==='x2'\?'<span>×2<\/span>'/,'The frozen ×2 final frame must retain its dedicated label');
 assert.match(receiverCss,/\.player-fx\.fx-stage-electric\{background:#000\}/,'Near-win edge video must have a solid black center stage');
 assert.match(receiverCss,/\.stats-screen\.dense-stats \.cast-stats\{[^}]*grid-template-rows:repeat\(9/,'Dense all-time stats must fit all 18 players in two compact columns');
