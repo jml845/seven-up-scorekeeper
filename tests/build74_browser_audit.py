@@ -128,19 +128,21 @@ def main():
               first.querySelector('.divided').click();
               first.querySelector('[data-penalty="4"]').click(); await sleep(40);
               assert(document.querySelectorAll('.score-card')[0].querySelector('.score-value').textContent.trim()==='12', 'Vengeance operation order failed');
+              document.querySelectorAll('.score-card')[0].querySelector('.divided').click(); await sleep(40);
+              document.querySelectorAll('.score-card')[0].querySelector('[data-penalty="4"]').click(); await sleep(40);
               const current=document.querySelectorAll('.score-card')[0];
               current.querySelector('.special-zero').click(); await sleep(40);
-              assert(document.querySelectorAll('.score-card')[0].querySelector('.score-value').textContent.trim()==='0', 'The Zero failed');
+              assert(document.querySelectorAll('.score-card')[0].querySelector('.score-value').textContent.trim()==='32', 'The Zero incorrectly erased the other cards');
               document.querySelectorAll('.score-card')[0].querySelector('.flip').click(); await sleep(40);
-              assert(document.querySelectorAll('.score-card')[0].querySelector('.score-value').textContent.trim()==='15', 'The Zero plus Flip 7 failed');
+              assert(document.querySelectorAll('.score-card')[0].querySelector('.score-value').textContent.trim()==='47', 'The Zero plus Flip 7 failed');
               document.querySelectorAll('.score-card')[1].querySelector('.bust').click(); await sleep(40);
               await clickText('Save round');
               assert(document.body.textContent.includes('1 round completed'), 'round did not save');
               const saved=JSON.parse(localStorage.getItem('seven-up-scorekeeper-v1'));
               assert(saved.games.at(-1).ruleset==='vengeance', 'saved game lost ruleset');
-              assert(saved.games.at(-1).rounds[0].scores[saved.games.at(-1).playerIds[0]]===15, 'saved Vengeance score is wrong');
+              assert(saved.games.at(-1).rounds[0].scores[saved.games.at(-1).playerIds[0]]===47, 'saved Vengeance score is wrong');
               const overflow=document.documentElement.scrollWidth > document.documentElement.clientWidth;
-              return {legacy:'classic', vengeanceScore:15, ruleset:saved.games.at(-1).ruleset, viewport:[innerWidth,innerHeight], overflow};
+              return {legacy:'classic', vengeanceScore:47, ruleset:saved.games.at(-1).ruleset, viewport:[innerWidth,innerHeight], overflow};
             })()
             """
         )
