@@ -74,8 +74,9 @@ assert.doesNotMatch(receiver,/onloadeddata=.*ready/,'A decoded first frame must 
 assert.match(receiverCss,/clip-path:inset\(50%\);transform:translateZ\(0\) scale\(\.001\)/,'Uninitialized Chromecast video surfaces must remain clipped and collapsed');
 assert.match(receiver,/board\.addEventListener\('waiting',stall,true\)/,'A stalled video must enter bounded failure recovery');
 assert.match(receiver,/image\.decoding='async'/,'Warm-up must decode lightweight artwork without preloading every heavy video');
-assert.doesNotMatch(receiver,/active-poster/,'Legacy artwork must never be inserted before an effect video');
-assert.match(receiver,/activeEffect\?vfxVideo\(activeEffect,key\):''/,'Active effects must contain only the video, without a pre-video poster');
+assert.match(receiver,/frameLooksDrawable\(video\)/,'Cast video must pass a pixel-validity gate before it is revealed');
+assert.match(receiver,/white<29/,'Uniform white Chromecast decoder surfaces must be rejected');
+assert.match(receiver,/active-poster/,'Final artwork must cover the card until the video surface is valid');
 assert.match(receiver,/effectState\.set\(key,'done'\)/,'Completed videos must release their queue slot');
 assert.match(receiver,/board\.addEventListener\('ended'.*finishVideo/,'Completed videos must advance the effect queue');
 assert.match(receiver,/heldEffects\.set\(playerKey\(key\),key\.slice/,'Every completed video must retain a decoder-free final treatment');
