@@ -93,7 +93,7 @@ assert.match(receiverCss,/\.player-fx\.effect-frozen/,'Frozen final treatments m
 assert.match(receiver,/flip7:\{file:'flip7-v83\.mp4'/,'Flip 7 must use the approved photoreal gold video in Chromecast-native packaging');
 assert.match(receiver,/fire:\{file:'fire-v49\.mp4',type:'video\/mp4',poster:'fire-v53-poster\.png'/,'Fire must hold the video-derived final frame');
 assert.match(receiver,/freeze:\{file:'freeze-v49\.mp4',type:'video\/mp4',poster:'freeze-v53-poster\.png'/,'Freeze must hold the video-derived final frame');
-assert.match(receiver,/electric:\{file:'electric-v49\.mp4',type:'video\/mp4',poster:'electric-v53-poster\.png'/,'Electric must hold the video-derived final frame');
+assert.match(receiver,/electric:\{file:'electric-v85\.mp4',type:'video\/mp4',poster:'electric-v85-poster\.png'/,'Electric must use and hold the approved full-frame Near Win video');
 assert.doesNotMatch(receiver,/poster:'(?:fire-v2|frost-v2|electric-v2)\.webp'/,'Legacy effect artwork must not be used for post-video stills');
 assert.match(receiver,/effect==='x2'\?'<span>×2<\/span>'/,'The frozen ×2 final frame must retain its dedicated label');
 assert.match(receiverCss,/\.player-fx\.fx-stage-electric\{background:transparent\}/,'Near-win edge video must not cover the card center with a black rectangle');
@@ -101,6 +101,7 @@ assert.match(receiverCss,/\.fx-flip7-poster,\.player-fx \.fx-flip7-video,\.playe
 assert.match(receiverCss,/\.stats-screen\.dense-stats \.cast-stats\{[^}]*grid-template-rows:repeat\(9/,'Dense all-time stats must fit all 18 players in two compact columns');
 assert.match(receiverCss,/\.cast-stat-row strong\{[^}]*text-overflow:ellipsis/,'Long stats names must remain inside their row');
 assert.match(receiver,/⚡ NEAR WIN/,'Cast near-win badge must match the app wording');
-assert.match(receiverCss,/fx-electric-video\.ready[^}]*clip-path:polygon\(evenodd/,'Near-win video must be compositor-clipped to a transparent edge ring');
+assert.match(receiverCss,/fx-electric-video\.ready[^}]*clip-path:none/,'Near-win video must fill the player card without a center cutout');
+assert.doesNotMatch(receiverCss,/fx-electric-video\.ready[^}]*clip-path:polygon\(evenodd/,'Near-win must not reintroduce a compositor-cut center hole');
 assert.doesNotMatch(receiver,/fx-near-edge/,'Near-win must not regress to nearly invisible CSS streaks');
 console.log('All rules and statistics tests passed.');
