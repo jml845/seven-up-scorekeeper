@@ -68,7 +68,8 @@ assert.match(app,/status:'stats'/,'Sender must publish a dedicated Cast statisti
 assert.match(app,/else if\(next==='stats'\)sendStatsToCast\(\)/,'Opening app statistics must update an active Cast session');
 assert.match(receiver,/\['electric',p\.nearVictory\]/,'Near-win treatment must use the queued electric video');
 assert.match(receiver,/players\.flatMap\(p=>videoEffects\(p\)\.map/,'Cast receiver must queue every simultaneous player effect, not only the highest-priority one');
-assert.match(receiver,/requestVideoFrameCallback\(\(\)=>revealVideo\(video\)\)/,'Video artwork must become visible only after an actual decoded frame is available');
+assert.match(receiver,/video\._decodedFrames>=REVEAL_AFTER_FRAMES&&revealVideo\(video\)/,'Video artwork must remain hidden until several decoded frames are available');
+assert.match(receiver,/video\.currentTime<REVEAL_AFTER_SECONDS/,'Video artwork must remain hidden through the cold decoder blank lead-in');
 assert.doesNotMatch(receiver,/onloadeddata=.*ready/,'A decoded first frame must not be mistaken for active playback');
 assert.match(receiverCss,/clip-path:inset\(50%\);transform:translateZ\(0\) scale\(\.001\)/,'Uninitialized Chromecast video surfaces must remain clipped and collapsed');
 assert.match(receiver,/board\.addEventListener\('waiting',stall,true\)/,'A stalled video must enter bounded failure recovery');
