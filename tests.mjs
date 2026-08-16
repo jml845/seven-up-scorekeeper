@@ -6,9 +6,10 @@ assert.equal(calculateRound({numbers:[3,7,11],doubled:true,modifiers:[4,10],flip
 assert.equal(calculateRound({numbers:[12],doubled:true,modifiers:[10],flip7:true,busted:true}),0);
 assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],divided:true,penalties:[4],flip7:false}),12);
 assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],divided:true,penalties:[2,10],flip7:true}),19);
-assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],specialZero:true,flip7:false}),32);
+assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],specialZero:true,flip7:false}),0);
 assert.equal(calculateRound({ruleset:'vengeance',numbers:[8,11,13],specialZero:true,flip7:true}),47);
 assert.equal(calculateRound({ruleset:'vengeance',numbers:[1,2,3,4,5,6],specialZero:true,flip7:true}),36);
+assert.equal(calculateRound({ruleset:'vengeance',numbers:[1,2,3,4,5,6],specialZero:true,flip7:false}),0);
 assert.equal(calculateRound({ruleset:'vengeance',numbers:[13],lucky13:true}),26);
 assert.equal(calculateRound({ruleset:'vengeance',numbers:[1],penalties:[10]}),0);
 assert.equal(rulesetFor({}).id,'classic','saved games without a ruleset must remain classic');

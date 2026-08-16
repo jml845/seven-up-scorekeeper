@@ -132,7 +132,7 @@ def main():
               document.querySelectorAll('.score-card')[0].querySelector('[data-penalty="4"]').click(); await sleep(40);
               const current=document.querySelectorAll('.score-card')[0];
               current.querySelector('.special-zero').click(); await sleep(40);
-              assert(document.querySelectorAll('.score-card')[0].querySelector('.score-value').textContent.trim()==='32', 'The Zero incorrectly erased the other cards');
+              assert(document.querySelectorAll('.score-card')[0].querySelector('.score-value').textContent.trim()==='0', 'The Zero must zero the round until Flip 7');
               document.querySelectorAll('.score-card')[0].querySelector('.flip').click(); await sleep(40);
               assert(document.querySelectorAll('.score-card')[0].querySelector('.score-value').textContent.trim()==='47', 'The Zero plus Flip 7 failed');
               document.querySelectorAll('.score-card')[1].querySelector('.bust').click(); await sleep(40);

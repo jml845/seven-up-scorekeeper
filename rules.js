@@ -15,6 +15,7 @@ export function calculateRound({numbers = [], doubled = false, modifiers = [], f
   if (busted) return 0;
   let numberTotal = numbers.reduce((sum, n) => sum + Number(n || 0), 0) + (lucky13 ? 13 : 0);
   if (ruleset === 'vengeance') {
+    if (specialZero && !flip7) return 0;
     if (divided) numberTotal = Math.floor(numberTotal / 2);
     const penaltyTotal = penalties.reduce((sum, n) => sum + Math.abs(Number(n || 0)), 0);
     return Math.max(0, numberTotal - penaltyTotal) + (flip7 ? 15 : 0);
