@@ -77,8 +77,9 @@ assert.match(receiver,/board\.addEventListener\('waiting',stall,true\)/,'A stall
 assert.match(receiver,/image\.decoding='async'/,'Warm-up must decode lightweight artwork without preloading every heavy video');
 assert.match(receiver,/paintAndCheckFrame\(video\)/,'Cast video must pass a pixel-validity gate before it is revealed');
 assert.match(receiver,/white<29/,'Uniform white Chromecast decoder surfaces must be rejected');
-assert.match(receiver,/active-poster/,'Final artwork must cover the card until the video surface is valid');
-assert.match(receiver,/CANVAS_EFFECTS=new Set\(\['bust','flip7','x2'\]\)/,'WebM effects must avoid direct Chromecast hardware-surface presentation');
+assert.doesNotMatch(receiver,/active-poster/,'Active effects must not flash held artwork before motion');
+assert.match(receiver,/CANVAS_EFFECTS=new Set\(\['bust','flip7','x2','electric'\]\)/,'WebM and edge-only effects must avoid direct Chromecast hardware-surface presentation');
+assert.match(receiver,/function pumpCanvas\(video\)/,'Canvas effects must be driven independently of unreliable Chromecast video-frame callbacks');
 assert.match(receiverCss,/\.player-fx \.fx-video\.canvas-source\.ready\{opacity:0/,'Canvas-backed WebM video elements must remain visually hidden');
 assert.match(receiver,/effectState\.set\(key,'done'\)/,'Completed videos must release their queue slot');
 assert.match(receiver,/board\.addEventListener\('ended'.*finishVideo/,'Completed videos must advance the effect queue');
@@ -96,6 +97,7 @@ assert.match(receiverCss,/\.fx-flip7-canvas\{object-fit:fill/,'Flip 7 must adapt
 assert.match(receiverCss,/\.stats-screen\.dense-stats \.cast-stats\{[^}]*grid-template-rows:repeat\(9/,'Dense all-time stats must fit all 18 players in two compact columns');
 assert.match(receiverCss,/\.cast-stat-row strong\{[^}]*text-overflow:ellipsis/,'Long stats names must remain inside their row');
 assert.match(receiver,/⚡ NEAR WIN/,'Cast near-win badge must match the app wording');
-assert.match(receiverCss,/fx-electric-video\.ready[^}]*mask-image/,'Near-win video must be masked to the card edges');
+assert.match(receiverCss,/fx-electric-canvas\.ready/,'Near-win must render through the transparent edge canvas');
+assert.match(receiver,/clearRect\(visible\.width\*\.07,visible\.height\*\.18,visible\.width\*\.86,visible\.height\*\.64\)/,'Near-win canvas must physically clear its center');
 assert.doesNotMatch(receiver,/fx-near-edge/,'Near-win must not regress to nearly invisible CSS streaks');
 console.log('All rules and statistics tests passed.');
