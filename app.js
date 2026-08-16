@@ -1,4 +1,4 @@
-import {MODIFIERS, NEGATIVE_MODIFIERS, RULESETS, rulesetFor, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=78';
+import {MODIFIERS, NEGATIVE_MODIFIERS, RULESETS, rulesetFor, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=79';
 
 function syncViewportHeight(){document.documentElement.style.setProperty('--app-height',`${Math.round(window.visualViewport?.height||window.innerHeight)}px`)}
 syncViewportHeight();
@@ -7,7 +7,7 @@ window.visualViewport?.addEventListener('scroll',syncViewportHeight);
 window.addEventListener('orientationchange',syncViewportHeight);
 
 const KEY = 'seven-up-scorekeeper-v1';
-const BUILD = '78';
+const BUILD = '79';
 const FEEDBACK_FORM = 'https://tally.so/r/1Ag8Pb';
 const fresh = () => ({players:[], games:[], activeGameId:null});
 let state = load(); let view = 'home'; let scoringMode = 'cards'; let draft = {}; let winnerGame = null;
@@ -26,7 +26,7 @@ function toast(text){const el=document.querySelector('#toast');el.textContent=te
 function activeGame(){return state.games.find(g=>g.id===state.activeGameId)}
 function player(id){return state.players.find(p=>p.id===id)}
 function draftScore(id){const d=draft[id];if(!d)return 0;if(scoringMode==='quick')return d.quick===''?0:Math.max(0,Number(d.quick)||0);return calculateRound({...d,ruleset:activeGame()?.ruleset||'classic'})}
-function castPayload(game,includeDraft=false,status='active'){const totals=totalsFor(game);const latestRound=game.rounds.at(-1);return {version:7,gameId:game.id,ruleset:game.ruleset||'classic',status,winnerId:status==='winner'?game.winnerId:null,target:game.target,round:game.rounds.length+1,completedRounds:game.rounds.length,roundActive:includeDraft,players:game.playerIds.map(id=>{const roundPoints=includeDraft?draftScore(id):0;const d=includeDraft&&scoringMode==='cards'?draft[id]:null;const score=totals[id]+roundPoints;return {id,name:player(id)?.name||'Player',banked:totals[id],roundPoints,score,flip7:Boolean(d?.flip7),frozen:Boolean(d?.frozen),busted:Boolean(d?.busted),doubled:Boolean(d?.doubled),hot:!includeDraft&&Number(latestRound?.scores?.[id])>62,nearVictory:score>0&&score>=game.target-25}})}}
+function castPayload(game,includeDraft=false,status='active'){const totals=totalsFor(game);const latestRound=game.rounds.at(-1);return {version:8,gameId:game.id,ruleset:game.ruleset||'classic',status,winnerId:status==='winner'?game.winnerId:null,target:game.target,round:game.rounds.length+1,completedRounds:game.rounds.length,roundActive:includeDraft,players:game.playerIds.map(id=>{const roundPoints=includeDraft?draftScore(id):0;const d=includeDraft&&scoringMode==='cards'?draft[id]:null;const score=totals[id]+roundPoints;return {id,name:player(id)?.name||'Player',banked:totals[id],roundPoints,score,flip7:Boolean(d?.flip7),frozen:Boolean(d?.frozen),busted:Boolean(d?.busted),doubled:Boolean(d?.doubled),divided:Boolean(d?.divided),lucky13:Boolean(d?.lucky13),hot:!includeDraft&&Number(latestRound?.scores?.[id])>62,nearVictory:score>0&&score>=game.target-25}})}}
 function castStatsPayload(){return {version:7,status:'stats',generatedAt:new Date().toISOString(),totalGames:state.games.filter(g=>g.status==='complete').length,stats:playerStats(state.players,state.games).sort((a,b)=>b.wins-a.wins||b.winPct-a.winPct).map(p=>({id:p.id,name:p.name,games:p.games,wins:p.wins,winPct:p.winPct,avgScore:p.avgScore,avgPlace:p.avgPlace,streak:p.streak}))}}
 function sendToCast(game=activeGame(),includeDraft=view==='score'){if(game)window.sevenUpCast?.send(castPayload(game,includeDraft,'active'))}
 function sendWinnerToCast(game){winnerGame=game;window.sevenUpCast?.send(castPayload(game,false,'winner'))}
@@ -50,7 +50,7 @@ function home(){const game=activeGame();return `<svg class="cast-arrow-overlay" 
   ${game?`<button class="card home-action primary" data-nav="game"><strong>Resume game</strong><span>${rulesetFor(game).shortName} · Round ${game.rounds.length+1} · ${game.playerIds.length} players</span></button>`:`<button class="card home-action primary" data-nav="edition"><strong>New game</strong><span>Choose an edition and start scoring</span></button>`}
   ${game?`<button class="card home-action" data-nav="edition"><strong>New game</strong><span>Start another match</span></button>`:''}
   <button class="card home-action" data-nav="stats"><strong>All-time stats</strong><span>Wins, win rate, streaks, and more</span></button>
-  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=78">Privacy</a></p>`}
+  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=79">Privacy</a></p>`}
 function positionCastArrow(){const svg=document.querySelector('.cast-arrow-overlay'),hint=document.querySelector('.hero-cast-hint'),launcher=document.querySelector('.cast-launcher');if(!svg||!hint)return;const h=hint.getBoundingClientRect(),c=launcher?.getBoundingClientRect();const startX=Math.min(innerWidth-70,h.right+9),startY=h.top+h.height/2,targetX=c?.width?c.left+c.width/2:innerWidth-37,targetY=c?.height?c.top+c.height/2:34;svg.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);svg.querySelector('path').setAttribute('d',`M${startX} ${startY} H${targetX} V${targetY}`);svg.querySelector('polyline').setAttribute('points',`${targetX-8},${targetY+12} ${targetX},${targetY} ${targetX+8},${targetY+12}`)}
 function editionScreen(){return `<section class="edition-page-shell"><div class="section-head setup-head"><h1>Which game?</h1><button class="button ghost small" data-nav="home">Cancel</button></div><p class="subtle edition-intro">Choose the deck on your table. The card calculator will use that edition’s cards and scoring order.</p><div class="edition-grid">
   <button class="card edition-card" data-ruleset="classic"><span class="edition-kicker">ORIGINAL</span><strong>Flip 7</strong><span>0–12, ×2, and +2 through +10 modifiers</span></button>
@@ -121,7 +121,7 @@ if('serviceWorker'in navigator){
     reloading=true;
     location.reload();
   });
-  navigator.serviceWorker.register('./sw.js?v=78',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=79',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 channel?.addEventListener('message',()=>{state=load();if(view==='tv')render()});
 window.addEventListener('storage',event=>{if(event.key===KEY){state=load();if(view==='tv')render()}});

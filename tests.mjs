@@ -94,6 +94,10 @@ assert.match(receiver,/flip7:\{file:'flip7-v83\.mp4'/,'Flip 7 must use the appro
 assert.match(receiver,/fire:\{file:'fire-v49\.mp4',type:'video\/mp4',poster:'fire-v53-poster\.png'/,'Fire must hold the video-derived final frame');
 assert.match(receiver,/freeze:\{file:'freeze-v49\.mp4',type:'video\/mp4',poster:'freeze-v53-poster\.png'/,'Freeze must hold the video-derived final frame');
 assert.match(receiver,/electric:\{file:'electric-v85\.mp4',type:'video\/mp4',poster:'electric-v85-poster\.png'/,'Electric must use and hold the approved full-frame Near Win video');
+assert.match(receiver,/divide:\{file:'divide-v86\.mp4',type:'video\/mp4',poster:'divide-v86-poster\.png'/,'Divide by 2 must use the approved sliced-card video and exact held label');
+assert.match(receiver,/lucky13:\{file:'lucky13-v86\.mp4',type:'video\/mp4',poster:'lucky13-v86-poster\.png'/,'Lucky 13 must use the approved subtle jewel-tone video');
+assert.match(receiver,/\['lucky13',p\.lucky13\],\['divide',p\.divided\]/,'Vengeance draft flags must enter the Cast effect queue');
+assert.match(app,/divided:Boolean\(d\?\.divided\),lucky13:Boolean\(d\?\.lucky13\)/,'Cast payload must send Divide by 2 and Lucky 13 draft state');
 assert.doesNotMatch(receiver,/poster:'(?:fire-v2|frost-v2|electric-v2)\.webp'/,'Legacy effect artwork must not be used for post-video stills');
 assert.match(receiver,/effect==='x2'\?'<span>×2<\/span>'/,'The frozen ×2 final frame must retain its dedicated label');
 assert.match(receiverCss,/\.player-fx\.fx-stage-electric\{background:transparent\}/,'Near-win edge video must not cover the card center with a black rectangle');
