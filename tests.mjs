@@ -81,6 +81,10 @@ assert.match(receiver,/x2:\{file:'x2-v83\.mp4',type:'video\/mp4'/,'×2 must use 
 assert.match(receiver,/bust:\{file:'bust-v83\.mp4',type:'video\/mp4'/,'Bust must use Chromecast-native H.264 MP4');
 assert.match(receiver,/flip7:\{file:'flip7-v83\.mp4',type:'video\/mp4'/,'Flip 7 must use Chromecast-native H.264 MP4');
 assert.doesNotMatch(receiver,/type:'video\/webm'/,'Cast effects must not use the unreliable WebM hardware path');
+assert.match(receiver,/function warmVideoSource\(source,type\)/,'Approved videos must cold-start invisibly before reaching a player card');
+assert.match(receiver,/video\.currentTime>=\.3/,'Decoder warm-up must advance through real motion frames');
+assert.match(receiver,/warmApprovedVideos\(\)/,'All approved effects must be queued for sequential decoder warm-up');
+assert.doesNotMatch(receiver,/autoplay muted playsinline/,'Player videos must not auto-start before decoder warm-up completes');
 assert.match(receiver,/effectState\.set\(key,'done'\)/,'Completed videos must release their queue slot');
 assert.match(receiver,/board\.addEventListener\('ended'.*finishVideo/,'Completed videos must advance the effect queue');
 assert.match(receiver,/heldEffects\.set\(playerKey\(key\),key\.slice/,'Every completed video must retain a decoder-free final treatment');
