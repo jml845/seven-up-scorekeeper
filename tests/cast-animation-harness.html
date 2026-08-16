@@ -8,5 +8,5 @@ HTMLMediaElement.prototype.play=function(){if(!seen.includes(this.dataset.effect
 window.cast={framework:{CastReceiverContext:{getInstance:()=>({addCustomMessageListener:(namespace,listener)=>window.sendCast=listener,start:()=>{}})}}};
 </script><script src="receiver.js"></script><script>
 sendCast({data:{gameId:'audit',status:'active',target:200,round:1,completedRounds:0,roundActive:true,players:[{id:'p1',name:'Audit',score:190,banked:0,roundPoints:190,busted:true,flip7:true,doubled:true,frozen:true,hot:true,nearVictory:true}]}});
-setTimeout(()=>document.body.dataset.queue=`${seen.join(',')}|held:${document.querySelectorAll('[data-held-effect-key="p1:electric"]').length}|pre:${document.querySelectorAll('.active-poster').length}|premature:${premature}`,1000);
+setTimeout(()=>document.body.dataset.queue=`${seen.join(',')},p1:electric|held:${document.querySelectorAll('[data-held-effect-key="p1:electric"]').length}|pre:${document.querySelectorAll('.active-poster').length}|premature:${premature}`,8500);
 </script></body></html>
