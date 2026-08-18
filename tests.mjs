@@ -82,9 +82,13 @@ assert.match(receiver,/x2:\{file:'x2-v83\.mp4',type:'video\/mp4'/,'×2 must use 
 assert.match(receiver,/bust:\{file:'bust-v92\.mp4',type:'video\/mp4',poster:'bust-v92-poster\.png',holdAt:7\.6\}/,'Bust must use the shortened Chromecast-native video and its exact ending poster');
 assert.match(receiver,/flip7:\{file:'flip7-v83\.mp4',type:'video\/mp4'/,'Flip 7 must use Chromecast-native H.264 MP4');
 assert.doesNotMatch(receiver,/type:'video\/webm'/,'Cast effects must not use the unreliable WebM hardware path');
-assert.match(receiver,/function warmVideoSource\(source,type\)/,'Approved videos must cold-start invisibly before reaching a player card');
-assert.match(receiver,/video\.currentTime>=\.3/,'Decoder warm-up must advance through real motion frames');
+assert.doesNotMatch(receiver,/warmVideoSource|decoderWarmups|data-decoder-warm/,'Effect playback must not create a second throwaway hardware-decoder surface');
+assert.match(receiver,/function ensurePlayback\(video\).*video\.play\(\)/,'The single real effect video must be the only decoder surface started');
+assert.match(receiver,/REVEAL_AFTER_FRAMES=3/,'The real effect surface must remain hidden until multiple frames are presented');
 assert.doesNotMatch(receiver,/warmApprovedVideos/,'Receiver startup must not download every approved video');
+assert.match(index,/>Cast Help<\/button>/,'Cast diagnostics must use a clear labeled button');
+assert.match(index,/id="castHelpStatus"/,'Cast help status element must match the application binding');
+assert.match(sender,/lastSessionEvent = \{at:new Date\(\)\.toISOString\(\), state:String\(event\.sessionState\), code\}/,'Cast diagnostics must preserve the last session end/failure reason');
 assert.match(receiver,/function warmPoster\(name\)/,'Only the active effect poster should be warmed');
 assert.match(receiver,/data\.type==='HELLO'/,'Receiver must answer sender readiness probes');
 assert.match(receiver,/type:'READY',receiverBuild:RECEIVER_BUILD/,'Receiver must identify its running build');

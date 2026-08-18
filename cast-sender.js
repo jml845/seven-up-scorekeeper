@@ -1,6 +1,6 @@
 (function () {
   const NAMESPACE = 'urn:x-cast:com.sevenup.scoreboard';
-  const SENDER_BUILD = 81;
+  const SENDER_BUILD = 82;
   const ACK_TIMEOUT_MS = 700;
   const MAX_SEND_ATTEMPTS = 5;
   let ready = false;
@@ -16,6 +16,7 @@
   let helloTimer = null;
   let nextSequence = 1;
   let lastAckSequence = 0;
+  let lastSessionEvent = null;
   const errors = [];
 
   const connectedState = state => state === cast.framework.SessionState.SESSION_STARTED || state === cast.framework.SessionState.SESSION_RESUMED;
@@ -177,6 +178,7 @@
       receiverBuild,
       pendingSequence:pendingScoreboard?.seq || null,
       lastAckSequence,
+      lastSessionEvent,
       errors:errors.at(-1) || null,
       online:navigator.onLine,
       platform:navigator.platform || 'unknown',
@@ -206,7 +208,12 @@
         });
         castContext.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, event => {
           if (connectedState(event.sessionState)) attachSession(castContext.getCurrentSession());
-          else if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED || event.sessionState === cast.framework.SessionState.SESSION_ENDED) detachSession();
+          else if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED || event.sessionState === cast.framework.SessionState.SESSION_ENDED) {
+            const code = String(event.errorCode || event.error || '');
+            lastSessionEvent = {at:new Date().toISOString(), state:String(event.sessionState), code};
+            if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED) recordError(`session_start_failed${code?`:${code}`:''}`);
+            detachSession();
+          }
         });
         initialized = true;
       }

@@ -110,6 +110,11 @@ def main():
               const setInput = (selector, value) => { const input=document.querySelector(selector); input.value=value; input.dispatchEvent(new Event('input',{bubbles:true})); };
               const assert = (condition, message) => { if(!condition)throw new Error(message); };
               await wait(()=>document.body.textContent.includes('New game'));
+              document.querySelector('#castHelpBtn').click(); await sleep(40);
+              assert(document.querySelector('#castHelpDialog').open, 'Cast Help dialog did not open');
+              assert(document.querySelector('#castHelpStatus').textContent.trim(), 'Cast Help status is empty');
+              document.querySelector('#castHelpClose').click(); await sleep(40);
+              assert(!document.querySelector('#castHelpDialog').open, 'Cast Help dialog did not close');
               await clickText('New game');
               assert(document.body.textContent.includes('With a Vengeance'), 'edition chooser missing Vengeance');
               await clickText('With a Vengeance');
