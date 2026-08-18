@@ -1,23 +1,21 @@
-<!doctype html><html><body><button id="castButton"></button><script>
-const listeners={},notices=[];let requests=0,sends=0,session=null,options=null;
+<!doctype html><html><body><google-cast-launcher id="castButton"></google-cast-launcher><script>
+const listeners={},notices=[];let sends=0,hellos=0,states=0,options=null,messageListener=null;
 const SessionState={SESSION_STARTED:'started',SESSION_RESUMED:'resumed',SESSION_START_FAILED:'failed',SESSION_ENDED:'ended'};
+const session={getSessionState:()=>SessionState.SESSION_STARTED,addMessageListener:(namespace,listener)=>messageListener=listener,removeMessageListener:()=>{},sendMessage:async(namespace,message)=>{sends+=1;if(message.type==='HELLO'){hellos+=1;setTimeout(()=>messageListener(namespace,{type:'READY',receiverBuild:90}),0)}if(message.type==='STATE'){states+=1;setTimeout(()=>messageListener(namespace,{type:'ACK',seq:message.seq,receiverBuild:90}),0)}}};
 const context={
   setOptions:value=>{options=value},
   addEventListener:(type,listener)=>listeners[type]=listener,
   getCastState:()=> 'not_connected',
   getCurrentSession:()=>session,
-  endCurrentSession:()=>{session=null},
-  requestSession:async()=>{requests+=1;if(requests===1)throw {code:'invalid_parameter'};session={getSessionState:()=>SessionState.SESSION_STARTED,sendMessage:async()=>{sends+=1;if(sends===1)throw new Error('receiver warming')}};listeners.session?.({sessionState:SessionState.SESSION_STARTED})}
+  endCurrentSession:()=>{}
 };
 window.SEVEN_UP_CAST_APP_ID='F869B6B1';
-window.chrome={cast:{isAvailable:true,AutoJoinPolicy:{PAGE_SCOPED:'page'},framework:{}}};
+window.chrome={cast:{isAvailable:true,AutoJoinPolicy:{ORIGIN_SCOPED:'origin'},framework:{}}};
 window.cast={framework:{CastContext:{getInstance:()=>context},CastContextEventType:{CAST_STATE_CHANGED:'cast',SESSION_STATE_CHANGED:'session'},CastState:{NO_DEVICES_AVAILABLE:'none'},SessionState}};
 window.addEventListener('sevenup-cast-notice',event=>notices.push(event.detail));
 </script><script src="../cast-sender.js"></script><script>
 __onGCastApiAvailable(true);
-castButton.click();
-setTimeout(()=>castButton.click(),20);
-setTimeout(()=>castButton.click(),500);
-setTimeout(()=>sevenUpCast.send({version:7,players:[{id:'p1'}]}),600);
-setTimeout(()=>{document.body.dataset.result=[requests,sends,options.autoJoinPolicy,options.resumeSavedSession,document.documentElement.classList.contains('cast-connected'),notices.some(n=>n.includes('Retrying once'))].join(',')},1200);
+listeners.session?.({sessionState:SessionState.SESSION_STARTED});
+setTimeout(()=>sevenUpCast.send({version:7,players:[{id:'p1'}]}),20);
+setTimeout(()=>{const d=sevenUpCast.getDiagnostics();document.body.dataset.result=[sends,hellos,states,options.autoJoinPolicy,options.resumeSavedSession,d.receiverReady,d.receiverBuild,d.lastAckSequence,document.documentElement.classList.contains('cast-connected'),notices.length].join(',')},200);
 </script></body></html>

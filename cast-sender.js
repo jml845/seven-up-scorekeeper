@@ -1,156 +1,188 @@
 (function () {
   const NAMESPACE = 'urn:x-cast:com.sevenup.scoreboard';
+  const SENDER_BUILD = 80;
+  const ACK_TIMEOUT_MS = 700;
+  const MAX_SEND_ATTEMPTS = 5;
   let ready = false;
   let apiAvailable = false;
   let devicesAvailable = false;
   let initialized = false;
   let castContext = null;
-  let button = null;
-  let requestInFlight = false;
+  let activeSession = null;
+  let receiverReady = false;
+  let receiverBuild = null;
   let pendingScoreboard = null;
-  let sendActive = false;
-  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-  function bindButton() {
-    if (button) return;
-    button = document.querySelector('#castButton');
-    if (!button) return;
-    button.classList.toggle('cast-unavailable', !devicesAvailable);
-    button.setAttribute('aria-disabled', String(!devicesAvailable));
-    button.addEventListener('click', requestCast);
-  }
-  function setAvailable(value) {
-    devicesAvailable = value;
-    document.documentElement.classList.toggle('cast-available', value);
-    bindButton();
-    button?.classList.toggle('cast-unavailable', !value);
-    button?.setAttribute('aria-disabled', String(!value));
-  }
-  function notify(detail) { window.dispatchEvent(new CustomEvent('sevenup-cast-notice', {detail})); }
-  function setBusy(value) {
-    requestInFlight = value;
-    button?.classList.toggle('cast-connecting', value);
-    button?.setAttribute('aria-busy', String(value));
-  }
-  function currentSessionState() {
-    try { return castContext?.getCurrentSession?.()?.getSessionState?.() || ''; }
+  let sendTimer = null;
+  let helloTimer = null;
+  let nextSequence = 1;
+  let lastAckSequence = 0;
+  const errors = [];
+
+  const connectedState = state => state === cast.framework.SessionState.SESSION_STARTED || state === cast.framework.SessionState.SESSION_RESUMED;
+  const currentSession = () => {
+    try { return castContext?.getCurrentSession?.() || null; }
+    catch { return null; }
+  };
+  const currentSessionState = () => {
+    try { return currentSession()?.getSessionState?.() || ''; }
     catch { return ''; }
-  }
-  function connectedState(state) {
-    return state === cast.framework.SessionState.SESSION_STARTED || state === cast.framework.SessionState.SESSION_RESUMED;
-  }
+  };
+  const notify = detail => window.dispatchEvent(new CustomEvent('sevenup-cast-notice', {detail}));
+  const publishStatus = () => window.dispatchEvent(new CustomEvent('sevenup-cast-status', {detail:getDiagnostics()}));
+
   function recordError(code) {
+    const row = {at:new Date().toISOString(), code:String(code), castState:castContext?.getCastState?.() || '', sessionState:currentSessionState()};
+    errors.push(row);
+    if (errors.length > 10) errors.shift();
     try {
-      const key = 'flipcast-cast-errors-v1';
-      const history = JSON.parse(localStorage.getItem(key) || '[]');
-      history.push({at:new Date().toISOString(),code,castState:castContext?.getCastState?.()||'',sessionState:currentSessionState()});
-      localStorage.setItem(key, JSON.stringify(history.slice(-10)));
-      localStorage.setItem('cast7-last-cast-error', JSON.stringify(history.at(-1)));
+      localStorage.setItem('flipcast-cast-errors-v2', JSON.stringify(errors));
+      localStorage.setItem('cast7-last-cast-error', JSON.stringify(row));
     } catch {}
+    publishStatus();
   }
-  async function waitForSessionClear() {
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      if (!castContext?.getCurrentSession?.()) return true;
-      await delay(100);
+
+  function setAvailable(value) {
+    devicesAvailable = Boolean(value);
+    document.documentElement.classList.toggle('cast-available', devicesAvailable);
+    publishStatus();
+  }
+
+  function clearTimers() {
+    clearTimeout(sendTimer); sendTimer = null;
+    clearTimeout(helloTimer); helloTimer = null;
+  }
+
+  function detachSession() {
+    clearTimers();
+    if (activeSession?._flipcastMessageListener) {
+      try { activeSession.removeMessageListener(NAMESPACE, activeSession._flipcastMessageListener); } catch {}
     }
-    return !castContext?.getCurrentSession?.();
+    activeSession = null;
+    receiverReady = false;
+    receiverBuild = null;
+    document.documentElement.classList.remove('cast-connected');
+    publishStatus();
   }
-  async function clearStaleSession() {
-    try {
-      const state = currentSessionState();
-      if (state && !connectedState(state)) {
-        castContext.endCurrentSession(true);
-        await waitForSessionClear();
-      }
-    } catch {}
-  }
-  async function recoverSender(code) {
-    try { castContext?.endCurrentSession?.(true); } catch {}
-    await waitForSessionClear();
-    initializeCast(true, true);
-    notify(`Cast connection was reset after ${code}. Retrying once…`);
-  }
-  async function waitForReady() {
-    if (window.chrome?.cast?.isAvailable === true) initializeCast(true);
-    for (let attempt = 0; attempt < 20 && (!ready || !castContext); attempt += 1) await delay(100);
-    return ready && Boolean(castContext);
-  }
-  async function requestCast() {
-    if (requestInFlight) return;
-    setBusy(true);
-    if (!await waitForReady() || !devicesAvailable) {
-      setBusy(false);
-      return notify('No Cast devices are available on this network');
-    }
-    if (connectedState(currentSessionState())) {
+
+  function handleReceiverMessage(message) {
+    if (!message || typeof message !== 'object') return;
+    if (message.type === 'READY') {
+      receiverReady = true;
+      receiverBuild = Number(message.receiverBuild) || null;
+      clearTimeout(helloTimer); helloTimer = null;
       document.documentElement.classList.add('cast-connected');
-      try { await castContext.requestSession(); }
-      catch (error) {
-        if (error !== 'cancel' && error?.code !== 'cancel') {
-          const code = String(error?.code || error || 'unknown');
-          recordError(code);
-          notify(`Could not open Cast controls (${code}).`);
-        }
+      window.dispatchEvent(new Event('sevenup-cast-connected'));
+      publishStatus();
+      flushMessages();
+    } else if (message.type === 'ACK') {
+      const sequence = Number(message.seq) || 0;
+      lastAckSequence = Math.max(lastAckSequence, sequence);
+      if (pendingScoreboard?.seq === sequence) {
+        pendingScoreboard = null;
+        clearTimeout(sendTimer); sendTimer = null;
       }
-      finally { setBusy(false); }
-      return;
+      publishStatus();
     }
-    try {
-      await clearStaleSession();
-      await castContext.requestSession();
-    }
-    catch (error) {
-      if (error !== 'cancel' && error?.code !== 'cancel') {
-        const code = String(error?.code || error || 'unknown');
-        recordError(code);
-        await recoverSender(code);
-        await delay(250);
-        try { await clearStaleSession(); await castContext.requestSession(); }
-        catch (retryError) {
-          if (retryError !== 'cancel' && retryError?.code !== 'cancel') {
-            const retryCode = String(retryError?.code || retryError || 'unknown');
-            recordError(retryCode);
-            notify(`Could not start casting (${retryCode}). Tap Cast to try again.`);
-          }
-        }
-      }
-    }
-    finally { setBusy(false); }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindButton, {once:true});
-  else bindButton();
+
+  function sendHello(attempt = 1) {
+    const session = activeSession;
+    if (!session || !connectedState(session.getSessionState?.()) || receiverReady) return;
+    clearTimeout(helloTimer); helloTimer = null;
+    session.sendMessage(NAMESPACE, {type:'HELLO', senderBuild:SENDER_BUILD}).catch(error => recordError(error?.code || error || 'hello_failed'));
+    if (attempt < MAX_SEND_ATTEMPTS) helloTimer = setTimeout(() => sendHello(attempt + 1), ACK_TIMEOUT_MS);
+    else notify('The TV connected, but FlipCast did not receive a ready response. Open Cast help to retry.');
+  }
+
+  function attachSession(session) {
+    if (!session || !connectedState(session.getSessionState?.())) return detachSession();
+    if (activeSession === session) return;
+    detachSession();
+    activeSession = session;
+    const listener = (_namespace, message) => handleReceiverMessage(message);
+    activeSession._flipcastMessageListener = listener;
+    try { activeSession.addMessageListener(NAMESPACE, listener); }
+    catch (error) { recordError(error?.code || error || 'listener_failed'); }
+    document.documentElement.classList.add('cast-connected');
+    sendHello();
+    publishStatus();
+  }
+
+  function scheduleRetry(envelope) {
+    clearTimeout(sendTimer);
+    sendTimer = setTimeout(() => {
+      if (pendingScoreboard !== envelope) return;
+      envelope.attempts += 1;
+      if (envelope.attempts >= MAX_SEND_ATTEMPTS) {
+        recordError('scoreboard_ack_timeout');
+        notify('The TV did not confirm the latest scoreboard. Open Cast help to retry.');
+        return;
+      }
+      flushMessages();
+    }, ACK_TIMEOUT_MS);
+  }
+
   async function flushMessages() {
-    if (sendActive) return;
-    sendActive = true;
+    const session = activeSession || currentSession();
+    const envelope = pendingScoreboard;
+    if (!session || !connectedState(session.getSessionState?.()) || !envelope) return;
+    if (!receiverReady) return sendHello();
     try {
-      while (pendingScoreboard) {
-        const envelope = pendingScoreboard;
-        const session = cast.framework.CastContext.getInstance().getCurrentSession();
-        if (!session || !connectedState(session.getSessionState?.())) break;
-        try {
-          await session.sendMessage(NAMESPACE, envelope.scoreboard);
-          if (pendingScoreboard === envelope) pendingScoreboard = null;
-        } catch {
-          if (pendingScoreboard !== envelope) continue;
-          envelope.attempts += 1;
-          if (envelope.attempts >= 4) {
-            pendingScoreboard = null;
-            notify('The Cast screen missed an update. Try the selection again.');
-          } else await delay(150 * envelope.attempts);
-        }
-      }
-    } finally {
-      sendActive = false;
-      if (pendingScoreboard && connectedState(currentSessionState())) setTimeout(flushMessages, 0);
+      await session.sendMessage(NAMESPACE, {type:'STATE', seq:envelope.seq, scoreboard:envelope.scoreboard});
+      if (pendingScoreboard === envelope) scheduleRetry(envelope);
+    } catch (error) {
+      if (pendingScoreboard !== envelope) return;
+      envelope.attempts += 1;
+      recordError(error?.code || error || 'send_failed');
+      if (envelope.attempts < MAX_SEND_ATTEMPTS) sendTimer = setTimeout(flushMessages, ACK_TIMEOUT_MS);
+      else notify('The Cast screen missed an update. Open Cast help to retry.');
     }
   }
+
   function send(scoreboard) {
-    if (!scoreboard || !window.cast?.framework) return Promise.resolve(false);
-    pendingScoreboard = {scoreboard, attempts:0};
+    if (!scoreboard) return Promise.resolve(false);
+    pendingScoreboard = {scoreboard, seq:nextSequence++, attempts:0};
     flushMessages();
+    publishStatus();
     return Promise.resolve(true);
   }
-  window.sevenUpCast = {send, isReady: () => ready, hasDevices: () => devicesAvailable};
-  function initializeCast(available = false, force = false) {
+
+  function retry() {
+    const session = currentSession();
+    if (!session || !connectedState(session.getSessionState?.())) return notify('Choose a TV with the Cast button first.');
+    if (pendingScoreboard) pendingScoreboard.attempts = 0;
+    receiverReady = false;
+    if (activeSession === session) sendHello();
+    else attachSession(session);
+  }
+
+  function stop() {
+    try { castContext?.endCurrentSession?.(true); }
+    catch (error) { recordError(error?.code || error || 'stop_failed'); }
+  }
+
+  function getDiagnostics() {
+    return {
+      senderBuild:SENDER_BUILD,
+      apiAvailable,
+      apiReady:ready,
+      devicesAvailable,
+      castState:castContext?.getCastState?.() || '',
+      sessionState:currentSessionState(),
+      receiverReady,
+      receiverBuild,
+      pendingSequence:pendingScoreboard?.seq || null,
+      lastAckSequence,
+      errors:errors.at(-1) || null,
+      online:navigator.onLine,
+      platform:navigator.platform || 'unknown',
+      userAgent:navigator.userAgent,
+    };
+  }
+
+  window.sevenUpCast = {send, retry, stop, getDiagnostics, isReady:() => ready, hasDevices:() => devicesAvailable};
+
+  function initializeCast(available = false) {
     if (available === true) apiAvailable = true;
     const appId = window.SEVEN_UP_CAST_APP_ID;
     if (!apiAvailable || window.chrome?.cast?.isAvailable !== true || !appId || !window.cast?.framework) {
@@ -158,37 +190,41 @@
       return setAvailable(false);
     }
     try {
-      const context = cast.framework.CastContext.getInstance();
-      castContext = context;
-      if (initialized && !force) {
-        ready = true;
-        return setAvailable(context.getCastState() !== cast.framework.CastState.NO_DEVICES_AVAILABLE);
-      }
-      context.setOptions({receiverApplicationId: appId, autoJoinPolicy: chrome.cast.AutoJoinPolicy.PAGE_SCOPED, resumeSavedSession:false});
+      castContext = cast.framework.CastContext.getInstance();
       if (!initialized) {
-        context.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, event => {
+        castContext.setOptions({
+          receiverApplicationId:appId,
+          autoJoinPolicy:chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+          resumeSavedSession:true,
+        });
+        castContext.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, event => {
           setAvailable(event.castState !== cast.framework.CastState.NO_DEVICES_AVAILABLE);
         });
-        context.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, event => {
-          const connected = event.sessionState === cast.framework.SessionState.SESSION_STARTED || event.sessionState === cast.framework.SessionState.SESSION_RESUMED;
-          document.documentElement.classList.toggle('cast-connected', connected);
-          if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED || event.sessionState === cast.framework.SessionState.SESSION_ENDED) setBusy(false);
-          if (connected) {
-            window.dispatchEvent(new Event('sevenup-cast-connected'));
-            setTimeout(flushMessages, 200);
-          }
+        castContext.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, event => {
+          if (connectedState(event.sessionState)) attachSession(castContext.getCurrentSession());
+          else if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED || event.sessionState === cast.framework.SessionState.SESSION_ENDED) detachSession();
         });
+        initialized = true;
       }
-      initialized = true; ready = true;
-      setAvailable(context.getCastState() !== cast.framework.CastState.NO_DEVICES_AVAILABLE);
-    } catch { setAvailable(false); }
+      ready = true;
+      setAvailable(castContext.getCastState() !== cast.framework.CastState.NO_DEVICES_AVAILABLE);
+      const session = castContext.getCurrentSession();
+      if (session && connectedState(session.getSessionState?.())) attachSession(session);
+    } catch (error) {
+      ready = false;
+      recordError(error?.code || error || 'initialize_failed');
+      setAvailable(false);
+    }
   }
-  window.__onGCastApiAvailable = (available) => initializeCast(available === true);
+
+  window.__onGCastApiAvailable = available => initializeCast(available === true);
   let attempts = 0;
-  const retry = setInterval(() => {
+  const initializationRetry = setInterval(() => {
     attempts += 1;
     if (window.chrome?.cast?.isAvailable === true) initializeCast(true);
-    if (ready || attempts >= 40) clearInterval(retry);
+    if (ready || attempts >= 40) clearInterval(initializationRetry);
   }, 500);
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&window.chrome?.cast?.isAvailable===true)initializeCast(true)});
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && window.chrome?.cast?.isAvailable === true) initializeCast(true);
+  });
 })();
