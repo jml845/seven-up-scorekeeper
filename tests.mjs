@@ -79,7 +79,7 @@ assert.match(receiver,/image\.decoding='async'/,'Warm-up must decode lightweight
 assert.doesNotMatch(receiver,/paintAndCheckFrame\(video\)/,'Production video must not depend on unsupported hardware-surface canvas reads');
 assert.doesNotMatch(receiver,/active-poster/,'Active effects must not flash held artwork before motion');
 assert.match(receiver,/x2:\{file:'x2-v83\.mp4',type:'video\/mp4'/,'×2 must use Chromecast-native H.264 MP4');
-assert.match(receiver,/bust:\{file:'bust-v83\.mp4',type:'video\/mp4'/,'Bust must use Chromecast-native H.264 MP4');
+assert.match(receiver,/bust:\{file:'bust-v92\.mp4',type:'video\/mp4',poster:'bust-v92-poster\.png',holdAt:7\.6\}/,'Bust must use the shortened Chromecast-native video and its exact ending poster');
 assert.match(receiver,/flip7:\{file:'flip7-v83\.mp4',type:'video\/mp4'/,'Flip 7 must use Chromecast-native H.264 MP4');
 assert.doesNotMatch(receiver,/type:'video\/webm'/,'Cast effects must not use the unreliable WebM hardware path');
 assert.match(receiver,/function warmVideoSource\(source,type\)/,'Approved videos must cold-start invisibly before reaching a player card');
@@ -104,7 +104,8 @@ assert.match(receiver,/freeze:\{file:'freeze-v49\.mp4',type:'video\/mp4',poster:
 assert.match(receiver,/electric:\{file:'electric-v85\.mp4',type:'video\/mp4',poster:'electric-v85-poster\.png'/,'Electric must use and hold the approved full-frame Near Win video');
 assert.match(receiver,/divide:\{file:'divide-v91\.mp4',type:'video\/mp4',poster:'divide-v91-poster\.png'/,'Divide by 2 must use the approved tightly cropped Flow saber-cut video and its held label');
 assert.match(receiver,/divide:\{file:'divide-v91\.mp4',type:'video\/mp4',poster:'divide-v91-poster\.png',holdAt:5\.75\}/,'Divide by 2 must force its poster handoff without relying on an ended event');
-assert.match(receiver,/video\._frameTimer=setTimeout\(\(\)=>revealVideo\(video\),220\);if\(video\.requestVideoFrameCallback\)/,'Every playing video must have a timed reveal fallback even when frame callbacks exist');
+assert.match(receiver,/if\(video\.requestVideoFrameCallback\)video\._frameRequest=video\.requestVideoFrameCallback\(\(now,metadata\)=>waitForVisibleFrame\(video,metadata\)\);else video\._frameTimer=setTimeout\(\(\)=>revealVideo\(video\),220\)/,'Frame-capable Cast devices must reveal only after actual presented frames, with a timed fallback only for older devices');
+assert.doesNotMatch(receiver,/video\._frameTimer=setTimeout\(\(\)=>revealVideo\(video\),220\);if\(video\.requestVideoFrameCallback\)/,'A timer must never reveal a hardware-video surface before its frame callback');
 assert.match(receiver,/lucky13:\{file:'lucky13-v86\.mp4',type:'video\/mp4',poster:'lucky13-v86-poster\.png'/,'Lucky 13 must use the approved subtle jewel-tone video');
 assert.match(receiver,/\['lucky13',p\.lucky13\],\['divide',p\.divided\]/,'Vengeance draft flags must enter the Cast effect queue');
 assert.match(app,/divided:Boolean\(d\?\.divided\),lucky13:Boolean\(d\?\.lucky13\)/,'Cast payload must send Divide by 2 and Lucky 13 draft state');
