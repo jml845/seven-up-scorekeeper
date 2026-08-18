@@ -94,8 +94,8 @@ assert.match(receiver,/flip7:\{file:'flip7-v83\.mp4'/,'Flip 7 must use the appro
 assert.match(receiver,/fire:\{file:'fire-v49\.mp4',type:'video\/mp4',poster:'fire-v53-poster\.png'/,'Fire must hold the video-derived final frame');
 assert.match(receiver,/freeze:\{file:'freeze-v49\.mp4',type:'video\/mp4',poster:'freeze-v53-poster\.png'/,'Freeze must hold the video-derived final frame');
 assert.match(receiver,/electric:\{file:'electric-v85\.mp4',type:'video\/mp4',poster:'electric-v85-poster\.png'/,'Electric must use and hold the approved full-frame Near Win video');
-assert.match(receiver,/divide:\{file:'divide-v87\.mp4',type:'video\/mp4',poster:'divide-v87-poster\.png'/,'Divide by 2 must cut to the exact held label as soon as the falling half exits');
-assert.match(receiver,/divide:\{file:'divide-v87\.mp4',type:'video\/mp4',poster:'divide-v87-poster\.png',holdAt:2\.48\}/,'Divide by 2 must force its poster handoff without relying on an ended event');
+assert.match(receiver,/divide:\{file:'divide-v89\.mp4',type:'video\/mp4',poster:'divide-v89-poster\.png'/,'Divide by 2 must use the approved Flow saber-cut video and its held label');
+assert.match(receiver,/divide:\{file:'divide-v89\.mp4',type:'video\/mp4',poster:'divide-v89-poster\.png',holdAt:5\.75\}/,'Divide by 2 must force its poster handoff without relying on an ended event');
 assert.match(receiver,/video\._frameTimer=setTimeout\(\(\)=>revealVideo\(video\),220\);if\(video\.requestVideoFrameCallback\)/,'Every playing video must have a timed reveal fallback even when frame callbacks exist');
 assert.match(receiver,/lucky13:\{file:'lucky13-v86\.mp4',type:'video\/mp4',poster:'lucky13-v86-poster\.png'/,'Lucky 13 must use the approved subtle jewel-tone video');
 assert.match(receiver,/\['lucky13',p\.lucky13\],\['divide',p\.divided\]/,'Vengeance draft flags must enter the Cast effect queue');
