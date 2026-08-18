@@ -45,7 +45,7 @@ def main():
     )
     try:
         targets = wait_json(f"http://127.0.0.1:{PORT}/json/list")
-        page = next(target for target in targets if target["type"] == "page")
+        page = next(target for target in targets if target["type"] == "page" and target.get("url", "").startswith(URL))
         ws = websocket.create_connection(page["webSocketDebuggerUrl"], timeout=10)
         seq = 0
 
@@ -72,6 +72,11 @@ def main():
         command("Page.enable")
         command("Runtime.enable")
         command("Emulation.setDeviceMetricsOverride", {"width": 390, "height": 844, "deviceScaleFactor": 1, "mobile": True})
+        deadline = time.time() + 10
+        while not str(evaluate("location.href")).startswith(URL):
+            if time.time() >= deadline:
+                raise RuntimeError("Timed out waiting for FlipCast navigation")
+            time.sleep(0.05)
         evaluate("new Promise(r => document.readyState === 'complete' ? r() : addEventListener('load', r, {once:true}))")
 
         evaluate(

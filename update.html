@@ -14,7 +14,7 @@
     <h1>Updating FlipCast</h1>
     <p id="status">Removing old downloaded app files…</p>
     <div class="spinner" aria-hidden="true"></div>
-    <a id="retry" class="button" href="./?updated=82">Open FlipCast</a>
+    <a id="retry" class="button" href="./?updated=83">Open FlipCast</a>
   </main>
   <script>
     (async()=>{
@@ -22,7 +22,7 @@
       try{
         if('serviceWorker' in navigator){
           status.textContent='Installing the latest app files…';
-          const registration=await navigator.serviceWorker.register('./sw.js?v=82',{updateViaCache:'none'});
+          const registration=await navigator.serviceWorker.register('./sw.js?v=83',{updateViaCache:'none'});
           await registration.update();
           const worker=registration.installing||registration.waiting||registration.active;
           if(worker&&worker.state!=='activated'){
@@ -36,8 +36,8 @@
             });
           }
         }
-        status.textContent='Update ready. Opening version 82…';
-        location.replace(`./?updated=82&fresh=${Date.now()}`);
+        status.textContent='Update ready. Opening version 83…';
+        location.replace(`./?updated=83&fresh=${Date.now()}`);
       }catch(error){
         status.textContent='The automatic update was blocked. Tap below to reopen FlipCast.';
         document.querySelector('.spinner').style.display='none';
