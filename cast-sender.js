@@ -1,6 +1,6 @@
 (function () {
   const NAMESPACE = 'urn:x-cast:com.sevenup.scoreboard';
-  const SENDER_BUILD = 80;
+  const SENDER_BUILD = 81;
   const ACK_TIMEOUT_MS = 700;
   const MAX_SEND_ATTEMPTS = 5;
   let ready = false;
@@ -65,6 +65,10 @@
   }
 
   function handleReceiverMessage(message) {
+    if (typeof message === 'string') {
+      try { message = JSON.parse(message); }
+      catch { return recordError('receiver_message_invalid_json'); }
+    }
     if (!message || typeof message !== 'object') return;
     if (message.type === 'READY') {
       receiverReady = true;
