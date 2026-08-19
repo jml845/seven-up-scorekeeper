@@ -82,7 +82,9 @@ assert.match(receiver,/video\._decodedFrames>=REVEAL_AFTER_FRAMES\)revealVideo\(
 assert.match(receiver,/video\.currentTime<REVEAL_AFTER_SECONDS/,'Video artwork must remain hidden through the cold decoder blank lead-in');
 assert.doesNotMatch(receiver,/onloadeddata=.*ready/,'A decoded first frame must not be mistaken for active playback');
 assert.match(receiverCss,/clip-path:inset\(50%\);transform:translateZ\(0\) scale\(\.001\)/,'Uninitialized Chromecast video surfaces must remain clipped and collapsed');
-assert.match(receiver,/board\.addEventListener\('waiting',stall,true\)/,'A stalled video must enter bounded failure recovery');
+assert.match(receiver,/sharedVideo\.addEventListener\('waiting',stall\)/,'A stalled staged or visible video must enter bounded failure recovery');
+assert.match(receiver,/decoderDock\.appendChild\(sharedVideo\).*sharedVideo\.src=.*sharedVideo\.load\(\)/,'A new real effect must decode in the offscreen dock before entering a player card');
+assert.match(receiver,/slot\.replaceWith\(video\);video\.classList\.add\('ready'\)/,'The persistent video surface must enter the player card only after confirmed frames');
 assert.match(receiver,/image\.decoding='async'/,'Warm-up must decode lightweight artwork without preloading every heavy video');
 assert.doesNotMatch(receiver,/paintAndCheckFrame\(video\)/,'Production video must not depend on unsupported hardware-surface canvas reads');
 assert.doesNotMatch(receiver,/active-poster/,'Active effects must not flash held artwork before motion');
@@ -106,7 +108,7 @@ assert.match(receiver,/if\(seq>last\)/,'Receiver must render duplicate sequence 
 assert.match(receiver,/context\.start\(\)/,'Receiver must use the standard CAF lifecycle');
 assert.doesNotMatch(receiver,/autoplay muted playsinline/,'Player videos must not auto-start before decoder warm-up completes');
 assert.match(receiver,/effectState\.set\(key,'done'\)/,'Completed videos must release their queue slot');
-assert.match(receiver,/board\.addEventListener\('ended'.*finishVideo/,'Completed videos must advance the effect queue');
+assert.match(receiver,/sharedVideo\.addEventListener\('ended'.*finishVideo/,'Completed staged or visible videos must advance the effect queue');
 assert.match(receiver,/heldEffects\.set\(playerKey\(key\),key\.slice/,'Every completed video must retain a decoder-free final treatment');
 assert.match(receiver,/const frozenFx=/,'Completed effects must render from a dedicated post-video still layer');
 assert.match(receiverCss,/\.player-fx\.effect-frozen/,'Frozen final treatments must remain lightweight and decoder-free');
