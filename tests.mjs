@@ -82,8 +82,13 @@ assert.match(receiver,/x2:\{file:'x2-v83\.mp4',type:'video\/mp4'/,'×2 must use 
 assert.match(receiver,/bust:\{file:'bust-v92\.mp4',type:'video\/mp4',poster:'bust-v92-poster\.png',holdAt:7\.6\}/,'Bust must use the shortened Chromecast-native video and its exact ending poster');
 assert.match(receiver,/flip7:\{file:'flip7-v83\.mp4',type:'video\/mp4'/,'Flip 7 must use Chromecast-native H.264 MP4');
 assert.doesNotMatch(receiver,/type:'video\/webm'/,'Cast effects must not use the unreliable WebM hardware path');
-assert.doesNotMatch(receiver,/warmVideoSource|decoderWarmups|data-decoder-warm/,'Effect playback must not create a second throwaway hardware-decoder surface');
-assert.match(receiver,/function ensurePlayback\(video\).*video\.play\(\)/,'The single real effect video must be the only decoder surface started');
+assert.doesNotMatch(receiver,/warmVideoSource|decoderWarmups|data-decoder-warm/,'Effect playback must not use the ineffective hidden warm-up implementation');
+assert.match(receiver,/if\(primerState!==['"]ready['"]\)return/,'The first real effect must remain queued until the visible primer completes');
+assert.match(receiver,/primerVideo\.className='decoder-primer'/,'The cold hardware playback must be consumed by a dedicated primer element');
+assert.match(receiverCss,/\.decoder-primer\{[^}]*width:2px;height:2px;[^}]*z-index:2147483647/,'The primer must be a genuinely composited visible 2px surface');
+assert.doesNotMatch(receiverCss,/\.decoder-primer\{[^}]*(opacity|visibility|clip-path|transform)/,'The primer must not use CSS that lets Chromecast skip composition');
+assert.match(receiver,/primerVideo\.addEventListener\('ended'.*finishPrimer/,'The real effects must wait for the sacrificial playback to finish completely');
+assert.match(receiver,/function ensurePlayback\(video\).*video\.play\(\)/,'Real effects must preserve build 93 per-animation playback');
 assert.match(receiver,/REVEAL_AFTER_FRAMES=3/,'The real effect surface must remain hidden until multiple frames are presented');
 assert.doesNotMatch(receiver,/warmApprovedVideos/,'Receiver startup must not download every approved video');
 assert.match(index,/>Cast Help<\/button>/,'Cast diagnostics must use a clear labeled button');

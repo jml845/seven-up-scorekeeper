@@ -2,7 +2,7 @@
 <main><section id="idle" class="idle"></section><section id="scoreboard" class="scoreboard hidden"></section></main>
 <script>
 let maxVideos=0,maxLite=0;
-HTMLMediaElement.prototype.play=function(){if(this.dataset.decoderWarm==='1'){setTimeout(()=>this.dispatchEvent(new Event('ended')),2);return Promise.resolve()}this.dispatchEvent(new Event('playing'));return Promise.resolve()};
+HTMLMediaElement.prototype.play=function(){if(this.classList.contains('decoder-primer')){this.dispatchEvent(new Event('playing'));setTimeout(()=>this.dispatchEvent(new Event('ended')),80);return Promise.resolve()}this.dispatchEvent(new Event('playing'));return Promise.resolve()};
 new MutationObserver(()=>{maxVideos=Math.max(maxVideos,document.querySelectorAll('.fx-video').length);maxLite=Math.max(maxLite,document.querySelectorAll('.player-fx.lite-effect').length)}).observe(document.documentElement,{subtree:true,childList:true});
 window.cast={framework:{CastReceiverContext:{getInstance:()=>({addCustomMessageListener:(namespace,listener)=>window.sendCast=listener,start:()=>{}})}}};
 </script><script src="receiver.js"></script><script>

@@ -2,6 +2,7 @@
 *{box-sizing:border-box}
 html,body,#receiver{width:100%;height:100%;margin:0;overflow:hidden;background:radial-gradient(circle at 50% -25%,#294657,var(--bg) 50%);color:var(--ink)}
 .hidden{display:none!important}
+.decoder-primer{position:fixed;right:0;bottom:0;width:2px;height:2px;z-index:2147483647;object-fit:fill;background:#000;pointer-events:none}
 .idle{height:100%;display:grid;place-content:center;text-align:center;perspective:900px}
 .idle .brand-mark{display:block;width:clamp(260px,23vw,340px);height:clamp(260px,23vw,340px);border-radius:clamp(54px,4.8vw,72px);transform-style:preserve-3d;backface-visibility:visible;animation:idleSevenFlip 10s cubic-bezier(.45,0,.2,1) infinite;margin:auto}
 .idle h1{font-size:88px;margin:18px 0 6px}

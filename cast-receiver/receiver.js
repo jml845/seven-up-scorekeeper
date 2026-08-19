@@ -1,25 +1,26 @@
 (function(){
   const winnerStyles=document.createElement('link');winnerStyles.rel='stylesheet';winnerStyles.href='winner.css?v=16';document.head.appendChild(winnerStyles);
   const NAMESPACE='urn:x-cast:com.sevenup.scoreboard';
-  const RECEIVER_BUILD=93;
+  const RECEIVER_BUILD=96;
   const context=cast.framework.CastReceiverContext.getInstance();
   const idle=document.querySelector('#idle'),board=document.querySelector('#scoreboard');
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const VFX={fire:{file:'fire-v49.mp4',type:'video/mp4',poster:'fire-v53-poster.png'},freeze:{file:'freeze-v49.mp4',type:'video/mp4',poster:'freeze-v53-poster.png'},electric:{file:'electric-v85.mp4',type:'video/mp4',poster:'electric-v85-poster.png'},x2:{file:'x2-v83.mp4',type:'video/mp4',poster:'x2-v53-poster.png'},divide:{file:'divide-v91.mp4',type:'video/mp4',poster:'divide-v91-poster.png',holdAt:5.75},lucky13:{file:'lucky13-v86.mp4',type:'video/mp4',poster:'lucky13-v86-poster.png'},bust:{file:'bust-v92.mp4',type:'video/mp4',poster:'bust-v92-poster.png',holdAt:7.6},flip7:{file:'flip7-v83.mp4',type:'video/mp4',poster:'flip7-v60-poster.png'}};
-  const vfxVideo=(name,key)=>{const asset=VFX[name];return `<video class="fx-video fx-${name}-video" data-effect-key="${esc(key)}"${asset.holdAt?` data-hold-at="${asset.holdAt}"`:''} muted playsinline preload="auto"><source src="assets/${asset.file}?v=93" type="${asset.type}"></video>`};
+  const vfxVideo=(name,key)=>{const asset=VFX[name];return `<video class="fx-video fx-${name}-video" data-effect-key="${esc(key)}"${asset.holdAt?` data-hold-at="${asset.holdAt}"`:''} muted playsinline preload="auto"><source src="assets/${asset.file}?v=96" type="${asset.type}"></video>`};
   const videoEffects=p=>[['bust',p.busted],['flip7',p.flip7],['lucky13',p.lucky13],['divide',p.divided],['x2',p.doubled],['freeze',p.frozen],['fire',p.hot],['electric',p.nearVictory]].filter(([,active])=>active).map(([name])=>name);
   const videoPriority=['bust','flip7','lucky13','divide','x2','freeze','fire','electric'];
   const MAX_ACTIVE_EFFECTS=1,START_TIMEOUT_MS=4500,STALL_GRACE_MS=1400,MAX_PLAYBACK_RETRIES=1,REVEAL_AFTER_SECONDS=.12,REVEAL_AFTER_FRAMES=3;
   const fx=(p,activeEffect)=>{const key=activeEffect?`${p.id}:${activeEffect}`:'';return `<span class="player-fx${activeEffect?` has-effect has-video fx-stage-${activeEffect}`:''}" aria-hidden="true">${activeEffect?vfxVideo(activeEffect,key):''}</span>`};
-  const frozenFx=(playerId,effect)=>{if(!effect)return '';const asset=VFX[effect];return `<span class="player-fx effect-frozen fx-${effect}-frozen${effect==='x2'?' x2-frozen':''}" data-held-effect-key="${esc(`${playerId}:${effect}`)}" aria-hidden="true"><img class="fx-poster fx-${effect}-poster" src="assets/${asset.poster}?v=93" alt="">${effect==='x2'?'<span>×2</span>':''}</span>`};
+  const frozenFx=(playerId,effect)=>{if(!effect)return '';const asset=VFX[effect];return `<span class="player-fx effect-frozen fx-${effect}-frozen${effect==='x2'?' x2-frozen':''}" data-held-effect-key="${esc(`${playerId}:${effect}`)}" aria-hidden="true"><img class="fx-poster fx-${effect}-poster" src="assets/${asset.poster}?v=96" alt="">${effect==='x2'?'<span>×2</span>':''}</span>`};
   const warmedPosters=new Set();
-  function warmPoster(name){const asset=VFX[name];if(!asset||warmedPosters.has(name))return;warmedPosters.add(name);const image=new Image();image.decoding='async';image.src=`assets/${asset.poster}?v=93`}
-  let lastGameId=null,lastRound=null,previousLeaderId=null,previousDoubled=new Map(),effectState=new Map(),playbackRetries=new Map(),effectQueue=[],activeEffectKeys=new Set(),heldEffects=new Map(),lastData=null,decoderLimit=MAX_ACTIVE_EFFECTS;
+  function warmPoster(name){const asset=VFX[name];if(!asset||warmedPosters.has(name))return;warmedPosters.add(name);const image=new Image();image.decoding='async';image.src=`assets/${asset.poster}?v=96`}
+  let lastGameId=null,lastRound=null,previousLeaderId=null,previousDoubled=new Map(),effectState=new Map(),playbackRetries=new Map(),effectQueue=[],activeEffectKeys=new Set(),heldEffects=new Map(),lastData=null,decoderLimit=MAX_ACTIVE_EFFECTS,primerState='starting',primerFrames=0,primerTimer=null,primerVideo=null;
   const playerKey=key=>key.slice(0,key.lastIndexOf(':'));
   function discardVideo(key){for(const video of board.querySelectorAll('.fx-video[data-effect-key]'))if(!key||video.dataset.effectKey===key){clearTimeout(video._startTimer);clearTimeout(video._stallTimer);clearTimeout(video._frameTimer);if(video._frameRequest&&video.cancelVideoFrameCallback)video.cancelVideoFrameCallback(video._frameRequest);if(video._canvasPump)cancelAnimationFrame(video._canvasPump);video.pause();video.remove()}}
   function clearEffects(){discardVideo();effectQueue=[];activeEffectKeys.clear();heldEffects.clear();effectState=new Map();playbackRetries.clear();decoderLimit=MAX_ACTIVE_EFFECTS}
   function takeQueued(excludedPlayers=new Set()){const index=effectQueue.findIndex(key=>!excludedPlayers.has(playerKey(key)));if(index<0)return null;return effectQueue.splice(index,1)[0]}
   function fillEffectSlots(){
+    if(primerState!=='ready')return;
     const occupiedPlayers=new Set([...activeEffectKeys].map(playerKey));
     while(activeEffectKeys.size<decoderLimit){const key=takeQueued(occupiedPlayers);if(!key)break;activeEffectKeys.add(key);occupiedPlayers.add(playerKey(key));effectState.set(key,'playing')}
   }
@@ -77,8 +78,13 @@
     if(uniqueLeaderId)previousLeaderId=uniqueLeaderId;
     previousDoubled=new Map(players.map(p=>[p.id,Boolean(p.doubled)]));
   }
-  const lastSequenceBySender=new Map();
+  const lastSequenceBySender=new Map(),knownSenderIds=new Set();
   function reply(senderId,data){try{context.sendCustomMessage?.(NAMESPACE,senderId,data)}catch{}}
-  context.addCustomMessageListener(NAMESPACE,event=>{const data=event.data||{},senderId=event.senderId||'';if(data.type==='HELLO'){reply(senderId,{type:'READY',receiverBuild:RECEIVER_BUILD});return}if(data.type==='STATE'){const seq=Number(data.seq)||0,last=lastSequenceBySender.get(senderId)||0;if(seq>last){lastSequenceBySender.set(senderId,seq);render(data.scoreboard)}reply(senderId,{type:'ACK',seq,receiverBuild:RECEIVER_BUILD});return}render(data)});
+  function primerStatus(){return {decoderState:primerState,decoderFrames:primerFrames}}
+  function publishPrimer(){for(const senderId of knownSenderIds)reply(senderId,{type:'DECODER',receiverBuild:RECEIVER_BUILD,...primerStatus()})}
+  function finishPrimer(state){if(primerState==='ready'||primerState==='failed')return;clearTimeout(primerTimer);primerState=state;primerVideo?.pause();primerVideo?.remove();primerVideo=null;publishPrimer();if(state==='ready')setTimeout(()=>lastData&&render(lastData),0)}
+  function startPrimer(){primerVideo=document.createElement('video');primerVideo.className='decoder-primer';primerVideo.muted=true;primerVideo.playsInline=true;primerVideo.preload='auto';primerVideo.src='assets/divide-v87.mp4?v=96';document.body.appendChild(primerVideo);primerTimer=setTimeout(()=>finishPrimer('failed'),5000);primerVideo.addEventListener('playing',()=>{primerState='playing';publishPrimer();if(primerVideo?.requestVideoFrameCallback){const countFrames=(now,metadata)=>{if(!primerVideo)return;primerFrames=Math.max(primerFrames,Number(metadata.presentedFrames)||0);if(primerFrames===1||primerFrames===3)publishPrimer();primerVideo._frameRequest=primerVideo.requestVideoFrameCallback(countFrames)};primerVideo._frameRequest=primerVideo.requestVideoFrameCallback(countFrames)}});primerVideo.addEventListener('ended',()=>finishPrimer(primerFrames>0||!primerVideo?.requestVideoFrameCallback?'ready':'failed'));primerVideo.addEventListener('error',()=>finishPrimer('failed'));const started=primerVideo.play();if(started?.catch)started.catch(()=>finishPrimer('failed'))}
+  context.addCustomMessageListener(NAMESPACE,event=>{const data=event.data||{},senderId=event.senderId||'';if(senderId)knownSenderIds.add(senderId);if(data.type==='HELLO'){reply(senderId,{type:'READY',receiverBuild:RECEIVER_BUILD,...primerStatus()});return}if(data.type==='STATE'){const seq=Number(data.seq)||0,last=lastSequenceBySender.get(senderId)||0;if(seq>last){lastSequenceBySender.set(senderId,seq);render(data.scoreboard)}reply(senderId,{type:'ACK',seq,receiverBuild:RECEIVER_BUILD,...primerStatus()});return}render(data)});
   context.start();
+  startPrimer();
 })();
