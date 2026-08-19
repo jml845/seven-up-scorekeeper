@@ -1,6 +1,6 @@
 (function () {
   const NAMESPACE = 'urn:x-cast:com.sevenup.scoreboard';
-  const SENDER_BUILD = 83;
+  const SENDER_BUILD = 82;
   const ACK_TIMEOUT_MS = 700;
   const MAX_SEND_ATTEMPTS = 5;
   let ready = false;
@@ -11,7 +11,6 @@
   let activeSession = null;
   let receiverReady = false;
   let receiverBuild = null;
-  let decoderState = null;
   let pendingScoreboard = null;
   let sendTimer = null;
   let helloTimer = null;
@@ -62,7 +61,6 @@
     activeSession = null;
     receiverReady = false;
     receiverBuild = null;
-    decoderState = null;
     document.documentElement.classList.remove('cast-connected');
     publishStatus();
   }
@@ -73,7 +71,6 @@
       catch { return recordError('receiver_message_invalid_json'); }
     }
     if (!message || typeof message !== 'object') return;
-    if (message.decoderState) decoderState = String(message.decoderState);
     if (message.type === 'READY') {
       receiverReady = true;
       receiverBuild = Number(message.receiverBuild) || null;
@@ -89,8 +86,6 @@
         pendingScoreboard = null;
         clearTimeout(sendTimer); sendTimer = null;
       }
-      publishStatus();
-    } else if (message.type === 'DECODER') {
       publishStatus();
     }
   }
@@ -181,7 +176,6 @@
       sessionState:currentSessionState(),
       receiverReady,
       receiverBuild,
-      decoderState,
       pendingSequence:pendingScoreboard?.seq || null,
       lastAckSequence,
       lastSessionEvent,
