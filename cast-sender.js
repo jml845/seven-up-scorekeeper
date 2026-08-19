@@ -13,6 +13,8 @@
   let receiverBuild = null;
   let decoderState = null;
   let decoderFrames = 0;
+  let decoderGame = null;
+  let decoderAttempt = 0;
   let pendingScoreboard = null;
   let sendTimer = null;
   let helloTimer = null;
@@ -65,6 +67,8 @@
     receiverBuild = null;
     decoderState = null;
     decoderFrames = 0;
+    decoderGame = null;
+    decoderAttempt = 0;
     document.documentElement.classList.remove('cast-connected');
     publishStatus();
   }
@@ -77,6 +81,8 @@
     if (!message || typeof message !== 'object') return;
     if (message.decoderState) decoderState = String(message.decoderState);
     if (message.decoderFrames != null) decoderFrames = Number(message.decoderFrames) || 0;
+    if (message.decoderGame != null) decoderGame = String(message.decoderGame);
+    if (message.decoderAttempt != null) decoderAttempt = Number(message.decoderAttempt) || 0;
     if (message.type === 'READY') {
       receiverReady = true;
       receiverBuild = Number(message.receiverBuild) || null;
@@ -186,6 +192,8 @@
       receiverBuild,
       decoderState,
       decoderFrames,
+      decoderGame,
+      decoderAttempt,
       pendingSequence:pendingScoreboard?.seq || null,
       lastAckSequence,
       lastSessionEvent,

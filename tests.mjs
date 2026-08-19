@@ -88,6 +88,10 @@ assert.match(receiver,/primerVideo\.className='decoder-primer'/,'The cold hardwa
 assert.match(receiverCss,/\.decoder-primer\{[^}]*width:2px;height:2px;[^}]*z-index:2147483647/,'The primer must be a genuinely composited visible 2px surface');
 assert.doesNotMatch(receiverCss,/\.decoder-primer\{[^}]*(opacity|visibility|clip-path|transform)/,'The primer must not use CSS that lets Chromecast skip composition');
 assert.match(receiver,/primerVideo\.addEventListener\('ended'.*finishPrimer/,'The real effects must wait for the sacrificial playback to finish completely');
+assert.match(receiver,/if\(data\.gameId!==lastGameId\).*armPrimer\(data\.gameId\)/,'Each new game must arm its own just-in-time primer');
+assert.match(receiver,/if\(primerState==='armed'&&effectQueue\.length\)\{startPrimer\(4\);return\}/,'The primer must start only when the game requests its first video effect');
+assert.match(receiver,/setTimeout\(\(\)=>startPrimer\(2\),0\)/,'A fast primer with insufficient frames must retry once at 2x speed');
+assert.doesNotMatch(receiver,/context\.start\(\);\s*startPrimer\(\)/,'The primer must not run too early at Cast-session startup');
 assert.match(receiver,/function ensurePlayback\(video\).*video\.play\(\)/,'Real effects must preserve build 93 per-animation playback');
 assert.match(receiver,/REVEAL_AFTER_FRAMES=3/,'The real effect surface must remain hidden until multiple frames are presented');
 assert.doesNotMatch(receiver,/warmApprovedVideos/,'Receiver startup must not download every approved video');

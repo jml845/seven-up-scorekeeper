@@ -2,6 +2,8 @@
 <main><section id="idle" class="idle"></section><section id="scoreboard" class="scoreboard hidden"></section></main>
 <script>
 let maxVideos=0,maxLite=0;
+HTMLVideoElement.prototype.requestVideoFrameCallback=function(callback){const video=this;video._testFrames=(video._testFrames||0)+1;return setTimeout(()=>callback(performance.now(),{presentedFrames:video._testFrames}),8)};
+HTMLVideoElement.prototype.cancelVideoFrameCallback=function(id){clearTimeout(id)};
 HTMLMediaElement.prototype.play=function(){if(this.classList.contains('decoder-primer')){this.dispatchEvent(new Event('playing'));setTimeout(()=>this.dispatchEvent(new Event('ended')),80);return Promise.resolve()}this.dispatchEvent(new Event('playing'));return Promise.resolve()};
 new MutationObserver(()=>{maxVideos=Math.max(maxVideos,document.querySelectorAll('.fx-video').length);maxLite=Math.max(maxLite,document.querySelectorAll('.player-fx.lite-effect').length)}).observe(document.documentElement,{subtree:true,childList:true});
 window.cast={framework:{CastReceiverContext:{getInstance:()=>({addCustomMessageListener:(namespace,listener)=>window.sendCast=listener,start:()=>{}})}}};
