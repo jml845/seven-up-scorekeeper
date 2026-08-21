@@ -56,6 +56,10 @@ assert.match(sender,/pendingScoreboard = \{scoreboard, seq:nextSequence\+\+, att
 assert.match(app,/visualViewport\?\.addEventListener\(['"]resize['"],syncViewportHeight\)/,'mobile shell must react to browser-bar viewport changes');
 assert.match(app,/data-ruleset="classic"/,'new-game flow must offer classic Flip 7');
 assert.match(app,/data-ruleset="vengeance"/,'new-game flow must offer With a Vengeance');
+assert.match(app,/BETA TESTERS WANTED/,'public home must include the beta test invitation');
+assert.match(app,/Start a test game/,'beta invitation must lead directly into a game');
+assert.match(app,/cannot start a Google Cast session/,'public home must disclose the iPhone/iPad Cast limitation');
+assert.match(app,/url\.searchParams\.set\('campaign',campaign\)/,'feedback must preserve recruitment campaign attribution');
 assert.match(app,/ruleset:setupRuleset/,'new games must persist their selected ruleset');
 assert.match(app,/g\.ruleset\|\|'classic'/,'old games must calculate as classic');
 assert.match(receiver,/cols=players\.length>=6\?2:1/,'Cast receiver must use two columns for six or more players');

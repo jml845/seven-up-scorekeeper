@@ -1,4 +1,4 @@
-import {MODIFIERS, NEGATIVE_MODIFIERS, RULESETS, rulesetFor, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=83';
+import {MODIFIERS, NEGATIVE_MODIFIERS, RULESETS, rulesetFor, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=84';
 
 function syncViewportHeight(){document.documentElement.style.setProperty('--app-height',`${Math.round(window.visualViewport?.height||window.innerHeight)}px`)}
 syncViewportHeight();
@@ -7,7 +7,7 @@ window.visualViewport?.addEventListener('scroll',syncViewportHeight);
 window.addEventListener('orientationchange',syncViewportHeight);
 
 const KEY = 'seven-up-scorekeeper-v1';
-const BUILD = '83';
+const BUILD = '84';
 const FEEDBACK_FORM = 'https://tally.so/r/1Ag8Pb';
 const fresh = () => ({players:[], games:[], activeGameId:null});
 let state = load(); let view = 'home'; let scoringMode = 'cards'; let draft = {}; let winnerGame = null;
@@ -19,7 +19,7 @@ const app = document.querySelector('#app');
 const channel = 'BroadcastChannel' in window ? new BroadcastChannel('seven-up-live-score') : null;
 const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
-function feedbackUrl(){const url=new URL(FEEDBACK_FORM);url.searchParams.set('build',BUILD);url.searchParams.set('device',navigator.platform||'unknown');url.searchParams.set('browser',navigator.userAgent);url.searchParams.set('source',matchMedia('(display-mode: standalone)').matches?'installed app':'web browser');return url.href}
+function feedbackUrl(){const url=new URL(FEEDBACK_FORM);const campaign=new URLSearchParams(location.search).get('campaign');url.searchParams.set('build',BUILD);url.searchParams.set('device',navigator.platform||'unknown');url.searchParams.set('browser',navigator.userAgent);url.searchParams.set('source',matchMedia('(display-mode: standalone)').matches?'installed app':'web browser');if(campaign)url.searchParams.set('campaign',campaign);return url.href}
 function load(){try{return {...fresh(),...JSON.parse(localStorage.getItem(KEY))}}catch{return fresh()}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));channel?.postMessage('refresh')}
 function toast(text){const el=document.querySelector('#toast');el.textContent=text;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1900)}
@@ -46,11 +46,11 @@ function render(){
   if(scoreListScroll!==undefined&&nextScoreList)nextScoreList.scrollTop=scoreListScroll;
   app.focus({preventScroll:true});if(view==='home')requestAnimationFrame(positionCastArrow);
 }
-function home(){const game=activeGame();return `<svg class="cast-arrow-overlay" aria-hidden="true"><path pathLength="1"/><polyline/></svg><section class="hero"><h1>Keep score.<br><span>Press your luck.</span></h1><div class="hero-cast-hint">Cast your scoreboard</div><p>Fast round scoring, offline game history, and all-time bragging rights.</p></section><section class="grid two">
+function home(){const game=activeGame();return `<svg class="cast-arrow-overlay" aria-hidden="true"><path pathLength="1"/><polyline/></svg><section class="hero"><span class="beta-pill">FREE FAN-MADE SCOREKEEPER</span><h1>Keep score.<br><span>Put it on<br class="mobile-break"> the TV.</span></h1><div class="hero-cast-hint">Built for Flip 7 game night</div><p>Score from your phone while everyone follows the live scoreboard, effects, and standings on a Chromecast-enabled TV.</p></section><section class="card beta-invite"><div><span class="beta-kicker">BETA TESTERS WANTED</span><strong>Try it for one game</strong><p>Start a game, tap the Cast icon, and tell us whether it worked. No account or installation required.</p></div><ol><li>Add players</li><li>Connect the TV</li><li>Play and send feedback</li></ol><div class="beta-actions"><button class="button" data-nav="edition" type="button">Start a test game</button><a class="button ghost" href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Send test feedback</a></div><p class="device-note"><b>Casting:</b> Use Chrome on Android or a computer. iPhone and iPad can keep score, but cannot start a Google Cast session.</p></section><section class="grid two">
   ${game?`<button class="card home-action primary" data-nav="game"><strong>Resume game</strong><span>${rulesetFor(game).shortName} · Round ${game.rounds.length+1} · ${game.playerIds.length} players</span></button>`:`<button class="card home-action primary" data-nav="edition"><strong>New game</strong><span>Choose an edition and start scoring</span></button>`}
   ${game?`<button class="card home-action" data-nav="edition"><strong>New game</strong><span>Start another match</span></button>`:''}
   <button class="card home-action" data-nav="stats"><strong>All-time stats</strong><span>Wins, win rate, streaks, and more</span></button>
-  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=83">Privacy</a></p>`}
+  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=84">Privacy</a></p>`}
 function positionCastArrow(){const svg=document.querySelector('.cast-arrow-overlay'),hint=document.querySelector('.hero-cast-hint'),launcher=document.querySelector('.cast-launcher');if(!svg||!hint)return;const h=hint.getBoundingClientRect(),c=launcher?.getBoundingClientRect();const startX=Math.min(innerWidth-70,h.right+9),startY=h.top+h.height/2,targetX=c?.width?c.left+c.width/2:innerWidth-37,targetY=c?.height?c.top+c.height/2:34;svg.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);svg.querySelector('path').setAttribute('d',`M${startX} ${startY} H${targetX} V${targetY}`);svg.querySelector('polyline').setAttribute('points',`${targetX-8},${targetY+12} ${targetX},${targetY} ${targetX+8},${targetY+12}`)}
 function editionScreen(){return `<section class="edition-page-shell"><div class="section-head setup-head"><h1>Which game?</h1><button class="button ghost small" data-nav="home">Cancel</button></div><p class="subtle edition-intro">Choose the deck on your table. The card calculator will use that edition’s cards and scoring order.</p><div class="edition-grid">
   <button class="card edition-card" data-ruleset="classic"><span class="edition-kicker">ORIGINAL</span><strong>Flip 7</strong><span>0–12, ×2, and +2 through +10 modifiers</span></button>
@@ -121,7 +121,7 @@ if('serviceWorker'in navigator){
     reloading=true;
     location.reload();
   });
-  navigator.serviceWorker.register('./sw.js?v=83',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=84',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 channel?.addEventListener('message',()=>{state=load();if(view==='tv')render()});
 window.addEventListener('storage',event=>{if(event.key===KEY){state=load();if(view==='tv')render()}});
