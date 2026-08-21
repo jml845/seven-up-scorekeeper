@@ -1,6 +1,6 @@
 (function () {
   const NAMESPACE = 'urn:x-cast:com.sevenup.scoreboard';
-  const SENDER_BUILD = 84;
+  const SENDER_BUILD = 85;
   const ACK_TIMEOUT_MS = 700;
   const MAX_SEND_ATTEMPTS = 5;
   let ready = false;

@@ -15,7 +15,7 @@ import websocket
 
 PORT = 19384
 URL = "http://127.0.0.1:8787/?campaign=launch_preview"
-OUTPUT = Path(__file__).with_name("build84-home.png")
+OUTPUT = Path(__file__).with_name("build85-home.png")
 
 
 def wait_targets(timeout=10):
@@ -82,10 +82,11 @@ def main():
             raise RuntimeError("FlipCast beta landing page did not render")
         metrics = command(
             "Runtime.evaluate",
-            {"expression": "({innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth})", "returnByValue": True},
+            {"expression": "({innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,arrowPath:document.querySelector('.cast-arrow-overlay path')?.getAttribute('d'),arrowHead:document.querySelector('.cast-arrow-overlay polyline')?.getAttribute('points'),pointer:[...Object.values(document.querySelector('.hero-cast-pointer')?.getBoundingClientRect()||{})].slice(0,4),launcher:[...Object.values(document.querySelector('.cast-launcher')?.getBoundingClientRect()||{})].slice(0,4)})", "returnByValue": True},
         )["result"]["value"]
         if metrics["scrollWidth"] > metrics["clientWidth"]:
             raise RuntimeError(f"Mobile landing page overflows horizontally: {metrics}")
+        time.sleep(2.3)
         image = command("Page.captureScreenshot", {"format": "png", "captureBeyondViewport": False})
         OUTPUT.write_bytes(base64.b64decode(image["data"]))
         print(json.dumps(metrics, sort_keys=True))

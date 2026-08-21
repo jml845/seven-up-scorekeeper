@@ -58,6 +58,8 @@ assert.match(app,/data-ruleset="classic"/,'new-game flow must offer classic Flip
 assert.match(app,/data-ruleset="vengeance"/,'new-game flow must offer With a Vengeance');
 assert.match(app,/BETA TESTERS WANTED/,'public home must include the beta test invitation');
 assert.match(app,/Start a test game/,'beta invitation must lead directly into a game');
+assert.match(app,/class="hero-cast-pointer">Tap here to cast/,'Cast arrow must start at a dedicated instructional cue');
+assert.match(app,/querySelector\('\.hero-cast-pointer'\)/,'Cast arrow geometry must use the dedicated instructional cue');
 assert.match(app,/cannot start a Google Cast session/,'public home must disclose the iPhone/iPad Cast limitation');
 assert.match(app,/url\.searchParams\.set\('campaign',campaign\)/,'feedback must preserve recruitment campaign attribution');
 assert.match(app,/ruleset:setupRuleset/,'new games must persist their selected ruleset');

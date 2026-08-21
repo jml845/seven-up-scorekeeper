@@ -3,6 +3,7 @@
 .topbar-actions .cast-launcher { width:38px; height:38px; margin:0 }
 .hero { position:relative }
 .hero-cast-hint { position:relative; color:var(--ink)!important }
+.hero-cast-pointer { position:fixed; top:74px; right:68px; z-index:13; width:max-content; color:var(--yellow); font-size:12px; font-weight:950; letter-spacing:.03em; pointer-events:none; filter:drop-shadow(0 0 5px #071536); animation:cast-overlay-hide .01s 2.8s forwards }
 .cast-arrow-overlay { position:fixed; inset:0; z-index:12; width:100vw; height:100dvh; overflow:visible; pointer-events:none; filter:drop-shadow(0 0 5px #32d5ff77); animation:cast-overlay-hide .01s 2.8s forwards }
 .cast-arrow-overlay path,.cast-arrow-overlay polyline { fill:none; stroke:var(--yellow); stroke-width:3.5; vector-effect:non-scaling-stroke; stroke-linecap:round; stroke-linejoin:round }
 .cast-arrow-overlay path { stroke-dasharray:1; stroke-dashoffset:1; animation:cast-arrow-draw 2.6s ease-in-out 1 }
