@@ -44,8 +44,15 @@ def main():
         stderr=subprocess.DEVNULL,
     )
     try:
-        targets = wait_json(f"http://127.0.0.1:{PORT}/json/list")
-        page = next(target for target in targets if target["type"] == "page")
+        deadline = time.time() + 10
+        page = None
+        while time.time() < deadline and page is None:
+            targets = wait_json(f"http://127.0.0.1:{PORT}/json/list")
+            page = next((target for target in targets if target["type"] == "page" and target.get("url", "").startswith(URL)), None)
+            if page is None:
+                time.sleep(0.1)
+        if page is None:
+            raise RuntimeError(f"Timed out waiting for FlipCast page at {URL}")
         ws = websocket.create_connection(page["webSocketDebuggerUrl"], timeout=10)
         seq = 0
 
@@ -113,6 +120,8 @@ def main():
               document.querySelector('#castHelpBtn').click(); await sleep(40);
               assert(document.querySelector('#castHelpDialog').open, 'Cast Help dialog did not open');
               assert(document.querySelector('#castHelpStatus').textContent.trim(), 'Cast Help status is empty');
+              assert(document.querySelector('#castExportBtn'), 'Cast diagnostic export button is missing');
+              assert(document.body.textContent.includes('Recorded events'), 'Cast flight-recorder status is missing');
               document.querySelector('#castHelpClose').click(); await sleep(40);
               assert(!document.querySelector('#castHelpDialog').open, 'Cast Help dialog did not close');
               await clickText('New game');

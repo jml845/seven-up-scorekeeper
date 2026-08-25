@@ -107,8 +107,13 @@ assert.match(sender,/lastSessionEvent = \{at:new Date\(\)\.toISOString\(\), stat
 assert.match(receiver,/function warmPoster\(name\)/,'Only the active effect poster should be warmed');
 assert.match(receiver,/data\.type==='HELLO'/,'Receiver must answer sender readiness probes');
 assert.match(receiver,/type:'READY',receiverBuild:RECEIVER_BUILD/,'Receiver must identify its running build');
+assert.match(receiver,/type:'PONG',seq:Number\(data\.seq\)\|\|0,receiverBuild:RECEIVER_BUILD/,'Receiver must answer sender heartbeats');
 assert.match(receiver,/data\.type==='STATE'/,'Receiver must accept sequenced scoreboard state');
 assert.match(receiver,/type:'ACK',seq,receiverBuild:RECEIVER_BUILD/,'Receiver must acknowledge each scoreboard state');
+assert.match(receiver,/sender_disconnected/,'Receiver must report sender disconnect lifecycle events');
+assert.match(sender,/flipcast-cast-flight-recorder-v1/,'Sender must persist a bounded Cast flight recorder');
+assert.match(sender,/heartbeat_timeout/,'Sender must record missing receiver heartbeats');
+assert.match(sender,/exportDiagnostics/,'Sender must expose a diagnostic export');
 assert.match(receiver,/if\(seq>last\)/,'Receiver must render duplicate sequence retries only once');
 assert.match(receiver,/context\.start\(\)/,'Receiver must use the standard CAF lifecycle');
 assert.doesNotMatch(receiver,/autoplay muted playsinline/,'Player videos must not auto-start before decoder warm-up completes');

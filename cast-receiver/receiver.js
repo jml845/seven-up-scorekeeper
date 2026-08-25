@@ -1,8 +1,9 @@
 (function(){
   const winnerStyles=document.createElement('link');winnerStyles.rel='stylesheet';winnerStyles.href='winner.css?v=16';document.head.appendChild(winnerStyles);
   const NAMESPACE='urn:x-cast:com.sevenup.scoreboard';
-  const RECEIVER_BUILD=97;
+  const RECEIVER_BUILD=98;
   const context=cast.framework.CastReceiverContext.getInstance();
+  const receiverStartedAt=new Date().toISOString();
   const idle=document.querySelector('#idle'),board=document.querySelector('#scoreboard');
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const VFX={fire:{file:'fire-v49.mp4',type:'video/mp4',poster:'fire-v53-poster.png'},freeze:{file:'freeze-v49.mp4',type:'video/mp4',poster:'freeze-v53-poster.png'},electric:{file:'electric-v85.mp4',type:'video/mp4',poster:'electric-v85-poster.png'},x2:{file:'x2-v83.mp4',type:'video/mp4',poster:'x2-v53-poster.png'},divide:{file:'divide-v91.mp4',type:'video/mp4',poster:'divide-v91-poster.png',holdAt:5.75},lucky13:{file:'lucky13-v86.mp4',type:'video/mp4',poster:'lucky13-v86-poster.png'},bust:{file:'bust-v92.mp4',type:'video/mp4',poster:'bust-v92-poster.png',holdAt:7.6},flip7:{file:'flip7-v83.mp4',type:'video/mp4',poster:'flip7-v60-poster.png'}};
@@ -79,8 +80,10 @@
     if(uniqueLeaderId)previousLeaderId=uniqueLeaderId;
     previousDoubled=new Map(players.map(p=>[p.id,Boolean(p.doubled)]));
   }
-  const lastSequenceBySender=new Map(),knownSenderIds=new Set();
+  const lastSequenceBySender=new Map(),knownSenderIds=new Set(),receiverEvents=[];
   function reply(senderId,data){try{context.sendCustomMessage?.(NAMESPACE,senderId,data)}catch{}}
+  function recordReceiverEvent(event,detail={}){const row={at:new Date().toISOString(),event:String(event),...detail};receiverEvents.push(row);if(receiverEvents.length>30)receiverEvents.shift();for(const senderId of knownSenderIds)reply(senderId,{type:'RECEIVER_EVENT',receiverBuild:RECEIVER_BUILD,...row});return row}
+  function receiverDiagnostics(){return {receiverStartedAt,lastReceiverEvent:receiverEvents.at(-1)||null}}
   function primerStatus(){return {decoderState:primerState,decoderFrames:primerFrames,decoderGame:primerGameId,decoderAttempt:primerAttempt}}
   function publishPrimer(){for(const senderId of knownSenderIds)reply(senderId,{type:'DECODER',receiverBuild:RECEIVER_BUILD,...primerStatus()})}
   function removePrimer(){clearTimeout(primerTimer);if(primerVideo?._frameRequest&&primerVideo.cancelVideoFrameCallback)primerVideo.cancelVideoFrameCallback(primerVideo._frameRequest);primerVideo?.pause();primerVideo?.remove();primerVideo=null}
@@ -88,6 +91,11 @@
   function finishPrimer(state){if(primerState==='ready'||primerState==='failed')return;removePrimer();primerState=state;publishPrimer();if(state==='ready')setTimeout(()=>lastData&&render(lastData),0)}
   function retryOrFailPrimer(){if(primerState!=='starting'&&!primerState.startsWith('playing-'))return;const retry=primerAttempt===1;if(retry){removePrimer();primerState='retrying';publishPrimer();setTimeout(()=>startPrimer(2),0)}else finishPrimer('failed')}
   function startPrimer(speed){if(primerState!=='armed'&&primerState!=='retrying')return;removePrimer();primerAttempt+=1;primerFrames=0;primerState='starting';primerVideo=document.createElement('video');primerVideo.className='decoder-primer';primerVideo.muted=true;primerVideo.playsInline=true;primerVideo.preload='auto';primerVideo.defaultPlaybackRate=speed;primerVideo.playbackRate=speed;primerVideo.src='assets/divide-v87.mp4?v=97';document.body.appendChild(primerVideo);primerTimer=setTimeout(retryOrFailPrimer,4000);primerVideo.addEventListener('playing',()=>{primerState=`playing-${speed}x`;publishPrimer();if(primerVideo?.requestVideoFrameCallback){const countFrames=(now,metadata)=>{if(!primerVideo)return;primerFrames=Math.max(primerFrames,Number(metadata.presentedFrames)||0);if(primerFrames===1||primerFrames===3)publishPrimer();primerVideo._frameRequest=primerVideo.requestVideoFrameCallback(countFrames)};primerVideo._frameRequest=primerVideo.requestVideoFrameCallback(countFrames)}});primerVideo.addEventListener('ended',()=>{if(primerFrames>=3||!primerVideo?.requestVideoFrameCallback)finishPrimer('ready');else retryOrFailPrimer()});primerVideo.addEventListener('error',retryOrFailPrimer);const started=primerVideo.play();if(started?.catch)started.catch(retryOrFailPrimer)}
-  context.addCustomMessageListener(NAMESPACE,event=>{const data=event.data||{},senderId=event.senderId||'';if(senderId)knownSenderIds.add(senderId);if(data.type==='HELLO'){reply(senderId,{type:'READY',receiverBuild:RECEIVER_BUILD,...primerStatus()});return}if(data.type==='STATE'){const seq=Number(data.seq)||0,last=lastSequenceBySender.get(senderId)||0;if(seq>last){lastSequenceBySender.set(senderId,seq);render(data.scoreboard)}reply(senderId,{type:'ACK',seq,receiverBuild:RECEIVER_BUILD,...primerStatus()});return}render(data)});
+  const systemEvents=cast.framework.system?.EventType||{};
+  if(systemEvents.SENDER_CONNECTED)context.addEventListener(systemEvents.SENDER_CONNECTED,event=>recordReceiverEvent('sender_connected',{senderId:event.senderId||''}));
+  if(systemEvents.SENDER_DISCONNECTED)context.addEventListener(systemEvents.SENDER_DISCONNECTED,event=>{recordReceiverEvent('sender_disconnected',{senderId:event.senderId||'',reason:String(event.reason||'')});knownSenderIds.delete(event.senderId||'')});
+  if(systemEvents.SHUTDOWN)context.addEventListener(systemEvents.SHUTDOWN,event=>recordReceiverEvent('shutdown',{reason:String(event.reason||'')}));
+  context.addCustomMessageListener(NAMESPACE,event=>{const data=event.data||{},senderId=event.senderId||'';if(senderId)knownSenderIds.add(senderId);if(data.type==='HELLO'){reply(senderId,{type:'READY',receiverBuild:RECEIVER_BUILD,...receiverDiagnostics(),...primerStatus()});return}if(data.type==='PING'){reply(senderId,{type:'PONG',seq:Number(data.seq)||0,receiverBuild:RECEIVER_BUILD,...receiverDiagnostics(),...primerStatus()});return}if(data.type==='STATE'){const seq=Number(data.seq)||0,last=lastSequenceBySender.get(senderId)||0;if(seq>last){lastSequenceBySender.set(senderId,seq);render(data.scoreboard)}reply(senderId,{type:'ACK',seq,receiverBuild:RECEIVER_BUILD,...primerStatus()});return}render(data)});
+  recordReceiverEvent('receiver_started',{receiverBuild:RECEIVER_BUILD});
   context.start();
 })();
