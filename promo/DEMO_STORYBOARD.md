@@ -1,38 +1,38 @@
-# FlipCast 25-second demo storyboard
+# FlipCast 30-second widescreen demo storyboard
 
-The demo must show the differentiator before describing secondary features. Use a real phone and TV recording if possible; do not simulate a successful Cast connection.
+The demo must show the differentiator before describing secondary features. The deterministic draft renderer uses authentic phone/PWA captures, the production Cast receiver layout, and the receiver's actual effect videos. It does not depict the Cast device picker or claim that a connection shown in the draft is a live physical-device session.
 
 ## Shot list
 
-1. **0–3 seconds — The problem**
-   - Wide view of a Flip 7 game table and a TV.
-   - Text: `Stop passing the scorekeeper around.`
+1. **0–2.5 seconds — Value proposition**
+   - FlipCast logo and brand field.
+   - Text: `Keep score. Put it on the TV.`
 
-2. **3–8 seconds — Connect**
-   - Close-up of the FlipCast home screen.
-   - Tap the Cast icon and select the TV.
-   - TV changes to the FlipCast idle/live scoreboard.
-   - Text: `Score on your phone. Follow it on the TV.`
+2. **2.5–7.5 seconds — Card calculator**
+   - Authentic phone calculator before and after entering seven cards.
+   - The Cast scoreboard responds with the Flip 7 effect.
+   - Text: `Score every card on your phone.`
 
-3. **8–15 seconds — Live scoring**
-   - Enter one round on the phone.
-   - Cut or split-screen to the TV updating immediately.
-   - Show no more than two effects so the value remains clear.
+3. **7.5–18.5 seconds — Cast effects**
+   - Keep the phone and TV visible together.
+   - Cycle through Bust, Near Win, Frozen, ×2, and Flip 7 using the actual receiver assets.
+   - Text: `Every big moment fills the TV.`
 
-4. **15–20 seconds — Proof of usefulness**
-   - TV shows the complete standings while players remain around the table.
-   - Quick cuts to game history and all-time stats.
-   - Text: `Classic + With a Vengeance · History · Player stats`
+4. **18.5–24.5 seconds — Supporting features**
+   - Show quick scoring, game history, and player statistics on the phone.
+   - Keep live standings or Cast stats on the TV.
+   - Text: `Keep the game, not the paperwork.`
 
-5. **20–25 seconds — Tester ask**
-   - Logo and short URL/QR code.
-   - Text: `Free beta · Try it for one game`
-   - Small footer: `Independent fan-made utility. Chromecast-compatible device required for TV casting.`
+5. **24.5–30 seconds — End card**
+   - Logo and public URL.
+   - Text: `Made for scoring Flip 7™ game nights`
+   - Small footer: `Independent utility · Not affiliated with or endorsed by The Op · Chromecast-compatible device required`
 
 ## Capture requirements
 
-- Record vertically and horizontally once; edit a 16:9 master and a 9:16 social cut.
+- Produce a 1920×1080, 24 fps, 30-second H.264/yuv420p widescreen master.
 - Keep the public app link visible in the final three seconds.
 - Use only app-owned visuals and footage of a lawfully owned game copy.
 - Do not show private player names, Wi-Fi details, Cast diagnostics, notifications, or other phone content.
-- Verify the public build and receiver build immediately before recording.
+- Use fictional demo game records and only the app's own receiver assets.
+- Run a black-frame scan, verify exactly 720 frames, and inspect a two-second contact sheet before delivery.

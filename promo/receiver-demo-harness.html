@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <base href="../cast-receiver/">
+  <link rel="stylesheet" href="receiver.css">
+</head>
+<body>
+  <main id="receiver">
+    <section id="idle" class="idle"></section>
+    <section id="scoreboard" class="scoreboard hidden"></section>
+  </main>
+  <script>
+    window.cast={framework:{CastReceiverContext:{getInstance:()=>({
+      addCustomMessageListener:(namespace,listener)=>window.sendCast=listener,
+      start:()=>{}
+    })}}};
+  </script>
+  <script src="receiver.js"></script>
+  <script>
+    const players=[
+      {id:'p1',name:'Casey',score:167,banked:132,roundPoints:35,nearVictory:false},
+      {id:'p2',name:'Jordan',score:188,banked:148,roundPoints:40,nearVictory:true},
+      {id:'p3',name:'Riley',score:119,banked:91,roundPoints:28,flip7:true},
+      {id:'p4',name:'Morgan',score:104,banked:104,roundPoints:0,busted:true}
+    ];
+    const cleanPlayers=()=>players.map(player=>({...player,nearVictory:false,flip7:false,busted:false,frozen:false,hot:false,doubled:false}));
+    window.showScore=(updated=false)=>sendCast({data:{
+      gameId:'promo-game',status:'active',target:200,round:5,
+      completedRounds:4,roundActive:true,
+      players:cleanPlayers().map((player,index)=>index===0&&updated?{...player,score:202,roundPoints:70,nearVictory:true}:player)
+    }});
+    window.showEffect=(effect,index=0)=>sendCast({data:{
+      gameId:`promo-${effect}-${Date.now()}`,status:'active',target:200,round:5,
+      completedRounds:4,roundActive:true,
+      players:cleanPlayers().map((player,i)=>i===index?{...player,[effect]:true}:player)
+    }});
+    window.showStats=()=>sendCast({data:{status:'stats',totalGames:12,stats:[
+      {name:'Casey',games:12,wins:5,winPct:.417,avgScore:181,avgPlace:1.8,streak:2},
+      {name:'Jordan',games:12,wins:4,winPct:.333,avgScore:174,avgPlace:2.1,streak:0},
+      {name:'Riley',games:9,wins:2,winPct:.222,avgScore:160,avgPlace:2.4,streak:0},
+      {name:'Morgan',games:8,wins:1,winPct:.125,avgScore:145,avgPlace:2.8,streak:0}
+    ]}});
+    showScore(false);
+  </script>
+</body>
+</html>

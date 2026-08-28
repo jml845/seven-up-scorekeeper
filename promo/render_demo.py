@@ -1,0 +1,380 @@
+#!/usr/bin/env python3
+"""Capture authentic FlipCast screens and render the widescreen promo master."""
+
+from __future__ import annotations
+
+import base64
+import json
+import math
+import shutil
+import subprocess
+import tempfile
+import time
+import urllib.request
+from pathlib import Path
+
+import cv2
+import numpy as np
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+import websocket
+
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = Path(__file__).resolve().parent / "rendered"
+PORT = 19385
+APP_URL = "http://127.0.0.1:8787/?campaign=demo"
+HARNESS_URL = "http://127.0.0.1:8787/promo/receiver-demo-harness.html"
+# Twenty-four fps matches the receiver effect assets and avoids the stuttering
+# and long static holds in the first promo draft.
+FPS = 24
+SIZE = (1920, 1080)
+SECONDS = 30
+
+
+def font(size: int, bold: bool = False):
+    candidates = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+    ]
+    for candidate in candidates:
+        if Path(candidate).exists():
+            return ImageFont.truetype(candidate, size)
+    return ImageFont.load_default()
+
+
+class Chrome:
+    def __init__(self):
+        self.profile = tempfile.mkdtemp(prefix="flipcast-demo-")
+        binary = shutil.which("google-chrome-stable") or shutil.which("chromium")
+        self.proc = subprocess.Popen([
+            binary, "--headless=new", "--no-sandbox", "--disable-gpu",
+            "--disable-background-networking", "--remote-allow-origins=*",
+            f"--remote-debugging-port={PORT}", f"--user-data-dir={self.profile}", "about:blank",
+        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        deadline = time.time() + 10
+        while time.time() < deadline:
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{PORT}/json/list", timeout=1) as response:
+                    page = next(t for t in json.load(response) if t["type"] == "page")
+                    self.ws = websocket.create_connection(page["webSocketDebuggerUrl"], timeout=10)
+                    break
+            except Exception:
+                time.sleep(.1)
+        else:
+            raise RuntimeError("Chrome DevTools did not start")
+        self.seq = 0
+        self.cmd("Page.enable")
+        self.cmd("Runtime.enable")
+
+    def cmd(self, method, params=None):
+        self.seq += 1
+        self.ws.send(json.dumps({"id": self.seq, "method": method, "params": params or {}}))
+        while True:
+            reply = json.loads(self.ws.recv())
+            if reply.get("id") == self.seq:
+                if "error" in reply:
+                    raise RuntimeError(reply["error"])
+                return reply.get("result", {})
+
+    def viewport(self, width, height, mobile=False):
+        self.cmd("Emulation.setDeviceMetricsOverride", {
+            "width": width, "height": height, "deviceScaleFactor": 1, "mobile": mobile
+        })
+
+    def navigate(self, url):
+        self.cmd("Page.navigate", {"url": url})
+        for _ in range(100):
+            ready = self.eval("document.readyState === 'complete'")
+            if ready:
+                time.sleep(.35)
+                return
+            time.sleep(.1)
+        raise RuntimeError(f"Page did not load: {url}")
+
+    def eval(self, expression):
+        result = self.cmd("Runtime.evaluate", {"expression": expression, "returnByValue": True})
+        return result.get("result", {}).get("value")
+
+    def screenshot(self, path):
+        shot = self.cmd("Page.captureScreenshot", {"format": "png", "captureBeyondViewport": False})
+        Path(path).write_bytes(base64.b64decode(shot["data"]))
+
+    def close(self):
+        self.ws.close()
+        self.proc.terminate()
+        try:
+            self.proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            self.proc.kill()
+        shutil.rmtree(self.profile, ignore_errors=True)
+
+
+def capture():
+    OUT.mkdir(parents=True, exist_ok=True)
+    chrome = Chrome()
+    try:
+        chrome.viewport(390, 844, True)
+        chrome.navigate(APP_URL)
+        chrome.screenshot(OUT / "phone-home.png")
+        state = {
+            "players": [
+                {"id":"p1","name":"Casey","createdAt":"2026-08-20T00:00:00Z"},
+                {"id":"p2","name":"Jordan","createdAt":"2026-08-20T00:00:00Z"},
+                {"id":"p3","name":"Riley","createdAt":"2026-08-20T00:00:00Z"},
+                {"id":"p4","name":"Morgan","createdAt":"2026-08-20T00:00:00Z"},
+            ],
+            "games": [{
+                "id":"promo-game","playerIds":["p1","p2","p3","p4"],"target":200,
+                "ruleset":"classic","status":"active","createdAt":"2026-08-20T00:00:00Z",
+                "rounds":[
+                    {"scores":{"p1":35,"p2":42,"p3":30,"p4":25}},
+                    {"scores":{"p1":31,"p2":36,"p3":28,"p4":27}},
+                    {"scores":{"p1":34,"p2":39,"p3":33,"p4":22}},
+                    {"scores":{"p1":32,"p2":31,"p3":0,"p4":30}},
+                ]
+            }, {
+                "id":"promo-complete-1","playerIds":["p1","p2","p3","p4"],"target":200,
+                "ruleset":"classic","status":"complete","winnerId":"p2",
+                "createdAt":"2026-08-12T00:00:00Z","completedAt":"2026-08-12T01:00:00Z",
+                "rounds":[{"scores":{"p1":62,"p2":71,"p3":44,"p4":53}},{"scores":{"p1":59,"p2":78,"p3":67,"p4":48}},{"scores":{"p1":55,"p2":66,"p3":51,"p4":60}}]
+            }, {
+                "id":"promo-complete-2","playerIds":["p1","p2","p3","p4"],"target":200,
+                "ruleset":"vengeance","status":"complete","winnerId":"p1",
+                "createdAt":"2026-08-16T00:00:00Z","completedAt":"2026-08-16T01:00:00Z",
+                "rounds":[{"scores":{"p1":81,"p2":55,"p3":63,"p4":47}},{"scores":{"p1":69,"p2":70,"p3":52,"p4":61}},{"scores":{"p1":58,"p2":60,"p3":72,"p4":49}}]
+            }],
+            "activeGameId":"promo-game"
+        }
+        payload = json.dumps(state).replace("\\", "\\\\").replace("'", "\\'")
+        chrome.eval(f"localStorage.setItem('seven-up-scorekeeper-v1','{payload}');location.reload()")
+        time.sleep(1)
+        chrome.eval("document.querySelector('[data-nav=game]').click()")
+        time.sleep(.4)
+        chrome.screenshot(OUT / "phone-game.png")
+        chrome.eval("document.querySelector('#scoreRound').click()")
+        time.sleep(.4)
+        chrome.eval("document.querySelector('[data-player=p1] .expand-calculator').click()")
+        time.sleep(.3)
+        chrome.screenshot(OUT / "phone-cards-empty.png")
+        chrome.eval("[2,4,6,7,8,9,10].forEach(n=>document.querySelector(`[data-player=p1] [data-number=\"${n}\"]`).click())")
+        time.sleep(.8)
+        chrome.screenshot(OUT / "phone-cards-filled.png")
+        chrome.eval("document.querySelector('[data-mode=quick]').click()")
+        time.sleep(.4)
+        chrome.eval("const vals=['70','40','28','0'];document.querySelectorAll('.quick-score').forEach((el,i)=>{el.value=vals[i];el.dispatchEvent(new Event('input',{bubbles:true}))})")
+        time.sleep(.8)
+        chrome.screenshot(OUT / "phone-score.png")
+        chrome.eval("document.querySelector('[data-nav=game]').click();document.querySelector('[data-nav=home]').click();document.querySelector('[data-nav=stats]').click()")
+        time.sleep(.5)
+        chrome.screenshot(OUT / "phone-stats.png")
+        chrome.eval("document.querySelector('[data-nav=home]').click();document.querySelector('[data-nav=history]').click()")
+        time.sleep(.5)
+        chrome.screenshot(OUT / "phone-history.png")
+
+        chrome.viewport(1920, 1080, False)
+        chrome.navigate(HARNESS_URL)
+        time.sleep(.8)
+        chrome.screenshot(OUT / "tv-score.png")
+        chrome.eval("showScore(true)")
+        time.sleep(.8)
+        chrome.screenshot(OUT / "tv-update.png")
+        chrome.eval("showStats()")
+        time.sleep(.5)
+        chrome.screenshot(OUT / "tv-stats.png")
+        for effect,index in (("flip7",2),("busted",3),("nearVictory",1),("frozen",0),("doubled",2)):
+            chrome.eval(f"showEffect('{effect}',{index})")
+            time.sleep(.25)
+            chrome.eval("document.querySelectorAll('.fx-video').forEach(video=>video.pause())")
+            chrome.screenshot(OUT / f"tv-{effect}.png")
+    finally:
+        chrome.close()
+
+
+def contain(image, size):
+    image = image.copy()
+    image.thumbnail(size, Image.Resampling.LANCZOS)
+    return image
+
+
+def rounded_panel(size, radius=34, fill=(8, 18, 47, 255), outline=(91, 230, 194, 180), width=3):
+    panel = Image.new("RGBA", size, (0,0,0,0))
+    ImageDraw.Draw(panel).rounded_rectangle((1,1,size[0]-2,size[1]-2), radius, fill=fill, outline=outline, width=width)
+    return panel
+
+
+def paste_phone(canvas, phone, xy, height):
+    body_w = int(height * .51)
+    panel = rounded_panel((body_w + 24, height + 24), 42, (3,8,20,255), (118,240,210,220), 3)
+    screen = contain(phone, (body_w, height))
+    panel.alpha_composite(screen, ((panel.width-screen.width)//2, (panel.height-screen.height)//2))
+    canvas.alpha_composite(panel, xy)
+    return (xy[0]+(panel.width-screen.width)//2,xy[1]+(panel.height-screen.height)//2,screen.width,screen.height)
+
+
+def paste_tv(canvas, screen, xy, size):
+    outer = rounded_panel((size[0]+28,size[1]+48), 26, (2,6,16,255), (121,151,181,180), 3)
+    fitted = contain(screen, size)
+    outer.alpha_composite(fitted, ((outer.width-fitted.width)//2, 14))
+    canvas.alpha_composite(outer, xy)
+    return (xy[0]+(outer.width-fitted.width)//2,xy[1]+14,fitted.width,fitted.height)
+
+
+def wrap(draw, text, width, font_obj):
+    words=text.split(); lines=[]; line=""
+    for word in words:
+        trial=(line+" "+word).strip()
+        if draw.textbbox((0,0),trial,font=font_obj)[2] <= width: line=trial
+        else: lines.append(line); line=word
+    if line: lines.append(line)
+    return lines
+
+
+def scene(size, title, subtitle=""):
+    w,h=size
+    base=Image.new("RGBA",size,(5,14,37,255))
+    glow=Image.new("RGBA",size,(0,0,0,0)); gd=ImageDraw.Draw(glow)
+    gd.ellipse((-w*.2,-h*.5,w*.75,h*.65),fill=(42,108,136,120))
+    gd.ellipse((w*.55,h*.45,w*1.2,h*1.15),fill=(23,113,91,80))
+    base=Image.alpha_composite(base,glow.filter(ImageFilter.GaussianBlur(int(min(size)*.07))))
+    d=ImageDraw.Draw(base)
+    title_font=font(max(42,int(h*.072)),True)
+    y=int(h*.07)
+    for line in wrap(d,title,int(w*.84),title_font):
+        d.text((int(w*.08),y),line,font=title_font,fill=(247,251,255,255)); y+=int(title_font.size*1.08)
+    if subtitle:
+        sub=font(max(24,int(h*.032)))
+        d.text((int(w*.08),y+10),subtitle,font=sub,fill=(145,235,209,255))
+    return base
+
+
+def ease(value):
+    return .5-.5*math.cos(math.pi*max(0,min(1,value)))
+
+
+def tap(canvas,rect,progress,position=(.55,.55)):
+    if progress<0 or progress>1:return
+    x=int(rect[0]+rect[2]*position[0]);y=int(rect[1]+rect[3]*position[1]);radius=int(12+34*progress)
+    layer=Image.new('RGBA',canvas.size,(0,0,0,0));d=ImageDraw.Draw(layer)
+    d.ellipse((x-radius,y-radius,x+radius,y+radius),outline=(91,230,194,int(255*(1-progress))),width=6)
+    d.ellipse((x-8,y-8,x+8,y+8),fill=(255,255,255,int(220*(1-progress))))
+    canvas.alpha_composite(layer)
+
+
+def label(canvas,text,xy,accent=False,size=30):
+    d=ImageDraw.Draw(canvas);f=font(size,True);box=d.textbbox((0,0),text,font=f)
+    pad=14;fill=(31,210,168,245) if accent else (8,20,45,230);ink=(3,14,30,255) if accent else (244,249,255,255)
+    d.rounded_rectangle((xy[0],xy[1],xy[0]+box[2]+pad*2,xy[1]+f.size+pad*2),16,fill=fill)
+    d.text((xy[0]+pad,xy[1]+pad-2),text,font=f,fill=ink)
+
+
+class EffectClip:
+    def __init__(self,path,max_seconds=2.4):
+        capture=cv2.VideoCapture(str(path));fps=capture.get(cv2.CAP_PROP_FPS) or 24;limit=int(fps*max_seconds);self.frames=[]
+        while len(self.frames)<limit:
+            ok,frame=capture.read()
+            if not ok:break
+            self.frames.append(cv2.cvtColor(frame,cv2.COLOR_BGR2RGB))
+        capture.release()
+        if not self.frames:raise RuntimeError(f'No frames decoded from {path}')
+
+    def frame(self,seconds):
+        return self.frames[min(len(self.frames)-1,max(0,int(seconds*24)))]
+
+
+def overlay_effect(canvas,clip,seconds,tv_rect,player_index):
+    frame=Image.fromarray(clip.frame(seconds)).convert('RGB')
+    # Receiver CSS stretches every source into the clipped player row. Mirroring
+    # that fixed row box prevents full-height source videos (notably Freeze)
+    # from spilling outside the TV bezel in the composed promo.
+    height=max(1,int(tv_rect[3]*.145));frame=frame.resize((tv_rect[2],height),Image.Resampling.LANCZOS)
+    x=tv_rect[0];y=int(tv_rect[1]+tv_rect[3]*(.245+player_index*.158))
+    box=(x,y,x+frame.width,min(canvas.height,y+frame.height));base=canvas.crop(box).convert('RGB')
+    frame=frame.crop((0,0,base.width,base.height));mixed=ImageChops.screen(base,frame).convert('RGBA')
+    canvas.alpha_composite(mixed,(x,y))
+
+
+def render_one(filename):
+    size=SIZE;w,h=size
+    phone_home=Image.open(OUT/"phone-home.png").convert("RGBA")
+    phone_cards_empty=Image.open(OUT/"phone-cards-empty.png").convert("RGBA")
+    phone_cards_filled=Image.open(OUT/"phone-cards-filled.png").convert("RGBA")
+    phone_score=Image.open(OUT/"phone-score.png").convert("RGBA")
+    phone_stats=Image.open(OUT/"phone-stats.png").convert("RGBA")
+    phone_history=Image.open(OUT/"phone-history.png").convert("RGBA")
+    tv_score=Image.open(OUT/"tv-score.png").convert("RGBA")
+    tv_update=Image.open(OUT/"tv-update.png").convert("RGBA")
+    tv_stats=Image.open(OUT/"tv-stats.png").convert("RGBA")
+    effect_stills={name:Image.open(OUT/f"tv-{name}.png").convert('RGBA') for name in ('flip7','busted','nearVictory','frozen','doubled')}
+    clips={
+      'flip7':EffectClip(ROOT/'cast-receiver/assets/flip7-v83.mp4'),
+      'busted':EffectClip(ROOT/'cast-receiver/assets/bust-v92.mp4'),
+      'nearVictory':EffectClip(ROOT/'cast-receiver/assets/electric-v85.mp4'),
+      'frozen':EffectClip(ROOT/'cast-receiver/assets/freeze-v49.mp4'),
+      'doubled':EffectClip(ROOT/'cast-receiver/assets/x2-v83.mp4'),
+    }
+    icon=Image.open(ROOT/"icon-512.png").convert("RGBA")
+    writer=cv2.VideoWriter(str(filename),cv2.VideoWriter_fourcc(*"mp4v"),FPS,size)
+    if not writer.isOpened(): raise RuntimeError("OpenCV could not open MP4 writer")
+    total=SECONDS*FPS
+    for frame_no in range(total):
+        t=frame_no/FPS
+        if t<2.5:
+            canvas=scene(size,"Keep score. Put it on the TV.","FlipCast brings the whole table into the game")
+            mark=contain(icon,(250,250));canvas.alpha_composite(mark,(w-mark.width-150,h-mark.height-105))
+        elif t<7.5:
+            canvas=scene(size,"Score every card on your phone.","The calculator handles the math")
+            phone=phone_cards_empty if t<4.5 else phone_cards_filled
+            phone_rect=paste_phone(canvas,phone,(130,300),650)
+            tv_rect=paste_tv(canvas,effect_stills['flip7'],(700,340),(1080,585))
+            if t>=4.5:overlay_effect(canvas,clips['flip7'],t-4.5,tv_rect,2)
+            tap(canvas,phone_rect,(t%1.0),(.48,.67));label(canvas,'FLIP 7 +15',(1450,860),True,26)
+        elif t<18.5:
+            phases=[('busted',3,'BUST',7.5),('nearVictory',1,'NEAR WIN',9.7),('frozen',0,'FROZEN',11.9),('doubled',2,'×2',14.1),('flip7',2,'FLIP 7',16.3)]
+            effect,index,effect_label,start=max((p for p in phases if t>=p[3]),key=lambda p:p[3])
+            canvas=scene(size,"Every big moment fills the TV.","Cast effects play while the standings stay visible")
+            phone=phone_score if t<12.0 else phone_cards_filled
+            phone_rect=paste_phone(canvas,phone,(105,335),575)
+            tv_rect=paste_tv(canvas,effect_stills[effect],(610,325),(1190,635))
+            overlay_effect(canvas,clips[effect],t-start,tv_rect,index)
+            tap(canvas,phone_rect,(t-start)/.7,(.52,.58));label(canvas,effect_label,(1480,865),True,28)
+        elif t<24.5:
+            canvas=scene(size,"Keep the game, not the paperwork.","Quick scoring · history · all-time player stats")
+            phone=phone_score if t<20.5 else phone_history if t<22.5 else phone_stats
+            label_text='QUICK SCORE' if t<20.5 else 'GAME HISTORY' if t<22.5 else 'PLAYER STATS'
+            phone_rect=paste_phone(canvas,phone,(145,310),650)
+            tv_rect=paste_tv(canvas,tv_update if t<22.5 else tv_stats,(720,350),(1050,570))
+            tap(canvas,phone_rect,(t%2)/.8,(.52,.48));label(canvas,label_text,(1390,850),True,26)
+        else:
+            canvas=scene(size,"FlipCast","Made for scoring Flip 7™ game nights")
+            mark=contain(icon,(230,230));canvas.alpha_composite(mark,((w-mark.width)//2,390))
+            d=ImageDraw.Draw(canvas)
+            url="jml845.github.io/seven-up-scorekeeper"
+            f=font(38,True)
+            box=d.textbbox((0,0),url,font=f); x=(w-(box[2]-box[0]))//2
+            d.rounded_rectangle((x-28,690,x+(box[2]-box[0])+28,690+f.size+34),18,fill=(31,210,168,255))
+            d.text((x,705),url,font=f,fill=(3,14,30,255))
+            foot=font(20)
+            note="Independent utility · Not affiliated with or endorsed by The Op · Chromecast-compatible device required"
+            box=d.textbbox((0,0),note,font=foot)
+            d.text(((w-(box[2]-box[0]))//2,980),note,font=foot,fill=(174,190,207,255))
+        rgb=np.array(canvas.convert("RGB"))
+        writer.write(cv2.cvtColor(rgb,cv2.COLOR_RGB2BGR))
+    writer.release()
+
+
+def main():
+    capture()
+    raw=OUT/"flipcast-widescreen-v2-raw.mp4";final=OUT/"flipcast-widescreen-v2.mp4"
+    render_one(raw)
+    try:
+        import imageio_ffmpeg
+        ffmpeg=imageio_ffmpeg.get_ffmpeg_exe()
+        subprocess.run([ffmpeg,'-y','-i',str(raw),'-an','-c:v','libx264','-preset','medium','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',str(final)],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+        raw.unlink()
+    except (ImportError,subprocess.CalledProcessError):
+        raw.replace(final)
+    print(final)
+
+
+if __name__ == "__main__":
+    main()
