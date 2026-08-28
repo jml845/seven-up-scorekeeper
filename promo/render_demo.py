@@ -175,13 +175,15 @@ def capture():
         chrome.navigate(HARNESS_URL)
         time.sleep(.8)
         chrome.screenshot(OUT / "tv-score.png")
+        layout=chrome.eval("({width:innerWidth,height:innerHeight,players:[...document.querySelectorAll('.player')].map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,radius:parseFloat(getComputedStyle(el).borderTopLeftRadius)||0}})})")
+        (OUT / "tv-layout.json").write_text(json.dumps(layout,indent=2))
         chrome.eval("showScore(true)")
         time.sleep(.8)
         chrome.screenshot(OUT / "tv-update.png")
         chrome.eval("showStats()")
         time.sleep(.5)
         chrome.screenshot(OUT / "tv-stats.png")
-        for effect,index in (("flip7",2),("busted",3),("nearVictory",1),("frozen",0),("doubled",2)):
+        for effect,index in (("flip7",2),("busted",3),("frozen",0)):
             chrome.eval(f"showEffect('{effect}',{index})")
             time.sleep(.25)
             chrome.eval("document.querySelectorAll('.fx-video').forEach(video=>video.pause())")
@@ -268,11 +270,14 @@ def label(canvas,text,xy,accent=False,size=30):
 
 
 class EffectClip:
-    def __init__(self,path,max_seconds=2.4):
+    def __init__(self,path,max_seconds=5.0):
         capture=cv2.VideoCapture(str(path));fps=capture.get(cv2.CAP_PROP_FPS) or 24;limit=int(fps*max_seconds);self.frames=[]
         while len(self.frames)<limit:
             ok,frame=capture.read()
             if not ok:break
+            # Receiver CSS stretches source videos to a shallow player row.
+            # Normalize while decoding so longer promo holds stay memory-bounded.
+            frame=cv2.resize(frame,(1200,100),interpolation=cv2.INTER_AREA)
             self.frames.append(cv2.cvtColor(frame,cv2.COLOR_BGR2RGB))
         capture.release()
         if not self.frames:raise RuntimeError(f'No frames decoded from {path}')
@@ -281,15 +286,15 @@ class EffectClip:
         return self.frames[min(len(self.frames)-1,max(0,int(seconds*24)))]
 
 
-def overlay_effect(canvas,clip,seconds,tv_rect,player_index):
+def overlay_effect(canvas,clip,seconds,tv_rect,player_index,layout):
     frame=Image.fromarray(clip.frame(seconds)).convert('RGB')
-    # Receiver CSS stretches every source into the clipped player row. Mirroring
-    # that fixed row box prevents full-height source videos (notably Freeze)
-    # from spilling outside the TV bezel in the composed promo.
-    height=max(1,int(tv_rect[3]*.145));frame=frame.resize((tv_rect[2],height),Image.Resampling.LANCZOS)
-    x=tv_rect[0];y=int(tv_rect[1]+tv_rect[3]*(.245+player_index*.158))
-    box=(x,y,x+frame.width,min(canvas.height,y+frame.height));base=canvas.crop(box).convert('RGB')
-    frame=frame.crop((0,0,base.width,base.height));mixed=ImageChops.screen(base,frame).convert('RGBA')
+    source=layout['players'][player_index];sx=tv_rect[2]/layout['width'];sy=tv_rect[3]/layout['height']
+    x=int(tv_rect[0]+source['x']*sx);y=int(tv_rect[1]+source['y']*sy)
+    width=max(1,int(source['width']*sx));height=max(1,int(source['height']*sy));radius=max(1,int(source['radius']*min(sx,sy)))
+    frame=frame.resize((width,height),Image.Resampling.LANCZOS)
+    box=(x,y,x+width,y+height);base=canvas.crop(box).convert('RGB');mixed=ImageChops.screen(base,frame).convert('RGBA')
+    mask=Image.new('L',(width,height),0);ImageDraw.Draw(mask).rounded_rectangle((0,0,width-1,height-1),radius=radius,fill=255)
+    mixed.putalpha(mask)
     canvas.alpha_composite(mixed,(x,y))
 
 
@@ -304,13 +309,12 @@ def render_one(filename):
     tv_score=Image.open(OUT/"tv-score.png").convert("RGBA")
     tv_update=Image.open(OUT/"tv-update.png").convert("RGBA")
     tv_stats=Image.open(OUT/"tv-stats.png").convert("RGBA")
-    effect_stills={name:Image.open(OUT/f"tv-{name}.png").convert('RGBA') for name in ('flip7','busted','nearVictory','frozen','doubled')}
+    layout=json.loads((OUT/'tv-layout.json').read_text())
+    effect_stills={name:Image.open(OUT/f"tv-{name}.png").convert('RGBA') for name in ('flip7','busted','frozen')}
     clips={
       'flip7':EffectClip(ROOT/'cast-receiver/assets/flip7-v83.mp4'),
       'busted':EffectClip(ROOT/'cast-receiver/assets/bust-v92.mp4'),
-      'nearVictory':EffectClip(ROOT/'cast-receiver/assets/electric-v85.mp4'),
       'frozen':EffectClip(ROOT/'cast-receiver/assets/freeze-v49.mp4'),
-      'doubled':EffectClip(ROOT/'cast-receiver/assets/x2-v83.mp4'),
     }
     icon=Image.open(ROOT/"icon-512.png").convert("RGBA")
     writer=cv2.VideoWriter(str(filename),cv2.VideoWriter_fourcc(*"mp4v"),FPS,size)
@@ -326,21 +330,21 @@ def render_one(filename):
             phone=phone_cards_empty if t<4.5 else phone_cards_filled
             phone_rect=paste_phone(canvas,phone,(130,300),650)
             tv_rect=paste_tv(canvas,effect_stills['flip7'],(700,340),(1080,585))
-            if t>=4.5:overlay_effect(canvas,clips['flip7'],t-4.5,tv_rect,2)
-            tap(canvas,phone_rect,(t%1.0),(.48,.67));label(canvas,'FLIP 7 +15',(1450,860),True,26)
-        elif t<18.5:
-            phases=[('busted',3,'BUST',7.5),('nearVictory',1,'NEAR WIN',9.7),('frozen',0,'FROZEN',11.9),('doubled',2,'×2',14.1),('flip7',2,'FLIP 7',16.3)]
+            if t>=3.5:overlay_effect(canvas,clips['flip7'],t-3.5,tv_rect,2,layout)
+            tap(canvas,phone_rect,(t%1.0),(.48,.67))
+        elif t<17.5:
+            phases=[('busted',3,'BUST',7.5),('frozen',1,'FROZEN',12.5)]
             effect,index,effect_label,start=max((p for p in phases if t>=p[3]),key=lambda p:p[3])
             canvas=scene(size,"Every big moment fills the TV.","Cast effects play while the standings stay visible")
-            phone=phone_score if t<12.0 else phone_cards_filled
+            phone=phone_score if t<12.5 else phone_cards_filled
             phone_rect=paste_phone(canvas,phone,(105,335),575)
             tv_rect=paste_tv(canvas,effect_stills[effect],(610,325),(1190,635))
-            overlay_effect(canvas,clips[effect],t-start,tv_rect,index)
-            tap(canvas,phone_rect,(t-start)/.7,(.52,.58));label(canvas,effect_label,(1480,865),True,28)
+            overlay_effect(canvas,clips[effect],t-start,tv_rect,index,layout)
+            tap(canvas,phone_rect,(t-start)/.7,(.52,.58))
         elif t<24.5:
             canvas=scene(size,"Keep the game, not the paperwork.","Quick scoring · history · all-time player stats")
-            phone=phone_score if t<20.5 else phone_history if t<22.5 else phone_stats
-            label_text='QUICK SCORE' if t<20.5 else 'GAME HISTORY' if t<22.5 else 'PLAYER STATS'
+            phone=phone_score if t<19.8 else phone_history if t<22.2 else phone_stats
+            label_text='QUICK SCORE' if t<19.8 else 'GAME HISTORY' if t<22.2 else 'PLAYER STATS'
             phone_rect=paste_phone(canvas,phone,(145,310),650)
             tv_rect=paste_tv(canvas,tv_update if t<22.5 else tv_stats,(720,350),(1050,570))
             tap(canvas,phone_rect,(t%2)/.8,(.52,.48));label(canvas,label_text,(1390,850),True,26)

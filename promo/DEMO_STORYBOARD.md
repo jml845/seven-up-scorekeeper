@@ -13,12 +13,13 @@ The demo must show the differentiator before describing secondary features. The 
    - The Cast scoreboard responds with the Flip 7 effect.
    - Text: `Score every card on your phone.`
 
-3. **7.5–18.5 seconds — Cast effects**
+3. **7.5–17.5 seconds — Cast effects**
    - Keep the phone and TV visible together.
-   - Cycle through Bust, Near Win, Frozen, ×2, and Flip 7 using the actual receiver assets.
+   - Continue with Bust and Frozen after the Flip 7 sequence, using the actual receiver assets.
+   - Clip every animation to browser-measured player-card bounds and rounded corners.
    - Text: `Every big moment fills the TV.`
 
-4. **18.5–24.5 seconds — Supporting features**
+4. **17.5–24.5 seconds — Supporting features**
    - Show quick scoring, game history, and player statistics on the phone.
    - Keep live standings or Cast stats on the TV.
    - Text: `Keep the game, not the paperwork.`
