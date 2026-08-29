@@ -1,6 +1,6 @@
 (function () {
   const NAMESPACE = 'urn:x-cast:com.sevenup.scoreboard';
-  const SENDER_BUILD = 87;
+  const SENDER_BUILD = 88;
   const ACK_TIMEOUT_MS = 700;
   const MAX_SEND_ATTEMPTS = 5;
   const HEARTBEAT_INTERVAL_MS = 10000;
@@ -315,6 +315,7 @@
           if (connectedState(event.sessionState)) attachSession(castContext.getCurrentSession());
           else if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED || event.sessionState === cast.framework.SessionState.SESSION_ENDED) {
             if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED) recordError(`session_start_failed${code?`:${code}`:''}`);
+            if (event.sessionState === cast.framework.SessionState.SESSION_ENDED) window.dispatchEvent(new Event('sevenup-cast-disconnected'));
             detachSession();
           }
         });

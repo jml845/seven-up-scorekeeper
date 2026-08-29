@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "flipcast-analytics",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-28",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGIN": "https://jml845.github.io"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "flipcast-analytics",
+      "database_id": "ec4def7c-af7d-4d06-8175-31f7a11a4c37",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": {
+    "crons": ["17 9 * * *"]
+  }
+}

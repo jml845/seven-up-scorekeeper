@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {validateEvent} from './src/index.js';
+const good={event_id:'11111111-1111-4111-8111-111111111111',install_id:'22222222-2222-4222-8222-222222222222',event:'game_completed',build:88,edition:'classic',player_count:4,round_count:6,cast_used:true,campaign:'boardgamegeek'};
+assert.deepEqual(validateEvent(good).event,'game_completed');
+assert.equal(validateEvent({...good,campaign:'internal'}).is_internal,true);
+for(const forbidden of ['name','player_names','scores','game_id','user_agent','ip'])assert.throws(()=>validateEvent({...good,[forbidden]:'private'}),/unknown_field/);
+assert.throws(()=>validateEvent({...good,event:'anything'}),/invalid_event/);
+assert.throws(()=>validateEvent({...good,player_count:19}),/invalid_player_count/);
+assert.throws(()=>validateEvent({...good,campaign:'Not Allowed!'}),/invalid_campaign/);
+console.log('Analytics schema privacy tests passed.');

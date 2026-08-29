@@ -138,6 +138,8 @@
 .privacy-actions { z-index:3; margin:0 -18px; padding:14px 18px var(--dock-bottom-padding); background:linear-gradient(180deg,#151f2900,#151f29 20%); border-radius:0 0 20px 20px }
 .privacy-actions { display:grid; grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr); gap:9px }
 .privacy-actions .button { display:block; width:100%; text-align:center; text-decoration:none }
+.analytics-choice { display:flex; align-items:flex-start; gap:9px; margin:14px 0; padding:12px; border:1px solid var(--line); border-radius:12px; color:var(--ink); font-weight:750 }
+.analytics-choice input { width:18px; height:18px; margin-top:1px; accent-color:var(--cyan) }
 .game-actions { position:relative; bottom:auto; margin:0; border-radius:17px 17px 0 0; padding:12px 10px var(--dock-bottom-padding) }
 @media(max-width:600px){main:not(.privacy-main):not(:has(.setup-page-shell,.score-entry-shell,.game-shell)){padding-bottom:24px}}
 @media(max-width:560px){.privacy-main{top:60px;padding-top:14px;padding-bottom:0}.privacy-card{padding:15px 15px 0}.privacy-card p{line-height:1.48}.privacy-actions{margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px}}
