@@ -6,6 +6,8 @@ Accepted events are schema allowlisted. Player names, scores, game identifiers, 
 
 Raw events and daily unique-installation rows are deleted after 90 days. Daily aggregate counts remain. Use `?campaign=internal` for owner tests; the dashboard excludes those by default.
 
+The dashboard's **Unique devices** count represents anonymous browser profiles seen by the app. It does not prove that the PWA was installed. Use a distinct campaign parameter for each recruitment source, for example `?campaign=reddit`, `?campaign=facebook`, or `?campaign=boardgamegeek`.
+
 Secrets required in Cloudflare:
 
 - `ID_PEPPER`: random server-only salt used before hashing installation IDs.
