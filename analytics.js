@@ -1,6 +1,6 @@
 (function(){
   const ENDPOINT='https://flipcast-analytics.jml845-flipcast.workers.dev/event';
-  const BUILD=88,ID_KEY='flipcast-anonymous-install-v1',OPT_OUT_KEY='flipcast-analytics-opt-out-v1',QUEUE_KEY='flipcast-analytics-queue-v1',CAMPAIGN_KEY='flipcast-analytics-campaign-v1',OPEN_KEY='flipcast-analytics-last-open-v1',CAST_GAME_KEY='flipcast-analytics-cast-game-v1';
+  const BUILD=89,ID_KEY='flipcast-anonymous-install-v1',OPT_OUT_KEY='flipcast-analytics-opt-out-v1',QUEUE_KEY='flipcast-analytics-queue-v1',CAMPAIGN_KEY='flipcast-analytics-campaign-v1',OPEN_KEY='flipcast-analytics-last-open-v1',CAST_GAME_KEY='flipcast-analytics-cast-game-v1';
   const EVENT_FIELDS={app_open:[],game_started:['edition','player_count'],game_completed:['edition','player_count','round_count','cast_used','session_seconds'],cast_attempt:[],cast_connected:[],cast_disconnected:['session_seconds'],feedback_opened:[]};
   const uuid=()=>crypto.randomUUID?.()||`${Date.now().toString(16).padStart(8,'0')}-0000-4000-8000-${crypto.getRandomValues(new Uint32Array(2)).join('').slice(0,12).padEnd(12,'0')}`;
   const enabled=()=>localStorage.getItem(OPT_OUT_KEY)!=='1';

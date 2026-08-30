@@ -183,7 +183,10 @@ def capture():
         chrome.eval("showStats()")
         time.sleep(.5)
         chrome.screenshot(OUT / "tv-stats.png")
-        for effect,index in (("flip7",2),("busted",3),("frozen",0)):
+        # showEffect indexes the source player array (Casey, Jordan, Riley,
+        # Morgan), not the score-sorted DOM rows used by overlay_effect.
+        source_effect_players={"flip7":0,"busted":3,"frozen":1}
+        for effect,index in source_effect_players.items():
             chrome.eval(f"showEffect('{effect}',{index})")
             time.sleep(.25)
             chrome.eval("document.querySelectorAll('.fx-video').forEach(video=>video.pause())")
@@ -304,11 +307,8 @@ def render_one(filename):
     phone_cards_empty=Image.open(OUT/"phone-cards-empty.png").convert("RGBA")
     phone_cards_filled=Image.open(OUT/"phone-cards-filled.png").convert("RGBA")
     phone_score=Image.open(OUT/"phone-score.png").convert("RGBA")
-    phone_stats=Image.open(OUT/"phone-stats.png").convert("RGBA")
-    phone_history=Image.open(OUT/"phone-history.png").convert("RGBA")
     tv_score=Image.open(OUT/"tv-score.png").convert("RGBA")
     tv_update=Image.open(OUT/"tv-update.png").convert("RGBA")
-    tv_stats=Image.open(OUT/"tv-stats.png").convert("RGBA")
     layout=json.loads((OUT/'tv-layout.json').read_text())
     effect_stills={name:Image.open(OUT/f"tv-{name}.png").convert('RGBA') for name in ('flip7','busted','frozen')}
     clips={
@@ -316,47 +316,81 @@ def render_one(filename):
       'busted':EffectClip(ROOT/'cast-receiver/assets/bust-v92.mp4'),
       'frozen':EffectClip(ROOT/'cast-receiver/assets/freeze-v49.mp4'),
     }
-    icon=Image.open(ROOT/"icon-512.png").convert("RGBA")
+    logo=Image.open(ROOT/"brand/flipcast-logo-approved.png").convert("RGBA")
     writer=cv2.VideoWriter(str(filename),cv2.VideoWriter_fourcc(*"mp4v"),FPS,size)
     if not writer.isOpened(): raise RuntimeError("OpenCV could not open MP4 writer")
     total=SECONDS*FPS
     for frame_no in range(total):
         t=frame_no/FPS
-        if t<2.5:
-            canvas=scene(size,"Keep score. Put it on the TV.","FlipCast brings the whole table into the game")
-            mark=contain(icon,(250,250));canvas.alpha_composite(mark,(w-mark.width-150,h-mark.height-105))
-        elif t<7.5:
-            canvas=scene(size,"Score every card on your phone.","The calculator handles the math")
-            phone=phone_cards_empty if t<4.5 else phone_cards_filled
-            phone_rect=paste_phone(canvas,phone,(130,300),650)
-            tv_rect=paste_tv(canvas,effect_stills['flip7'],(700,340),(1080,585))
-            if t>=3.5:overlay_effect(canvas,clips['flip7'],t-3.5,tv_rect,2,layout)
-            tap(canvas,phone_rect,(t%1.0),(.48,.67))
-        elif t<17.5:
-            phases=[('busted',3,'BUST',7.5),('frozen',1,'FROZEN',12.5)]
-            effect,index,effect_label,start=max((p for p in phases if t>=p[3]),key=lambda p:p[3])
-            canvas=scene(size,"Every big moment fills the TV.","Cast effects play while the standings stay visible")
-            phone=phone_score if t<12.5 else phone_cards_filled
-            phone_rect=paste_phone(canvas,phone,(105,335),575)
-            tv_rect=paste_tv(canvas,effect_stills[effect],(610,325),(1190,635))
-            overlay_effect(canvas,clips[effect],t-start,tv_rect,index,layout)
-            tap(canvas,phone_rect,(t-start)/.7,(.52,.58))
-        elif t<24.5:
-            canvas=scene(size,"Keep the game, not the paperwork.","Quick scoring · history · all-time player stats")
-            phone=phone_score if t<19.8 else phone_history if t<22.2 else phone_stats
-            label_text='QUICK SCORE' if t<19.8 else 'GAME HISTORY' if t<22.2 else 'PLAYER STATS'
-            phone_rect=paste_phone(canvas,phone,(145,310),650)
-            tv_rect=paste_tv(canvas,tv_update if t<22.5 else tv_stats,(720,350),(1050,570))
-            tap(canvas,phone_rect,(t%2)/.8,(.52,.48));label(canvas,label_text,(1390,850),True,26)
+        if t<3:
+            canvas=scene(size,"","")
+            # A squash-and-reveal mimics the logo flip at Cast startup.
+            cycle=ease((t%1.35)/1.35)
+            scale=max(.055,abs(math.cos(cycle*math.pi)))
+            mark=contain(logo,(510,510))
+            mark=mark.resize((max(1,int(mark.width*scale)),mark.height),Image.Resampling.LANCZOS)
+            canvas.alpha_composite(mark,((w-mark.width)//2,(h-mark.height)//2-20))
+            d=ImageDraw.Draw(canvas);f=font(34,True)
+            text="Game night, upgraded."
+            box=d.textbbox((0,0),text,font=f)
+            d.text(((w-(box[2]-box[0]))//2,870),text,font=f,fill=(145,235,209,255))
+        elif t<15:
+            canvas=scene(size,"Score on your phone.","Everyone follows on the TV.")
+            reveal=ease((t-3)/1.5)
+            # Keep the approved logo anchored like the Cast interface brand mark.
+            mark=contain(logo,(int(420-190*reveal),int(420-190*reveal)))
+            mx=int((w-mark.width)//2*(1-reveal)+(w-mark.width-80)*reveal)
+            my=int((h-mark.height)//2*(1-reveal)+58*reveal)
+            canvas.alpha_composite(mark,(mx,my))
+            if reveal>.25:
+                phone=phone_cards_empty if t<10.4 else phone_cards_filled if t<12.2 else phone_score
+                phone_rect=paste_phone(canvas,phone,(170,285),700)
+                # Use the same Casey/Flip 7 receiver state that supplies the
+                # status tag and highlight; do not mix it with a generic score
+                # screenshot whose sorted row order differs.
+                preview=tv_score if t<12.2 else effect_stills['flip7']
+                tv_rect=paste_tv(canvas,preview,(715,395),(1030,555))
+                if t>=12.2:
+                    # Casey is the second player row in the production receiver.
+                    overlay_effect(canvas,clips['flip7'],t-12.2,tv_rect,1,layout)
+                # Follow the real Casey calculator controls instead of pulsing a
+                # generic point: 2, 4, 6, 7, 8, 9, 10, Flip 7, then Save round.
+                tap_path=[
+                    (.49,.357),(.84,.357),(.32,.413),(.50,.413),
+                    (.67,.413),(.84,.413),(.14,.469),(.39,.584),(.74,.955),
+                ]
+                tap_start=5.2;tap_spacing=.78
+                for tap_index,tap_position in enumerate(tap_path):
+                    tap_time=tap_start+tap_index*tap_spacing
+                    tap(canvas,phone_rect,(t-tap_time)/.55,tap_position)
+                label(canvas,"AUTOMATIC TOTALS",(1030,895),True,25)
+        elif t<26:
+            # Begin on the exact preview composition, then let the receiver take over.
+            transition=ease((t-15)/1.25)
+            canvas=scene(size,"Big moments. Big screen.","")
+            start=(715,395,1030,555)
+            x=int(start[0]*(1-transition));y=int(start[1]*(1-transition))
+            sw=int(start[2]+(w-start[2])*transition);sh=int(start[3]+(h-start[3])*transition)
+            # Receiver row order: Jordan, Casey, Riley, Morgan.
+            phase=('flip7',1,15.0) if t<19 else ('busted',3,19.0) if t<22.5 else ('frozen',0,22.5)
+            effect,index,start_time=phase
+            screen=effect_stills[effect].resize((sw,sh),Image.Resampling.LANCZOS)
+            canvas.alpha_composite(screen,(x,y))
+            tv_rect=(x,y,sw,sh)
+            overlay_effect(canvas,clips[effect],t-start_time,tv_rect,index,layout)
         else:
-            canvas=scene(size,"FlipCast","Made for scoring Flip 7™ game nights")
-            mark=contain(icon,(230,230));canvas.alpha_composite(mark,((w-mark.width)//2,390))
+            canvas=scene(size,"Join the FlipCast beta","No paperwork. More game night.")
+            mark=contain(logo,(260,260));canvas.alpha_composite(mark,((w-mark.width)//2,350))
             d=ImageDraw.Draw(canvas)
             url="jml845.github.io/seven-up-scorekeeper"
             f=font(38,True)
             box=d.textbbox((0,0),url,font=f); x=(w-(box[2]-box[0]))//2
             d.rounded_rectangle((x-28,690,x+(box[2]-box[0])+28,690+f.size+34),18,fill=(31,210,168,255))
             d.text((x,705),url,font=f,fill=(3,14,30,255))
+            feature=font(25,True)
+            feature_text="Automatic scoring  ·  Live TV standings  ·  Game history  ·  Player stats"
+            feature_box=d.textbbox((0,0),feature_text,font=feature)
+            d.text(((w-(feature_box[2]-feature_box[0]))//2,830),feature_text,font=feature,fill=(221,235,242,255))
             foot=font(20)
             note="Independent utility · Not affiliated with or endorsed by The Op · Chromecast-compatible device required"
             box=d.textbbox((0,0),note,font=foot)

@@ -17,5 +17,7 @@ window.addEventListener('sevenup-cast-notice',event=>notices.push(event.detail))
 __onGCastApiAvailable(true);
 listeners.session?.({sessionState:SessionState.SESSION_STARTED});
 setTimeout(()=>sevenUpCast.send({version:7,players:[{id:'p1'}]}),20);
-setTimeout(()=>{const d=sevenUpCast.getDiagnostics(),exported=JSON.parse(sevenUpCast.exportDiagnostics());document.body.dataset.result=[sends,hellos,states,pings,options.autoJoinPolicy,options.resumeSavedSession,d.receiverReady,d.receiverBuild,d.lastAckSequence,Boolean(d.lastPongAt),d.flightEventCount>0,exported.schema,exported.events.some(row=>row.type==='heartbeat_pong'),document.documentElement.classList.contains('cast-connected'),notices.length].join(',')},200);
+let connectedBeforeEnd=false;
+setTimeout(()=>{connectedBeforeEnd=document.documentElement.classList.contains('cast-connected');listeners.session?.({sessionState:SessionState.SESSION_ENDED})},200);
+setTimeout(()=>{const d=sevenUpCast.getDiagnostics(),exported=JSON.parse(sevenUpCast.exportDiagnostics());document.body.dataset.result=[sends,hellos,states,pings,options.autoJoinPolicy,options.resumeSavedSession,d.receiverReady,d.lastAckSequence,Boolean(d.lastPongAt),d.flightEventCount>0,exported.schema,exported.events.some(row=>row.type==='heartbeat_pong'),connectedBeforeEnd,document.documentElement.classList.contains('cast-connected'),notices.length,d.lastDisconnect?.kind,d.lastReceiverSnapshot?.receiverReady,d.lastReceiverSnapshot?.receiverBuild,d.lastReceiverSnapshot?.lastAckSequence,exported.events.some(row=>row.type==='session_ended_classified'&&row.kind==='unexpected')].join(',')},260);
 </script></body></html>

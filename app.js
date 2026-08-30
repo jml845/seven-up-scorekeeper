@@ -1,4 +1,4 @@
-import {MODIFIERS, NEGATIVE_MODIFIERS, RULESETS, rulesetFor, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=88';
+import {MODIFIERS, NEGATIVE_MODIFIERS, RULESETS, rulesetFor, calculateRound, totalsFor, gameOutcome, playerStats} from './rules.js?v=89';
 
 function syncViewportHeight(){document.documentElement.style.setProperty('--app-height',`${Math.round(window.visualViewport?.height||window.innerHeight)}px`)}
 syncViewportHeight();
@@ -7,7 +7,7 @@ window.visualViewport?.addEventListener('scroll',syncViewportHeight);
 window.addEventListener('orientationchange',syncViewportHeight);
 
 const KEY = 'seven-up-scorekeeper-v1';
-const BUILD = '88';
+const BUILD = '89';
 const FEEDBACK_FORM = 'https://tally.so/r/1Ag8Pb';
 const fresh = () => ({players:[], games:[], activeGameId:null});
 let state = load(); let view = 'home'; let scoringMode = 'cards'; let draft = {}; let winnerGame = null;
@@ -22,7 +22,8 @@ const uid = () => crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Mat
 function feedbackUrl(){const url=new URL(FEEDBACK_FORM);const campaign=new URLSearchParams(location.search).get('campaign');url.searchParams.set('build',BUILD);url.searchParams.set('device',navigator.platform||'unknown');url.searchParams.set('browser',navigator.userAgent);url.searchParams.set('source',matchMedia('(display-mode: standalone)').matches?'installed app':'web browser');if(campaign)url.searchParams.set('campaign',campaign);return url.href}
 function load(){try{return {...fresh(),...JSON.parse(localStorage.getItem(KEY))}}catch{return fresh()}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));channel?.postMessage('refresh')}
-function toast(text){const el=document.querySelector('#toast');el.textContent=text;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1900)}
+let toastTimer=null;
+function toast(text,duration=1900){const el=document.querySelector('#toast');clearTimeout(toastTimer);el.textContent=text;el.classList.add('show');toastTimer=setTimeout(()=>el.classList.remove('show'),duration)}
 function activeGame(){return state.games.find(g=>g.id===state.activeGameId)}
 function player(id){return state.players.find(p=>p.id===id)}
 function draftScore(id){const d=draft[id];if(!d)return 0;if(scoringMode==='quick')return d.quick===''?0:Math.max(0,Number(d.quick)||0);return calculateRound({...d,ruleset:activeGame()?.ruleset||'classic'})}
@@ -50,7 +51,7 @@ function home(){const game=activeGame();return `<svg class="cast-arrow-overlay" 
   ${game?`<button class="card home-action primary" data-nav="game"><strong>Resume game</strong><span>${rulesetFor(game).shortName} · Round ${game.rounds.length+1} · ${game.playerIds.length} players</span></button>`:`<button class="card home-action primary" data-nav="edition"><strong>New game</strong><span>Choose an edition and start scoring</span></button>`}
   ${game?`<button class="card home-action" data-nav="edition"><strong>New game</strong><span>Start another match</span></button>`:''}
   <button class="card home-action" data-nav="stats"><strong>All-time stats</strong><span>Wins, win rate, streaks, and more</span></button>
-  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=88">Privacy</a></p>`}
+  <button class="card home-action" data-nav="history"><strong>Game history</strong><span>${state.games.filter(g=>g.status==='complete').length} completed games</span></button></section><p class="subtle app-footer"><a href="${esc(feedbackUrl())}" target="_blank" rel="noopener">Feedback</a><span aria-hidden="true">·</span><a href="privacy.html?v=89">Privacy</a></p>`}
 function positionCastArrow(){const svg=document.querySelector('.cast-arrow-overlay'),pointer=document.querySelector('.hero-cast-pointer'),launcher=document.querySelector('.cast-launcher');if(!svg||!pointer)return;const p=pointer.getBoundingClientRect(),c=launcher?.getBoundingClientRect();const startX=p.right+6,startY=p.top+p.height/2,targetX=c?.width?c.left+c.width/2:innerWidth-37,targetY=c?.height?c.top+c.height/2:34;svg.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);svg.querySelector('path').setAttribute('d',`M${startX} ${startY} H${targetX} V${targetY}`);svg.querySelector('polyline').setAttribute('points',`${targetX-8},${targetY+12} ${targetX},${targetY} ${targetX+8},${targetY+12}`)}
 function editionScreen(){return `<section class="edition-page-shell"><div class="section-head setup-head"><h1>Which game?</h1><button class="button ghost small" data-nav="home">Cancel</button></div><p class="subtle edition-intro">Choose the deck on your table. The card calculator will use that edition’s cards and scoring order.</p><div class="edition-grid">
   <button class="card edition-card" data-ruleset="classic"><span class="edition-kicker">ORIGINAL</span><strong>Flip 7</strong><span>0–12, ×2, and +2 through +10 modifiers</span></button>
@@ -121,14 +122,14 @@ if('serviceWorker'in navigator){
     reloading=true;
     location.reload();
   });
-  navigator.serviceWorker.register('./sw.js?v=88',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+  navigator.serviceWorker.register('./sw.js?v=89',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 }
 channel?.addEventListener('message',()=>{state=load();if(view==='tv')render()});
 window.addEventListener('storage',event=>{if(event.key===KEY){state=load();if(view==='tv')render()}});
 window.addEventListener('sevenup-cast-connected',()=>view==='stats'?sendStatsToCast():view==='winner'&&winnerGame?sendWinnerToCast(winnerGame):sendToCast());
-window.addEventListener('sevenup-cast-notice',event=>toast(event.detail));
+window.addEventListener('sevenup-cast-notice',event=>{const notice=event.detail;if(notice&&typeof notice==='object')toast(notice.message||'Cast status changed',notice.duration||1900);else toast(notice)});
 const castHelpDialog=document.querySelector('#castHelpDialog'),castHelpBtn=document.querySelector('#castHelpBtn'),castHelpStatus=document.querySelector('#castHelpStatus'),castDiagnostics=document.querySelector('#castDiagnostics'),castRetryBtn=document.querySelector('#castRetryBtn'),castCopyBtn=document.querySelector('#castCopyBtn'),castExportBtn=document.querySelector('#castExportBtn'),castHelpClose=document.querySelector('#castHelpClose');
-function castDiagnosticRows(){const d=window.sevenUpCast?.getDiagnostics?.()||{},sessionEvent=d.lastSessionEvent,game=d.decoderGame?String(d.decoderGame).slice(-8):'',primer=d.decoderState?`${d.decoderState}${d.decoderFrames?` · ${d.decoderFrames} frames`:''}${d.decoderAttempt?` · try ${d.decoderAttempt}`:''}${game?` · game …${game}`:''}`:'Unknown';return [['Sender build',d.senderBuild||'—'],['Cast API',d.apiAvailable?'Ready':'Not ready'],['Devices',d.devicesAvailable?'Found':'None found'],['Session',d.sessionState||'Disconnected'],['Receiver',d.receiverReady?`Ready${d.receiverBuild?` (build ${d.receiverBuild})`:''}`:'Not ready'],['Game primer',primer],['Last confirmed update',d.lastAckSequence||'None'],['Last TV heartbeat',d.lastPongAt||'None'],['Heartbeat misses',d.heartbeatMisses||0],['Recorded events',d.flightEventCount||0],['Last session event',sessionEvent?`${sessionEvent.state}${sessionEvent.code?` · ${sessionEvent.code}`:''} · ${sessionEvent.at}`:'None'],['Last error',d.errors?.code?`${d.errors.code}${d.errors.at?` · ${d.errors.at}`:''}`:'None']]}
+function castDiagnosticRows(){const d=window.sevenUpCast?.getDiagnostics?.()||{},sessionEvent=d.lastSessionEvent,disconnect=d.lastDisconnect,snapshot=d.lastReceiverSnapshot,game=d.decoderGame?String(d.decoderGame).slice(-8):'',primer=d.decoderState?`${d.decoderState}${d.decoderFrames?` · ${d.decoderFrames} frames`:''}${d.decoderAttempt?` · try ${d.decoderAttempt}`:''}${game?` · game …${game}`:''}`:'Unknown';return [['Sender build',d.senderBuild||'—'],['Cast API',d.apiAvailable?'Ready':'Not ready'],['Devices',d.devicesAvailable?'Found':'None found'],['Session',d.sessionState||'Disconnected'],['Receiver',d.receiverReady?`Ready${d.receiverBuild?` (build ${d.receiverBuild})`:''}`:'Not ready'],['Game primer',primer],['Last confirmed update',d.lastAckSequence||'None'],['Last TV heartbeat',d.lastPongAt||'None'],['Heartbeat misses',d.heartbeatMisses||0],['Last disconnect',disconnect?`${disconnect.kind==='unexpected'?'Unexpected':'User initiated'}${disconnect.code?` · ${disconnect.code}`:''} · ${disconnect.at}`:'None'],['Receiver at disconnect',snapshot?`${snapshot.receiverReady?'Ready':'Not ready'}${snapshot.receiverBuild?` (build ${snapshot.receiverBuild})`:''} · ack ${snapshot.lastAckSequence||'none'} · heartbeat ${snapshot.lastPongAt||'none'}`:'None'],['Recorded events',d.flightEventCount||0],['Last session event',sessionEvent?`${sessionEvent.state}${sessionEvent.code?` · ${sessionEvent.code}`:''} · ${sessionEvent.at}`:'None'],['Last error',d.errors?.code?`${d.errors.code}${d.errors.at?` · ${d.errors.at}`:''}`:'None']]}
 function renderCastHelp(){const rows=castDiagnosticRows();castHelpStatus.textContent=rows[4][1];castDiagnostics.replaceChildren(...rows.map(([term,value])=>{const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=term;dd.textContent=value;row.append(dt,dd);return row}))}
 function openCastHelp(){renderCastHelp();if(!castHelpDialog.open){if(typeof castHelpDialog.showModal==='function')castHelpDialog.showModal();else castHelpDialog.setAttribute('open','')}}
 castHelpBtn.addEventListener('click',openCastHelp,{capture:true});

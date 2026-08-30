@@ -1,6 +1,6 @@
 (function () {
   const NAMESPACE = 'urn:x-cast:com.sevenup.scoreboard';
-  const SENDER_BUILD = 88;
+  const SENDER_BUILD = 89;
   const ACK_TIMEOUT_MS = 700;
   const MAX_SEND_ATTEMPTS = 5;
   const HEARTBEAT_INTERVAL_MS = 10000;
@@ -27,6 +27,10 @@
   let heartbeatSequence = 0;
   let lastPongAt = null;
   let heartbeatMisses = 0;
+  let lastReceiverSnapshot = null;
+  let lastDisconnect = null;
+  let stopRequestedAt = 0;
+  let castControlInteractedAt = 0;
   let nextSequence = 1;
   let lastAckSequence = 0;
   let lastSessionEvent = null;
@@ -120,6 +124,30 @@
     decoderAttempt = 0;
     document.documentElement.classList.remove('cast-connected');
     publishStatus();
+  }
+
+  function classifySessionEnd(code = '') {
+    const now = Date.now();
+    const userInitiated = now - Math.max(stopRequestedAt, castControlInteractedAt) < 20000;
+    const kind = userInitiated ? 'user_initiated' : 'unexpected';
+    lastReceiverSnapshot = {
+      at:new Date().toISOString(), receiverReady, receiverBuild, decoderState,
+      decoderFrames, decoderGame, decoderAttempt, lastAckSequence, lastPongAt,
+      heartbeatMisses, pendingSequence:pendingScoreboard?.seq || null,
+    };
+    lastDisconnect = {
+      at:lastReceiverSnapshot.at, kind, code:String(code || ''),
+      castState:castContext?.getCastState?.() || '', receiver:lastReceiverSnapshot,
+    };
+    recordFlight('session_ended_classified', {
+      kind, code:String(code || ''), receiverReady, receiverBuild,
+      lastAckSequence, lastPongAt, pendingSequence:pendingScoreboard?.seq || null,
+    });
+    stopRequestedAt = 0;
+    if (kind === 'unexpected') notify({
+      message:'TV disconnected unexpectedly. Your game is safe—tap Cast to reconnect.',
+      kind:'cast-disconnected', duration:8000,
+    });
   }
 
   function handleReceiverMessage(message) {
@@ -239,6 +267,8 @@
   }
 
   function stop() {
+    stopRequestedAt = Date.now();
+    recordFlight('stop_requested');
     try { castContext?.endCurrentSession?.(true); }
     catch (error) { recordError(error?.code || error || 'stop_failed'); }
   }
@@ -261,6 +291,8 @@
       lastAckSequence,
       lastPongAt,
       heartbeatMisses,
+      lastReceiverSnapshot,
+      lastDisconnect,
       flightEventCount:flightLog.length,
       lastSessionEvent,
       errors:errors.at(-1) || null,
@@ -315,7 +347,10 @@
           if (connectedState(event.sessionState)) attachSession(castContext.getCurrentSession());
           else if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED || event.sessionState === cast.framework.SessionState.SESSION_ENDED) {
             if (event.sessionState === cast.framework.SessionState.SESSION_START_FAILED) recordError(`session_start_failed${code?`:${code}`:''}`);
-            if (event.sessionState === cast.framework.SessionState.SESSION_ENDED) window.dispatchEvent(new Event('sevenup-cast-disconnected'));
+            if (event.sessionState === cast.framework.SessionState.SESSION_ENDED) {
+              classifySessionEnd(code);
+              window.dispatchEvent(new Event('sevenup-cast-disconnected'));
+            }
             detachSession();
           }
         });
@@ -349,6 +384,14 @@
   window.addEventListener('pagehide', event => recordFlight('page_hide', {persisted:Boolean(event.persisted)}));
   window.addEventListener('freeze', () => recordFlight('page_freeze'));
   window.addEventListener('resume', () => recordFlight('page_resume'));
+  document.addEventListener('click', event => {
+    if (!event.target?.closest?.('#castButton')) return;
+    const session = currentSession();
+    if (session && connectedState(session.getSessionState?.())) {
+      castControlInteractedAt = Date.now();
+      recordFlight('cast_control_interaction', {sessionState:currentSessionState()});
+    }
+  }, true);
   navigator.connection?.addEventListener?.('change', () => recordFlight('connection_changed', {effectiveType:navigator.connection.effectiveType || '', type:navigator.connection.type || '', downlink:Number(navigator.connection.downlink) || null}));
   navigator.getBattery?.().then(battery => {
     const logBattery = type => recordFlight(type, {level:Math.round(battery.level * 100), charging:battery.charging});

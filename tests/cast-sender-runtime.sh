@@ -3,6 +3,6 @@ set -euo pipefail
 repo_dir=$(cd "$(dirname "$0")/.." && pwd)
 browser=$(command -v chromium || command -v google-chrome-stable)
 result=$($browser --headless --no-sandbox --disable-gpu --allow-file-access-from-files --virtual-time-budget=500 --dump-dom "file://$repo_dir/tests/cast-sender-harness.html" 2>/dev/null | grep -o 'data-result="[^"]*"')
-expected='data-result="3,1,1,1,origin,true,true,98,1,true,true,flipcast-cast-diagnostics-v1,true,true,0"'
+expected='data-result="3,1,1,1,origin,true,false,1,true,true,flipcast-cast-diagnostics-v1,true,true,false,1,unexpected,true,98,1,true"'
 test "$result" = "$expected"
 echo "Cast sender handshake passed: $result"

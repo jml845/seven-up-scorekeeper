@@ -4,29 +4,26 @@ The demo must show the differentiator before describing secondary features. The 
 
 ## Shot list
 
-1. **0–2.5 seconds — Value proposition**
-   - FlipCast logo and brand field.
-   - Text: `Keep score. Put it on the TV.`
+1. **0–3 seconds — Authentic Cast opening**
+   - Start on the approved full-screen FlipCast logo.
+   - Recreate the familiar Cast-session logo flip before revealing the product.
 
-2. **2.5–7.5 seconds — Card calculator**
-   - Authentic phone calculator before and after entering seven cards.
-   - The Cast scoreboard responds with the Flip 7 effect.
-   - Text: `Score every card on your phone.`
+2. **3–15 seconds — Phone scoring drives the TV**
+   - Smoothly shrink the logo into the upper-right brand position.
+   - Show the authentic phone calculator before and after entering seven cards.
+   - Keep a live TV preview beside it so the cause-and-effect is unmistakable.
+   - Text: `Score on your phone. Everyone follows on the TV.`
 
-3. **7.5–17.5 seconds — Cast effects**
-   - Keep the phone and TV visible together.
-   - Continue with Bust and Frozen after the Flip 7 sequence, using the actual receiver assets.
+3. **15–26 seconds — Full-screen Cast payoff**
+   - Smoothly zoom from the TV preview until the receiver fills the frame.
+   - Show Flip 7, Bust, and Frozen using the actual receiver assets.
    - Clip every animation to browser-measured player-card bounds and rounded corners.
    - Text: `Every big moment fills the TV.`
 
-4. **17.5–24.5 seconds — Supporting features**
-   - Show quick scoring, game history, and player statistics on the phone.
-   - Keep live standings or Cast stats on the TV.
-   - Text: `Keep the game, not the paperwork.`
-
-5. **24.5–30 seconds — End card**
+4. **26–30 seconds — End card**
    - Logo and public URL.
-   - Text: `Made for scoring Flip 7™ game nights`
+   - Text: `Join the FlipCast beta`
+   - Supporting line: `Automatic scoring · Live TV standings · Game history · Player stats`
    - Small footer: `Independent utility · Not affiliated with or endorsed by The Op · Chromecast-compatible device required`
 
 ## Capture requirements
