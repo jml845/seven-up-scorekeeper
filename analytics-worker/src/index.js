@@ -39,15 +39,20 @@ async function ingest(request,env) {
   try { input=validateEvent(JSON.parse(await request.text())); }
   catch(error) { return json({ok:false,error:error.message||'invalid_payload'},400,cors(origin)); }
   const installHash=await hashInstall(input.install_id,env.ID_PEPPER);
+  // Internal classification is sticky. Once an owner/test browser has been
+  // marked internal, opening a normal direct URL later must not leak its
+  // activity back into the public beta funnel.
+  const knownInternal=await env.DB.prepare("SELECT is_internal FROM installations WHERE install_hash=?").bind(installHash).first('is_internal');
+  const internal=input.is_internal||Number(knownInternal)===1?1:0;
   const recent=await env.DB.prepare("SELECT COUNT(*) AS count FROM events WHERE install_hash=? AND received_at>=datetime('now','-1 minute')").bind(installHash).first('count');
   if (Number(recent)>=30) return json({ok:false,error:'rate_limited'},429,cors(origin));
-  const day=new Date().toISOString().slice(0,10),internal=input.is_internal?1:0;
+  const day=new Date().toISOString().slice(0,10);
   const inserted=await env.DB.prepare(`INSERT OR IGNORE INTO events(event_id,day,install_hash,event_name,build,edition,player_count,round_count,cast_used,session_seconds,campaign,is_internal) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).bind(input.event_id,day,installHash,input.event,input.build,input.edition,input.player_count,input.round_count,input.cast_used?1:0,input.session_seconds,input.campaign,internal).run();
   if (!inserted.meta?.changes) return json({ok:true,duplicate:true},202,cors(origin));
   const metrics=[input.event];
   if(input.event==='game_completed'&&input.cast_used)metrics.push('game_completed_cast');
   const statements=[
-    env.DB.prepare(`INSERT INTO installations(install_hash,first_seen,last_seen,first_campaign,is_internal) VALUES(?,datetime('now'),datetime('now'),?,?) ON CONFLICT(install_hash) DO UPDATE SET last_seen=datetime('now'),is_internal=excluded.is_internal`).bind(installHash,input.campaign,internal),
+    env.DB.prepare(`INSERT INTO installations(install_hash,first_seen,last_seen,first_campaign,is_internal) VALUES(?,datetime('now'),datetime('now'),?,?) ON CONFLICT(install_hash) DO UPDATE SET last_seen=datetime('now'),is_internal=MAX(installations.is_internal,excluded.is_internal)`).bind(installHash,input.campaign,internal),
     env.DB.prepare(`INSERT OR IGNORE INTO daily_installations(day,install_hash,is_internal) VALUES(?,?,?)`).bind(day,installHash,internal),
     ...metrics.map(metric=>env.DB.prepare(`INSERT INTO daily_metrics(day,metric,is_internal,count) VALUES(?,?,?,1) ON CONFLICT(day,metric,is_internal) DO UPDATE SET count=count+1`).bind(day,metric,internal))
   ];

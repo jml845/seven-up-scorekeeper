@@ -22,7 +22,9 @@ import websocket
 ROOT = Path(__file__).resolve().parents[1]
 OUT = Path(__file__).resolve().parent / "rendered"
 PORT = 19385
-APP_URL = "http://127.0.0.1:8787/?campaign=demo"
+# Promo capture profiles are synthetic internal traffic and must never inflate
+# the public beta funnel.
+APP_URL = "http://127.0.0.1:8787/?campaign=internal"
 HARNESS_URL = "http://127.0.0.1:8787/promo/receiver-demo-harness.html"
 # Twenty-four fps matches the receiver effect assets and avoids the stuttering
 # and long static holds in the first promo draft.
