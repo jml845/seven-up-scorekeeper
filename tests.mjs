@@ -45,7 +45,7 @@ assert.match(index,new RegExp(`analytics\\.js\\?v=${build}`),'the versioned anal
 assert.match(worker,new RegExp(`analytics\\.js\\?v=${build}`),'the analytics client must be available offline');
 assert.match(privacy,/Disable anonymous usage analytics/,'privacy notice must expose an analytics opt-out');
 assert.match(analytics,/game_completed:\['edition','player_count','round_count','cast_used','session_seconds'\]/,'completed-game analytics must remain aggregate-only');
-assert.doesNotMatch(analytics,/player_names|scores:|game_id|user_agent|navigator\.userAgent/,'analytics must not collect game data or browser fingerprints');
+assert.doesNotMatch(analytics,/player_names|scores:|game_id|user_agent|navigator\.userAgent\b/,'analytics must not collect game data or raw browser fingerprints');
 assert.match(app,/flipcastAnalytics\?\.track\('game_started'/,'new games must emit an anonymous start count');
 assert.match(app,/flipcastAnalytics\?\.track\('game_completed'/,'completed games must emit an anonymous completion count');
 assert.doesNotMatch(worker,/cache\.put\(request\.mode\s*===\s*['"]navigate['"]/);

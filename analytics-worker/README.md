@@ -4,7 +4,7 @@ Privacy-limited Cloudflare Worker and D1 service for anonymous beta metrics. The
 
 Accepted events are schema allowlisted. Player names, scores, game identifiers, browser fingerprints, IP addresses, and diagnostics are rejected. Installation IDs are random browser-local UUIDs and are stored only as SHA-256 hashes salted by the Worker secret.
 
-Raw events and daily unique-installation rows are deleted after 90 days. Daily aggregate counts remain. Use `?campaign=internal` for owner tests; the dashboard excludes those by default.
+Raw events and daily unique-installation rows are deleted after 90 days. Daily aggregate counts remain. Use `?campaign=internal` for owner tests; the dashboard excludes those by default. Platform reporting is deliberately coarse (`android`, `ios`, `desktop`, or `other`) and never stores raw user-agent strings or device models.
 
 The dashboard's **Unique devices** count represents anonymous browser profiles seen by the app. It does not prove that the PWA was installed. Use a distinct campaign parameter for each recruitment source, for example `?campaign=reddit`, `?campaign=facebook`, or `?campaign=boardgamegeek`.
 
