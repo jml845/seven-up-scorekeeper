@@ -1,2 +1,10 @@
 __pycache__/
 *.pyc
+.tools/
+.tmp/
+android/.gradle/
+android/build/
+android/app/build/
+android/*.jks
+android/*.keystore
+android/keystore.properties
