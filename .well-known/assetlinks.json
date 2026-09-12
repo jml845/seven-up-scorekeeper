@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.flipcast.scorekeeper",
+      "sha256_cert_fingerprints": [
+        "96:92:44:72:86:F8:B7:26:9A:38:92:A5:D4:90:23:0E:40:F0:4F:54:F2:EB:9D:33:F7:DA:18:C5:E5:8A:E5:1C"
+      ]
+    }
+  }
+]

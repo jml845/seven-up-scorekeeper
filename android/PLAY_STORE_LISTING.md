@@ -43,7 +43,7 @@ FlipCast is an independent scorekeeping utility. It is not affiliated with, endo
 
 - Website: `https://jml845.github.io/seven-up-scorekeeper/`
 - Privacy policy: `https://jml845.github.io/seven-up-scorekeeper/privacy.html`
-- Support email: **OWNER INPUT REQUIRED**
+- Support email: `heberagent@gmail.com`
 
 ## Release notes (1.0.0)
 
